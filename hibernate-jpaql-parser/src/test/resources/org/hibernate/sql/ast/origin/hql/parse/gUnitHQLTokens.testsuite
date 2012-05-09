@@ -1,0 +1,20 @@
+gunit HQL;
+
+@header{
+package org.hibernate.sql.ast.origin.hql.parse;
+}
+
+/*
+Some simple tests to verify grammar is compiled and gUnit is properly configured
+*/
+
+GREATER_EQUAL:
+">=" OK
+
+IDENTIFIER:
+"acme" OK
+"1cme" FAIL
+
+FLOATING_POINT_LITERAL:
+".12e+10" OK
+".12e+-10" FAIL
