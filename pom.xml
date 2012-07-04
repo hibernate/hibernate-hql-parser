@@ -180,9 +180,14 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                    <!-- When not using Java6 to build, we should specify <bootclasspath> as well -->
                     <source>1.6</source>
                     <target>1.6</target>
                     <encoding>UTF-8</encoding>
+                    <verbose>true</verbose>
+                    <!-- Specify this to workaround LOGTOOL-23 -->
+                    <compilerArgument>-AtranslationFilesPath=${project.basedir}/src/main/resources/</compilerArgument>
                 </configuration>
             </plugin>
             <plugin>
