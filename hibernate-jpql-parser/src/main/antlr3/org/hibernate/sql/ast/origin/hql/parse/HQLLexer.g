@@ -185,21 +185,21 @@ tokens {
 package org.hibernate.sql.ast.origin.hql.parse;
 }
 
-WS      :       (	' '
-                |	'\t'
-                |	'\f'
-                |	EOL
-                )+
-                { $channel=HIDDEN; }
-        ;
+WS	:	(	' '
+	|	'\t'
+	|	'\f'
+	|	EOL
+)+
+{ $channel=HIDDEN; }
+;
 
 fragment
-EOL 	:	     
-   		(       ( '\r\n' )=> '\r\n'  // Evil DOS
-                |       '\r'    // Macintosh
-                |       '\n'    // Unix (the right way)
-                )
-        ;
+EOL	:
+	(	( '\r\n' )=> '\r\n'	// Evil DOS
+		|	'\r'	// Macintosh
+		|	'\n'	// Unix (the right way)
+	)
+;
 
 HEX_LITERAL : '0' ('x'|'X') HEX_DIGIT+ INTEGER_TYPE_SUFFIX? ;
 
@@ -216,11 +216,11 @@ fragment
 INTEGER_TYPE_SUFFIX : ('l'|'L') ;
 
 FLOATING_POINT_LITERAL
-    :   ('0'..'9')+ '.' ('0'..'9')* EXPONENT? FLOAT_TYPE_SUFFIX?
-    |   '.' ('0'..'9')+ EXPONENT? FLOAT_TYPE_SUFFIX?
-    |   ('0'..'9')+ EXPONENT FLOAT_TYPE_SUFFIX?
-    |   ('0'..'9')+ FLOAT_TYPE_SUFFIX
-    ;
+	:	('0'..'9')+ '.' ('0'..'9')* EXPONENT? FLOAT_TYPE_SUFFIX?
+	|	'.' ('0'..'9')+ EXPONENT? FLOAT_TYPE_SUFFIX?
+	|	('0'..'9')+ EXPONENT FLOAT_TYPE_SUFFIX?
+	|	('0'..'9')+ FLOAT_TYPE_SUFFIX
+	;
 
 fragment
 EXPONENT : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;
@@ -229,32 +229,32 @@ fragment
 FLOAT_TYPE_SUFFIX : ('f'|'F'|'d'|'D') ;
 
 CHARACTER_LITERAL
-    :   '\'' ( ESCAPE_SEQUENCE | ~('\''|'\\') ) '\''
-    ;
+	:	'\'' ( ESCAPE_SEQUENCE | ~('\''|'\\') ) '\''
+	;
 
 STRING_LITERAL
-    :  '"' ( ESCAPE_SEQUENCE | ~('\\'|'"') )* '"'
-    |  ('\'' ( ESCAPE_SEQUENCE | ~('\\'|'\'') )* '\'')+
-    ;
+	:	'"' ( ESCAPE_SEQUENCE | ~('\\'|'"') )* '"'
+	|	('\'' ( ESCAPE_SEQUENCE | ~('\\'|'\'') )* '\'')+
+	;
 
 fragment
 ESCAPE_SEQUENCE
-    :   '\\' ('b'|'t'|'n'|'f'|'r'|'\"'|'\''|'\\')
-    |   UNICODE_ESCAPE
-    |   OCTAL_ESCAPE
-    ;
+	:	'\\' ('b'|'t'|'n'|'f'|'r'|'\"'|'\''|'\\')
+	|	UNICODE_ESCAPE
+	|	OCTAL_ESCAPE
+	;
 
 fragment
 OCTAL_ESCAPE
-    :   '\\' ('0'..'3') ('0'..'7') ('0'..'7')
-    |   '\\' ('0'..'7') ('0'..'7')
-    |   '\\' ('0'..'7')
-    ;
+	:	'\\' ('0'..'3') ('0'..'7') ('0'..'7')
+	|	'\\' ('0'..'7') ('0'..'7')
+	|	'\\' ('0'..'7')
+	;
 
 fragment
 UNICODE_ESCAPE
-    :   '\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
-    ;
+	:	'\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
+	;
 
 TRUE
 	:	'true'
@@ -322,24 +322,24 @@ IDENTIFIER
 	;
 
 QUOTED_IDENTIFIER
-    : '`' ( ESCAPE_SEQUENCE | ~('\\'|'`') )* '`'
-    ;
+	: '`' ( ESCAPE_SEQUENCE | ~('\\'|'`') )* '`'
+	;
 
 LEFT_PAREN
-        :	'('
-        ;
+	:	'('
+	;
 
 RIGHT_PAREN
-        :	')'
-        ;
+	:	')'
+	;
 
 LEFT_SQUARE
-        :	'['
-        ;
+	:	'['
+	;
 
 RIGHT_SQUARE
-        :	']'
-        ;        
+	:	']'
+	;
 
 COMMA	:	','
 	;
@@ -354,15 +354,15 @@ MINUS	:	'-'
 	;
 
 ASTERISK
-	:	'*'	
+	:	'*'
 	;
 
-SOLIDUS	:	'/'	
+SOLIDUS	:	'/'
 	;
 
-PERCENT	:	'%'	
+PERCENT	:	'%'
 	;
 
 AMPERSAND
-	:	'&'	
+	:	'&'
 	;
