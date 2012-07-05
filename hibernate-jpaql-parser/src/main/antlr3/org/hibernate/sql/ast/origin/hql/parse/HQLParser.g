@@ -53,7 +53,7 @@ import org.hibernate.sql.ast.tree.EntityNameTree;
 	}
 
 	private boolean validateSoftKeyword(String text) {
-		return validateLT(1, text);
+		return validateLT( 1, text );
 	}
 
 	private boolean validateLT(int offset, String text) {
@@ -62,195 +62,172 @@ import org.hibernate.sql.ast.tree.EntityNameTree;
 	}
 
 	private String retrieveLT(int offset) {
-		if (null == input) {
+		if ( null == input ) {
 			return null;
 		}
-		Token token = input.LT(offset);
+		Token token = input.LT( offset );
 		return token == null ? null : token.getText();
 	}
 
 	public boolean hasErrors() {
 		return errorMessages.size() > 0;
 	}
-	
+
 	public List getErrorMessages() {
-	   return errorMessages;
+		return errorMessages;
 	}
 
-    public void reportError(RecognitionException e) {
-        errorMessages.add(
-                generateError(
-                    getRuleInvocationStack( e, this.getClass().getName() ),
-                    this.getTokenNames(),
-                    e
-                )
-        );
-        super.reportError( e );
-    }
+	public void reportError(RecognitionException e) {
+		errorMessages.add(
+			generateError(
+				getRuleInvocationStack( e, this.getClass().getName() ),
+					this.getTokenNames(),
+					e
+				)
+		);
+		super.reportError( e );
+	}
 
-    private String generateError(
-            List invocationStack,
-            String[] tokenNames,
-            RecognitionException e) {
-        String localization = invocationStack + ": line " + e.line + ":" + e.charPositionInLine + " ";
-        return generateError(localization, tokenNames, e);
-    }
+	private String generateError( List invocationStack, String[] tokenNames, RecognitionException e) {
+			String localization = invocationStack + ": line " + e.line + ":" + e.charPositionInLine + " ";
+			return generateError( localization, tokenNames, e );
+	}
 
-    private String generateError(
-            String localization,
-            String[] tokenNames,
-            RecognitionException e) {
-        String message = "";
-        if ( e instanceof MismatchedTokenException ) {
-            MismatchedTokenException mte = (MismatchedTokenException)e;
-            String tokenName = "<unknown>";
-            if (mte.expecting == Token.EOF) {
-                tokenName = "EOF";
-            }
-            else {
-                if (tokenNames != null) {
-                    tokenName = tokenNames[mte.expecting];
-                }
-            }
-            message = localization + "mismatched token: " + e.token + "; expecting type " + tokenName;
-        }
-        else if (e instanceof MismatchedTreeNodeException) {
-            MismatchedTreeNodeException mtne = (MismatchedTreeNodeException)e;
-            String tokenName = "<unknown>";
-            if (mtne.expecting == Token.EOF) {
-                tokenName = "EOF";
-            }
-            else {
-                tokenName = tokenNames[mtne.expecting];
-            }
-            message = localization + "mismatched tree node: " + mtne.node + "; expecting type " + tokenName;
-        }
-        else if (e instanceof NoViableAltException) {
-            NoViableAltException nvae = (NoViableAltException)e;
-            message = localization + "state " + nvae.stateNumber + " (decision=" + nvae.decisionNumber
-                      + ") no viable alt; token=" + e.token;
-        }
-        else if (e instanceof EarlyExitException) {
-            EarlyExitException eee = (EarlyExitException)e;
-            message = localization + "required (...)+ loop (decision=" + eee.decisionNumber + ") did not match anything; token="
-                      + e.token;
-        }
-        else if (e instanceof MismatchedSetException) {
-            MismatchedSetException mse = (MismatchedSetException)e;
-            message = localization + "mismatched token: " + e.token + "; expecting set " + mse.expecting;
-        }
-        else if (e instanceof MismatchedNotSetException) {
-            MismatchedNotSetException mse = (MismatchedNotSetException)e;
-            message = localization + "mismatched token: " + e.token + "; expecting set " + mse.expecting;
-        }
-        else if (e instanceof FailedPredicateException) {
-            FailedPredicateException fpe = (FailedPredicateException)e;
-            message = localization + "rule " + fpe.ruleName + " failed predicate: {" + fpe.predicateText + "}?";
-        }
-        return message;
-    }
-    
-    private List extractEntityNames(String entityName) throws RecognitionException {
-    	List implementors = context.getEntityImplementors(entityName);
-    	if (implementors == null){
-    		throw new RecognitionException( );
-    	}
-    	return implementors;
-    }
-    
-	private Tree generatePersisterSpacesTree(List persistenceSpaces) {
-	    List persisterSpaceList = new ArrayList();
-	    for ( Iterator iterator = persistenceSpaces.iterator(); iterator.hasNext(); ) {
-			Tree persistenceSpaceData = (Tree) iterator.next();
-			if ( persistenceSpaceData.getType() == PERSISTER_JOIN
-			        || persistenceSpaceData.getType() == PROPERTY_JOIN ) {
-				adaptor.addChild(persisterSpaceList.get(persisterSpaceList.size() - 1), persistenceSpaceData);
+	private String generateError( String localization, String[] tokenNames, RecognitionException e) {
+		String message = "";
+		if ( e instanceof MismatchedTokenException ) {
+			MismatchedTokenException mte = (MismatchedTokenException) e;
+			String tokenName = "<unknown>";
+			if ( mte.expecting == Token.EOF ) {
+				tokenName = "EOF";
 			}
 			else {
-			    Object persistenceSpaceTree = (Object)adaptor.nil();
-			    persistenceSpaceTree = adaptor.becomeRoot((Object)adaptor.create(PERSISTER_SPACE, "PERSISTER_SPACE"), persistenceSpaceTree);
-			    adaptor.addChild(persistenceSpaceTree, persistenceSpaceData);
-			    persisterSpaceList.add(persistenceSpaceTree);
+				if ( tokenNames != null ) {
+					tokenName = tokenNames[mte.expecting];
+				}
+			}
+			message = localization + "mismatched token: " + e.token + "; expecting type " + tokenName;
+		}
+		else if (e instanceof MismatchedTreeNodeException) {
+			MismatchedTreeNodeException mtne = (MismatchedTreeNodeException) e;
+			String tokenName = "<unknown>";
+			if ( mtne.expecting == Token.EOF ) {
+				tokenName = "EOF";
+			}
+			else {
+				tokenName = tokenNames[mtne.expecting];
+			}
+			message = localization + "mismatched tree node: " + mtne.node + "; expecting type " + tokenName;
+		}
+		else if (e instanceof NoViableAltException) {
+			NoViableAltException nvae = (NoViableAltException) e;
+			message = localization + "state " + nvae.stateNumber + " (decision=" + nvae.decisionNumber + ") no viable alt; token=" + e.token;
+		}
+		else if (e instanceof EarlyExitException) {
+			EarlyExitException eee = (EarlyExitException) e;
+			message = localization + "required (...)+ loop (decision=" + eee.decisionNumber + ") did not match anything; token=" + e.token;
+		}
+		else if (e instanceof MismatchedSetException) {
+			MismatchedSetException mse = (MismatchedSetException) e;
+			message = localization + "mismatched token: " + e.token + "; expecting set " + mse.expecting;
+		}
+		else if (e instanceof MismatchedNotSetException) {
+			MismatchedNotSetException mse = (MismatchedNotSetException) e;
+			message = localization + "mismatched token: " + e.token + "; expecting set " + mse.expecting;
+		}
+		else if (e instanceof FailedPredicateException) {
+			FailedPredicateException fpe = (FailedPredicateException) e;
+			message = localization + "rule " + fpe.ruleName + " failed predicate: {" + fpe.predicateText + "}?";
+		}
+		return message;
+	}
+
+	private List extractEntityNames(String entityName) throws RecognitionException {
+		List implementors = context.getEntityImplementors( entityName );
+		if ( implementors == null ) {
+			throw new RecognitionException();
+		}
+		return implementors;
+	}
+
+	private Tree generatePersisterSpacesTree(List persistenceSpaces) {
+		List persisterSpaceList = new ArrayList();
+		for ( Iterator iterator = persistenceSpaces.iterator(); iterator.hasNext(); ) {
+			Tree persistenceSpaceData = (Tree) iterator.next();
+			if ( persistenceSpaceData.getType() == PERSISTER_JOIN || persistenceSpaceData.getType() == PROPERTY_JOIN ) {
+				adaptor.addChild( persisterSpaceList.get( persisterSpaceList.size() - 1), persistenceSpaceData );
+			}
+			else {
+				Object persistenceSpaceTree = (Object) adaptor.nil();
+				persistenceSpaceTree = adaptor.becomeRoot( (Object) adaptor.create( PERSISTER_SPACE, "PERSISTER_SPACE" ), persistenceSpaceTree );
+				adaptor.addChild( persistenceSpaceTree, persistenceSpaceData );
+				persisterSpaceList.add( persistenceSpaceTree );
 			}
 		}
-	    Tree resultTree = (Tree) adaptor.nil();
-	    for ( Iterator iterator = persisterSpaceList.iterator(); iterator.hasNext(); ) {
+		Tree resultTree = (Tree) adaptor.nil();
+		for ( Iterator iterator = persisterSpaceList.iterator(); iterator.hasNext(); ) {
 			Object persistenceElement = (Object) iterator.next();
-			adaptor.addChild(resultTree, persistenceElement);
+			adaptor.addChild( resultTree, persistenceElement );
 		}
-
 		return resultTree;
 	}
 
-	private Tree generateUpdateStatementTree(
-			Object updateKey,
-			Object entityName,
-			Object aliasClause,
-			Object setClause,
-			Object whereClause) {
+	private Tree generateUpdateStatementTree(Object updateKey, Object entityName, Object aliasClause, Object setClause, Object whereClause) {
 		Tree result = new CommonTree();
 		EntityNameTree entityNameTree = (EntityNameTree) entityName;
-		for (int i = 0; i < entityNameTree.getEntityCount(); i++) {
+		for ( int i = 0; i < entityNameTree.getEntityCount(); i++ ) {
 			Tree updateRoot = new CommonTree( (CommonTree) updateKey );
-			updateRoot.addChild( new EntityNameTree( entityNameTree, entityNameTree.getEntityName(i) ) );
+			updateRoot.addChild( new EntityNameTree( entityNameTree, entityNameTree.getEntityName( i ) ) );
 			if ( aliasClause != null ) {
 				updateRoot.addChild( (Tree) aliasClause );
 			}
 			updateRoot.addChild( (Tree) setClause );
 
-			if (whereClause != null) {
+			if ( whereClause != null ) {
 				updateRoot.addChild( (Tree) whereClause );
 			}
-			result.addChild(updateRoot);
+			result.addChild( updateRoot );
 		}
 		return result;
 	}
 
-	private Tree generateDeleteStatementTree(
-			Object deleteKey,
-			Object entityName,
-			Object aliasClause,
-			Object whereClause) {
+	private Tree generateDeleteStatementTree(Object deleteKey, Object entityName, Object aliasClause, Object whereClause) {
 		Tree result = new CommonTree();
 		EntityNameTree entityNameTree = (EntityNameTree) entityName;
 		for ( int i = 0; i < entityNameTree.getEntityCount(); i++ ) {
 			Tree deleteRoot = new CommonTree( (CommonTree) deleteKey );
-			deleteRoot.addChild( new EntityNameTree( entityNameTree, entityNameTree.getEntityName(i) ) );
-
-			if (aliasClause != null) {
-				deleteRoot.addChild((Tree) aliasClause);
+			deleteRoot.addChild( new EntityNameTree( entityNameTree, entityNameTree.getEntityName( i ) ) );
+			if ( aliasClause != null ) {
+				deleteRoot.addChild( (Tree) aliasClause );
 			}
-
-			if (whereClause != null) {
-				deleteRoot.addChild((Tree) whereClause);
+			if ( whereClause != null ) {
+				deleteRoot.addChild( (Tree) whereClause );
 			}
-
-			result.addChild(deleteRoot);
+			result.addChild( deleteRoot );
 		}
 		return result;
 	}
-	
+
 	private Tree generateSelecFromTree(Object selectClause, Object fromClause, List aliasList){
-		Tree result = new CommonTree(new CommonToken(SELECT_FROM, "SELECT_FROM"));
+		Tree result = new CommonTree( new CommonToken( SELECT_FROM, "SELECT_FROM" ) );
 		Tree selectTree = null;
-		result.addChild((Tree) fromClause);
+		result.addChild( (Tree) fromClause );
 		if (selectClause == null && aliasList != null && aliasList.size() > 0) {
-			selectTree = new CommonTree(new CommonToken(SELECT, "SELECT"));
-			Tree selectList = new CommonTree(new CommonToken(SELECT_LIST, "SELECT_LIST"));
-			for (Iterator iterator = aliasList.iterator(); iterator
-					.hasNext();) {
+			selectTree = new CommonTree( new CommonToken( SELECT, "SELECT") );
+			Tree selectList = new CommonTree( new CommonToken( SELECT_LIST, "SELECT_LIST" ) );
+			for ( Iterator iterator = aliasList.iterator(); iterator.hasNext(); ) {
 				String aliasName = (String) iterator.next();
-				Tree selectElement = new CommonTree(new CommonToken(SELECT_ITEM, "SELECT_ITEM"));
-				Tree aliasElement = new CommonTree(new CommonToken(ALIAS_REF, aliasName));
-				selectElement.addChild(aliasElement);
-				selectList.addChild(selectElement);
+				Tree selectElement = new CommonTree( new CommonToken( SELECT_ITEM, "SELECT_ITEM" ) );
+				Tree aliasElement = new CommonTree( new CommonToken( ALIAS_REF, aliasName ) );
+				selectElement.addChild( aliasElement );
+				selectList.addChild( selectElement );
 			}
-			selectTree.addChild(selectList);
+			selectTree.addChild( selectList );
 		}
 		else {
 			selectTree = (Tree) selectClause;
 		}
-		result.addChild(selectTree);
+		result.addChild( selectTree );
 		return result;
 	}
 }
@@ -1474,5 +1451,5 @@ group_by_key
 
 from_key
 	:	{(validateSoftKeyword("from"))}?=>  id=IDENTIFIER
-        	->	FROM[$id]
+		->	FROM[$id]
 	;
