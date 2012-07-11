@@ -72,6 +72,14 @@
             <plugin>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr3-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Set to true to debug parser via ANTLRWorks -->
+                    <debug>false</debug>
+                    <!-- Output a report on the generated Lexers and Parsers -->
+                    <report>true</report>
+                    <!-- Have generated code output step details -->
+                    <trace>false</trace>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
