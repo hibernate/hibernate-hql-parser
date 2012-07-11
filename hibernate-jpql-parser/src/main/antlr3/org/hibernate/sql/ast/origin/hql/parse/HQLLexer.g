@@ -199,7 +199,7 @@ EOL	:
 		|	'\r'	// Macintosh
 		|	'\n'	// Unix (the right way)
 	)
-;
+	;
 
 HEX_LITERAL : '0' ('x'|'X') HEX_DIGIT+ INTEGER_TYPE_SUFFIX? ;
 
