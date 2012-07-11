@@ -244,6 +244,10 @@ filterStatement[String collectionRole]
 statement
 @init	{ if (state.backtracking == 0) enableParameterUsage.push(Boolean.TRUE); }
 @after	{ enableParameterUsage.pop(); }
+	:	statementElement
+	;
+
+statementElement
 	:	updateStatement
 	|	deleteStatement
 	|	insertStatement
