@@ -115,7 +115,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <antlrVersion>3.4</antlrVersion>
+        <antlrVersion>3.4.1-preview-jbossorg-0</antlrVersion>
         <luceneVersion>3.6.0</luceneVersion>
         <hibernateVersion>4.1.3.Final</hibernateVersion>
         <hibernateSearchVersion>4.2.0-SNAPSHOT</hibernateSearchVersion>
