@@ -32,6 +32,14 @@ import org.hibernate.sql.ast.origin.hql.parse.HQLParser;
 import org.junit.Test;
 
 public class ParsingTest {
+	
+	@Test
+	public void testFromAnimal() {
+		ParserContext context = new TestingParserContext( "Animal" );
+		//generated alias:
+		assertTreeParsed( context, "from Animal",
+			"(QUERY (QUERY_SPEC (SELECT_FROM (from (PERSISTER_SPACE (ENTITY_PERSISTER_REF Animal <gen:0>))) (SELECT (SELECT_LIST (SELECT_ITEM <gen:0>))))))");
+	}
 
 	@Test
 	public void testSuperSimpleQuery() {
