@@ -960,7 +960,7 @@ SELECT/FROM STATEMENT
 "select an.name"  FAIL
 "from Animal an where (((an.bodyWeight > 10 and an.bodyWeight < 100)) or an.bodyWeight is null"  FAIL
 "from Animal an where an.bodyWeight is null where an.bodyWeight is null"  FAIL
-"from where name='foo'"  FAIL
+//"from where name='foo'"  FAIL //This fails only when no entity is named "where" (Improve on?)
 "from NonexistentClass where name='foo'"  OK
 "select new FOO_BOGUS_Animal(an.description, an.bodyWeight) from Animal an"  OK
 "select new Animal(an.description, an.bodyWeight, 666) from Animal an"  OK
