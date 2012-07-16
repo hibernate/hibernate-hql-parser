@@ -30,8 +30,8 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Hibernate JPA-QL Parser - Parent module</name>
-    <description>Provides capabilities to parse JPA-QL Queries and convert them into other executable queries</description>
+    <name>Hibernate JP-QL Parser - Parent module</name>
+    <description>Provides capabilities to parse JP-QL Queries and convert them into other executable queries</description>
 
     <inceptionYear>2012</inceptionYear>
 
