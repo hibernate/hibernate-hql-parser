@@ -18,23 +18,31 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.jpaql.testhelpers;
+package org.hibernate.jpql.lucene;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
+import org.hibernate.sql.DefaultParsingContext;
+import org.hibernate.sql.ast.common.ParserContext;
 
-/**
- * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
- */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@Inherited
-public @interface GUnitTest {
+public class TestingParserContext extends DefaultParsingContext implements ParserContext {
+	
+	//map of <entityName,List entityImplementors>
+	private final HashMap<String,List> knownEntities = new HashMap<String,List>();
+	
+	public TestingParserContext(String... validEntities) {
+		for (int i = 0; i < validEntities.length; i++) {
+			String entityName = validEntities[i];
+			ArrayList implementors = new ArrayList();
+			implementors.add( entityName );
+			knownEntities.put( validEntities[i], implementors );
+		}
+	}
 
-	String value();
+	public List getEntityImplementors(String entityName) {
+		return knownEntities.get( entityName );
+	}
 
 }

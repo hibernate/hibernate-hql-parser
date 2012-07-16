@@ -18,18 +18,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.jpaql.grammars;
+package org.hibernate.jpql.testhelpers;
 
-import org.hibernate.jpaql.testhelpers.GUnitTest;
-import org.hibernate.jpaql.testhelpers.GUnitTestRunner;
-import org.junit.runner.RunWith;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 
 /**
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
  */
-@RunWith(GUnitTestRunner.class)
-@GUnitTest( "org/hibernate/sql/ast/origin/hql/parse/gUnitHQLGrammar.testsuite" )
-public class HQLGrammarTest {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Inherited
+public @interface GUnitTest {
+
+	String value();
 
 }

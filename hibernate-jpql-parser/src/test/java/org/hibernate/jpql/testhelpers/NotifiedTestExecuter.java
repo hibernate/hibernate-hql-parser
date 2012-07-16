@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.jpaql.testhelpers;
+package org.hibernate.jpql.testhelpers;
 
 import java.util.HashMap;
 import java.util.HashSet;

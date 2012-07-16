@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.sql;
+package org.hibernate.jpql.grammars;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import org.antlr.runtime.RecognitionException;
 
 
 /**
- * Utility to debug GUnit tests: running it via Maven is annoying.
+ * Utility to debug GUnit tests: run the tests as GUnit would run them, but not as a unit test.
  *
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
  */

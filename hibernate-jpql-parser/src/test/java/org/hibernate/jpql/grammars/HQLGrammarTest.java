@@ -18,30 +18,18 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.sql;
+package org.hibernate.jpql.grammars;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import org.hibernate.jpql.testhelpers.GUnitTest;
+import org.hibernate.jpql.testhelpers.GUnitTestRunner;
+import org.junit.runner.RunWith;
 
-import org.hibernate.sql.ast.common.ParserContext;
 
-public class TestingParserContext extends DefaultParsingContext implements ParserContext {
-	
-	//map of <entityName,List entityImplementors>
-	private final HashMap<String,List> knownEntities = new HashMap<String,List>();
-	
-	public TestingParserContext(String... validEntities) {
-		for (int i = 0; i < validEntities.length; i++) {
-			String entityName = validEntities[i];
-			ArrayList implementors = new ArrayList();
-			implementors.add( entityName );
-			knownEntities.put( validEntities[i], implementors );
-		}
-	}
-
-	public List getEntityImplementors(String entityName) {
-		return knownEntities.get( entityName );
-	}
+/**
+ * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
+ */
+@RunWith(GUnitTestRunner.class)
+@GUnitTest( "org/hibernate/sql/ast/origin/hql/parse/gUnitHQLGrammar.testsuite" )
+public class HQLGrammarTest {
 
 }
