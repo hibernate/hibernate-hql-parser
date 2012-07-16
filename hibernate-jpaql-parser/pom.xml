@@ -33,7 +33,7 @@
     </parent>
 
     <artifactId>hibernate-jpaql-parser</artifactId>
-    <name>Hibernate JPA-QL Parser</name>
+    <name>Hibernate JP-QL Parser</name>
 
     <dependencies>
         <dependency>
