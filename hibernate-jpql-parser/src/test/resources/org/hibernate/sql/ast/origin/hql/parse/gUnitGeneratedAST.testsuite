@@ -1572,14 +1572,14 @@ DELETE STATEMENT
 "delete from DataPoint"  -> (delete DataPoint <gen:0>)
 "delete from User where userid = :userid"  -> (delete User <gen:0> (where (= (PATH userid) userid)))
 "delete from Mail where alias = :alias"  -> (delete Mail <gen:0> (where (= (PATH alias) alias)))
-"delete from NumberedNode where name like 'child%'"  -> (delete NumberedNode <gen:0> (where (like (PATH name) (CONST_STRING_VALUE 'child%'))))
-"delete from fooArray where id_='???' and i>=8"  -> (delete fooArray <gen:0> (where (and (= (PATH id_) (CONST_STRING_VALUE '???')) (>= (PATH i) 8))))
+"delete from NumberedNode where name like 'child%'"  -> (delete NumberedNode <gen:0> (where (like (PATH name) (CONST_STRING_VALUE child%))))
+"delete from fooArray where id_='???' and i>=8"  -> (delete fooArray <gen:0> (where (and (= (PATH id_) (CONST_STRING_VALUE ???)) (>= (PATH i) 8))))
 "delete from t_user"  -> (delete t_user <gen:0>)
-"delete Animal where not description like 'root%'"  -> (delete Animal <gen:0> (where (not (like (PATH description) (CONST_STRING_VALUE 'root%')))))
+"delete Animal where not description like 'root%'"  -> (delete Animal <gen:0> (where (not (like (PATH description) (CONST_STRING_VALUE root%)))))
 "delete Animal where bodyWeight between 10 and 20" -> (delete Animal <gen:0> (where (between (PATH bodyWeight) (BETWEEN_LIST 10 20))))
 "delete Animal where bodyWeight not between 10 and 20" -> (delete Animal <gen:0> (where (not between (PATH bodyWeight) (BETWEEN_LIST 10 20))))
-"delete Animal where description like 'grand%'"  -> (delete Animal <gen:0> (where (like (PATH description) (CONST_STRING_VALUE 'grand%'))))
-"delete Animal where description not like 'grand%'"  ->  (delete Animal <gen:0> (where (not like (PATH description) (CONST_STRING_VALUE 'grand%'))))
+"delete Animal where description like 'grand%'"  -> (delete Animal <gen:0> (where (like (PATH description) (CONST_STRING_VALUE grand%))))
+"delete Animal where description not like 'grand%'"  ->  (delete Animal <gen:0> (where (not like (PATH description) (CONST_STRING_VALUE grand%))))
 "delete from Animal where mother is not null or father is not null"  -> (delete Animal <gen:0> (where (or (is not null (PATH mother)) (is not null (PATH father)))))
 "delete Animal where mother = :mother"  -> (delete Animal <gen:0> (where (= (PATH mother) mother)))
 "delete EntityWithCrazyCompositeKey where id.id = 1 and id.otherId = 2"  ->  (delete EntityWithCrazyCompositeKey <gen:0> (where (and (= (PATH (. id id)) 1) (= (PATH (. id otherId)) 2))))
@@ -1602,7 +1602,7 @@ UPDATE STATEMENT
 "update Zoo set address.city = null"  -> (update Zoo <gen:0> (set (= (PROPERTY_REFERENCE (. address city)) null)))
 "update PettingZoo set address.city = null"  -> (update PettingZoo <gen:0> (set (= (PROPERTY_REFERENCE (. address city)) null)))
 //"update Vehicle set owner = null where owner = 'Steve'"  -> (update Vehicle (set (= (ASSIGNMENT_FIELD owner) (EXPR null))) (where (LOGICAL_EXPR (= (GENERIC_ELEMENT owner) 'Steve'))))
-"update Vehicle set owner = 'Steve'" -> (update Vehicle <gen:0> (set (= (PROPERTY_REFERENCE owner) (CONST_STRING_VALUE 'Steve'))))
+"update Vehicle set owner = 'Steve'" -> (update Vehicle <gen:0> (set (= (PROPERTY_REFERENCE owner) (CONST_STRING_VALUE Steve))))
 "update Mammal set bodyWeight = ( select max(bodyWeight) from Animal )"  OK
 "update Mammal set bodyWeight = 25"  -> (update Mammal <gen:0> (set (= (PROPERTY_REFERENCE bodyWeight) 25)))
 "update Mammal set description = description"  -> (update Mammal <gen:0> (set (= (PROPERTY_REFERENCE description) (PATH description))))
@@ -1644,10 +1644,10 @@ UPDATE STATEMENT
 "update BooleanLiteralEntity set yesNoBoolean = true, trueFalseBoolean = true, zeroOneBoolean = true"  -> (update BooleanLiteralEntity <gen:0> (set (= (PROPERTY_REFERENCE yesNoBoolean) true) (= (PROPERTY_REFERENCE trueFalseBoolean) true) (= (PROPERTY_REFERENCE zeroOneBoolean) true)))
 "update BooleanLiteralEntity set yesNoBoolean = :b1, trueFalseBoolean = :b2, zeroOneBoolean = :b3"  OK
 "update NonExistentEntity e set e.someProp = ?"  -> (update NonExistentEntity e (set (= (PROPERTY_REFERENCE (. e someProp)) ?)))
-"update Customer c set c.company = 'XYZ'"  -> (update Customer c (set (= (PROPERTY_REFERENCE (. c company)) (CONST_STRING_VALUE 'XYZ'))))
+"update Customer c set c.company = 'XYZ'"  -> (update Customer c (set (= (PROPERTY_REFERENCE (. c company)) (CONST_STRING_VALUE XYZ))))
 "update User u set u.username = :un where u.name = :n"  OK
-"update Person p set p.name = '<male>'"  -> (update Person p (set (= (PROPERTY_REFERENCE (. p name)) (CONST_STRING_VALUE '<male>'))))
-"update Person p set p.name = 'Shawn'"  -> (update Person p (set (= (PROPERTY_REFERENCE (. p name)) (CONST_STRING_VALUE 'Shawn'))))
+"update Person p set p.name = '<male>'"  -> (update Person p (set (= (PROPERTY_REFERENCE (. p name)) (CONST_STRING_VALUE <male>))))
+"update Person p set p.name = 'Shawn'"  -> (update Person p (set (= (PROPERTY_REFERENCE (. p name)) (CONST_STRING_VALUE Shawn))))
 "update Address set city = ?, state=?, zip=?, version = ? where id in (select aid from Person)"  OK
 "update Address set city = ?, state=?, zip=?, version = ? where id = ? and version = ?  "  -> (update Address <gen:0> (set (= (PROPERTY_REFERENCE city) ?) (= (PROPERTY_REFERENCE state) ?) (= (PROPERTY_REFERENCE zip) ?) (= (PROPERTY_REFERENCE version) ?)) (where (and (= (PATH id) ?) (= (PATH version) ?))))
 /*

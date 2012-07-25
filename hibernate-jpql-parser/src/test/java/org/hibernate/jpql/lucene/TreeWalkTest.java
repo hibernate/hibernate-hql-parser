@@ -54,21 +54,21 @@ public class TreeWalkTest {
 	public void walkTest2() {
 		transformationAssert(
 				"from IndexedEntity e where e.name = 'same' or ( e.id = 4 and e.name = 'booh')" ,
-				"name:'same' (+id:4 +name:'booh')" );
+				"name:same (+id:4 +name:booh)" );
 	}
 
 	@Test
 	public void walkTest3() {
 		transformationAssert(
 				"select e from IndexedEntity e where e.name = 'same' or ( e.id = 4 and e.name = 'booh')" ,
-				"name:'same' (+id:4 +name:'booh')" );
+				"name:same (+id:4 +name:booh)" );
 	}
 
 	@Test
 	public void walkTest4() {
 		transformationAssert(
 				"select e from IndexedEntity e where e.name = 'same' and not e.id = 5" ,
-				"+name:'same' +(-id:5)" );
+				"+name:same +(-id:5)" );
 	}
 
 	@Test

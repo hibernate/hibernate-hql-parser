@@ -234,8 +234,8 @@ CHARACTER_LITERAL
 	;
 
 STRING_LITERAL
-	:	'"' ( ESCAPE_SEQUENCE | ~('\\'|'"') )* '"'
-	|	('\'' ( ESCAPE_SEQUENCE | ~('\\'|'\'') )* '\'')+
+	:	'"' ( ESCAPE_SEQUENCE | ~('\\'|'"') )* '"' {setText(getText().substring(1, getText().length()-1));}
+	|	('\'' ( ESCAPE_SEQUENCE | ~('\\'|'\'') )* '\'')+ {setText(getText().substring(1, getText().length()-1));}
 	;
 
 fragment
