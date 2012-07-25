@@ -20,6 +20,7 @@
  */
 package org.hibernate.sql.ast.origin.hql.resolve;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -33,13 +34,26 @@ import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
-import org.hibernate.search.query.dsl.QueryBuilder;
 import org.hibernate.search.query.dsl.impl.ConnectedQueryContextBuilder;
 import org.hibernate.sql.ast.common.JoinType;
 import org.hibernate.sql.ast.origin.hql.resolve.path.PathedPropertyReference;
 import org.hibernate.sql.ast.origin.hql.resolve.path.PathedPropertyReferenceSource;
 
 /**
+ * This extends the ANTLR generated AST walker to transform a parsed tree
+ * into a Lucene Query and collect the target entity types of the query.
+ * <br/>
+ * <b>TODO:</b>
+ *   <li>It is currently human-written but should evolve into another ANTLR
+ * generated tree walker, not extending GeneratedHQLResolver but using its
+ * output as a generic normalization AST transformer.</li>
+ *   <li>We are assembling the Lucene Query directly, but this doesn't take
+ *   into account parameter types which might need some transformation;
+ *   the Hibernate Search provided {@link QueryBuilder} could do this.</li>
+ *   <li>Implement more predicates</li>
+ *   <li>Support multiple types being targeted by the Query</li>
+ *   <li>Support positional parameters (currently only consumed named parameters)<li>
+ * 
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2011 Red Hat Inc.
  */
 public class LuceneJPQLWalker extends GeneratedHQLResolver {
@@ -63,9 +77,9 @@ public class LuceneJPQLWalker extends GeneratedHQLResolver {
 	 * Map predicate and searchConditions to the root query context
 	 */
 	private final ConnectedQueryContextBuilder queryBuildContext;
-	private final HashMap<String, Class> entityNames;
+	private final Map<String, Class> entityNames;
 
-	private QueryBuilder queryBuilder = null;
+//	private QueryBuilder queryBuilder = null;
 	private Class targetType = null;
 
 	private BooleanQuery booleanQuery;
@@ -78,10 +92,19 @@ public class LuceneJPQLWalker extends GeneratedHQLResolver {
 
 	private Query rootQuery = new MatchAllDocsQuery();
 
-	public LuceneJPQLWalker(TreeNodeStream input, SearchFactoryImplementor searchFactory, HashMap<String, Class> entityNames) {
+	private final Map<String, Object> namedParameters;
+
+	public LuceneJPQLWalker(TreeNodeStream input, SearchFactoryImplementor searchFactory,
+			Map<String, Class> entityNames) {
+		this( input, searchFactory, entityNames, Collections.EMPTY_MAP );
+	}
+
+	public LuceneJPQLWalker(TreeNodeStream input, SearchFactoryImplementor searchFactory,
+			Map<String, Class> entityNames, Map<String,Object> namedParameters) {
 		super( input );
 		this.searchFactory = searchFactory;
 		this.entityNames = entityNames;
+		this.namedParameters = namedParameters;
 		this.queryBuildContext = new ConnectedQueryContextBuilder( searchFactory );
 	}
 
@@ -103,7 +126,7 @@ public class LuceneJPQLWalker extends GeneratedHQLResolver {
 			throw new IllegalStateException( "Can't target multiple types: " + targetType + " already selected before " + targetedType );
 		}
 		targetType = targetedType;
-		queryBuilder = queryBuildContext.forEntity( targetedType ).get();
+//		queryBuilder = queryBuildContext.forEntity( targetedType ).get();
 	}
 
 	protected boolean isUnqualifiedPropertyReference() {
@@ -111,7 +134,7 @@ public class LuceneJPQLWalker extends GeneratedHQLResolver {
 	}
 
 	protected PathedPropertyReferenceSource normalizeUnqualifiedPropertyReference(Tree property) {
-		// TODO
+		this.propertyName = property.getText();
 		return null;// return value is ignored anyway
 	}
 
@@ -195,9 +218,36 @@ public class LuceneJPQLWalker extends GeneratedHQLResolver {
 		booleanMode = Occur.MUST_NOT;
 	}
 
-	protected void predicateEquals(String comparativePredicate) {
-		//TODO apply appropriate bridge to comparativePredicate
-		booleanQuery.add( new TermQuery( new Term(propertyName, comparativePredicate)), booleanMode );
+	/**
+	 * This implements the equality predicate; the comparison
+	 * predicate could be a constant, a subfunction or
+	 * some random type parameter.
+	 * The tree node has all details but with current tree rendering
+	 * it just passes it's text so we have to figure out the options again.
+	 */
+	protected void predicateEquals(final String comparativePredicate) {
+		final Object comparison = fromNamedQuery( comparativePredicate );
+		String comparisonTerm = valueToString( comparison );
+		TermQuery predicate = new TermQuery( new Term( propertyName, comparisonTerm ) );
+		if ( booleanQuery != null ) {
+			booleanQuery.add( predicate, booleanMode );
+		}
+		else {
+			rootQuery = predicate;
+		}
+	}
+
+	private String valueToString(Object comparison) {
+		return comparison.toString();
+	}
+
+	private Object fromNamedQuery(String comparativePredicate) {
+		if ( comparativePredicate.startsWith( ":" ) ) {
+			return namedParameters.get( comparativePredicate.substring( 1 ) );
+		}
+		else {
+			return comparativePredicate;
+		}
 	}
 
 	private void activateBoolean() {
