@@ -77,7 +77,11 @@ public class LuceneJPQLWalker extends GeneratedHQLResolver {
 	 * Map predicate and searchConditions to the root query context
 	 */
 	private final ConnectedQueryContextBuilder queryBuildContext;
-	private final Map<String, Class> entityNames;
+
+	/**
+	 * How to resolve entity names to class instances
+	 */
+	private final EntityNamesResolver entityNames;
 
 //	private QueryBuilder queryBuilder = null;
 	private Class targetType = null;
@@ -95,12 +99,12 @@ public class LuceneJPQLWalker extends GeneratedHQLResolver {
 	private final Map<String, Object> namedParameters;
 
 	public LuceneJPQLWalker(TreeNodeStream input, SearchFactoryImplementor searchFactory,
-			Map<String, Class> entityNames) {
+			EntityNamesResolver entityNames) {
 		this( input, searchFactory, entityNames, Collections.EMPTY_MAP );
 	}
 
 	public LuceneJPQLWalker(TreeNodeStream input, SearchFactoryImplementor searchFactory,
-			Map<String, Class> entityNames, Map<String,Object> namedParameters) {
+			EntityNamesResolver entityNames, Map<String,Object> namedParameters) {
 		super( input );
 		this.searchFactory = searchFactory;
 		this.entityNames = entityNames;
@@ -118,7 +122,7 @@ public class LuceneJPQLWalker extends GeneratedHQLResolver {
 					"Alias reuse currently not supported: alias " + alias.getText()
 							+ " already assigned to type " + put );
 		}
-		Class targetedType = entityNames.get( entityName.getText() );
+		Class targetedType = entityNames.getClassFromName( entityName.getText() );
 		if ( targetedType == null ) {
 			throw new IllegalStateException( "Unknown entity name " + entityName.getText() );
 		}

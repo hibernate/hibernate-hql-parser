@@ -129,8 +129,9 @@ public class TreeWalkTest {
 			// AST nodes have payloads referring to the tokens from the Lexer:
 			treeStream.setTokenStream( tokens );
 			
+			MapBasedEntityNamesResolver nameResolver = new MapBasedEntityNamesResolver( entityNames );
 			// Finally create the treewalker:
-			LuceneJPQLWalker walker = new LuceneJPQLWalker( treeStream, searchFactory, entityNames );
+			LuceneJPQLWalker walker = new LuceneJPQLWalker( treeStream, searchFactory, nameResolver );
 			try {
 				walker.statement();
 				Assert.assertEquals( 0, walker.getNumberOfSyntaxErrors() );
