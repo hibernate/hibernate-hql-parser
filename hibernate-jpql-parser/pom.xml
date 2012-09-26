@@ -34,6 +34,7 @@
 
     <artifactId>hibernate-jpql-parser</artifactId>
     <name>Hibernate JP-QL Parser</name>
+    <url>http://ogm.hibernate.org</url>
 
     <dependencies>
         <dependency>
@@ -51,7 +52,7 @@
                      <artifactId>avro</artifactId>
                 </exclusion>
             </exclusions>
-            <optional/>
+            <optional />
         </dependency>
         <dependency>
             <groupId>org.antlr</groupId>
