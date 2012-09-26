@@ -32,6 +32,7 @@
 
     <name>Hibernate JP-QL Parser - Parent module</name>
     <description>Provides capabilities to parse JP-QL Queries and convert them into other executable queries</description>
+    <url>http://ogm.hibernate.org</url>
 
     <inceptionYear>2012</inceptionYear>
 
