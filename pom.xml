@@ -49,7 +49,9 @@
     </issueManagement>
 
     <scm>
-        <!-- TBD -->
+        <connection>scm:git:git://github.com/hibernate/hibernate-jpql-parser.git</connection>
+        <developerConnection>scm:git:git@github.com:hibernate/hibernate-jpql-parser.git</developerConnection>
+        <url>http://github.com/hibernate/hibernate-jpql-parser</url>
     </scm>
 
     <organization>
