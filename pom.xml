@@ -27,7 +27,7 @@
 
     <groupId>org.hibernate.jpql</groupId>
     <artifactId>hibernate-jpql-parser-parent</artifactId>
-    <version>1.0.0.Alpha1</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hibernate JP-QL Parser - Parent module</name>
