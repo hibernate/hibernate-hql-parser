@@ -30,10 +30,10 @@ import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
-import org.hibernate.sql.ast.common.ParserContext;
-import org.hibernate.sql.ast.origin.hql.parse.HQLLexer;
-import org.hibernate.sql.ast.origin.hql.parse.HQLParser;
-import org.hibernate.sql.ast.origin.hql.resolve.LuceneJPQLWalker;
+import org.hibernate.query.ast.common.ParserContext;
+import org.hibernate.query.ast.origin.hql.parse.HQLLexer;
+import org.hibernate.query.ast.origin.hql.parse.HQLParser;
+import org.hibernate.query.ast.origin.hql.resolve.LuceneJPQLWalker;
 import org.junit.Test;
 
 /**

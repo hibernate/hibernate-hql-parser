@@ -22,7 +22,7 @@ package org.hibernate.jpql.lucene;
 
 import java.util.HashMap;
 
-import org.hibernate.sql.ast.origin.hql.resolve.EntityNamesResolver;
+import org.hibernate.query.ast.origin.hql.resolve.EntityNamesResolver;
 
 
 /**

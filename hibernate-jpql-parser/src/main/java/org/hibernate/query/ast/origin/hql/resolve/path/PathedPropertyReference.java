@@ -2,7 +2,7 @@
  * Hibernate, Relational Persistence for Idiomatic Java
  * 
  * JBoss, Home of Professional Open Source
- * Copyright 2012 Red Hat Inc. and/or its affiliates and other contributors
+ * Copyright 2011 Red Hat Inc. and/or its affiliates and other contributors
  * as indicated by the @authors tag. All rights reserved.
  * See the copyright.txt in the distribution for a
  * full listing of individual contributors.
@@ -18,18 +18,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.jpql.grammars;
+package org.hibernate.query.ast.origin.hql.resolve.path;
 
-import org.hibernate.jpql.testhelpers.GUnitTest;
-import org.hibernate.jpql.testhelpers.GUnitTestRunner;
-import org.junit.runner.RunWith;
+import java.util.Map;
 
 
 /**
- * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
+ * @author Sanne Grinovero <sanne@hibernate.org> (C) 2011 Red Hat Inc.
  */
-@RunWith(GUnitTestRunner.class)
-@GUnitTest("org/hibernate/query/ast/origin/hql/parse/gUnitGeneratedAST.testsuite")
-public class GeneratedASTTest {
+public final class PathedPropertyReference implements PathedPropertyReferenceSource {
+
+	private final String propertyName;
+
+	public PathedPropertyReference(String string, Map<String, String> aliasToEntityType) {
+		this.propertyName = string;
+	}
 
 }
