@@ -29,7 +29,7 @@ import org.junit.runner.RunWith;
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
  */
 @RunWith(GUnitTestRunner.class)
-@GUnitTest( "org/hibernate/sql/ast/origin/hql/parse/gUnitHQLTokens.testsuite" )
+@GUnitTest("org/hibernate/query/ast/origin/hql/parse/gUnitHQLTokens.testsuite")
 public class HQLTokensTest {
 
 }

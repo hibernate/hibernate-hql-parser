@@ -24,9 +24,9 @@ import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
-import org.hibernate.sql.ast.origin.hql.parse.HQLLexer;
-import org.hibernate.sql.ast.origin.hql.parse.HQLParser;
-import org.hibernate.sql.ast.origin.hql.parse.HQLParser.statement_return;
+import org.hibernate.query.ast.origin.hql.parse.HQLLexer;
+import org.hibernate.query.ast.origin.hql.parse.HQLParser;
+import org.hibernate.query.ast.origin.hql.parse.HQLParser.statement_return;
 
 /**
  * Example of usage for the generated parser; useful to debug a specific syntax too.

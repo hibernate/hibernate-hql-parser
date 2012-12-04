@@ -27,9 +27,9 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
 import org.hibernate.jpql.lucene.TestingParserContext;
-import org.hibernate.sql.ast.common.ParserContext;
-import org.hibernate.sql.ast.origin.hql.parse.HQLLexer;
-import org.hibernate.sql.ast.origin.hql.parse.HQLParser;
+import org.hibernate.query.ast.common.ParserContext;
+import org.hibernate.query.ast.origin.hql.parse.HQLLexer;
+import org.hibernate.query.ast.origin.hql.parse.HQLParser;
 import org.junit.Test;
 
 public class ParsingTest {
