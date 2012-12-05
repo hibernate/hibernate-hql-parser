@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.hibernate.sql.DefaultParsingContext;
-import org.hibernate.sql.ast.common.ParserContext;
+import org.hibernate.query.ast.DefaultParsingContext;
+import org.hibernate.query.ast.common.ParserContext;
 
 public class TestingParserContext extends DefaultParsingContext implements ParserContext {
 	

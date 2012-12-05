@@ -40,9 +40,9 @@ import org.antlr.runtime.RecognitionException;
 public class GUnitRunner {
 
 	private static String[] GUniTests = {
-		"org/hibernate/sql/ast/origin/hql/parse/gUnitGeneratedAST.testsuite",
-		"org/hibernate/sql/ast/origin/hql/parse/gUnitHQLGrammar.testsuite",
-		"org/hibernate/sql/ast/origin/hql/parse/gUnitHQLTokens.testsuite",
+			"org/hibernate/query/ast/origin/hql/parse/gUnitGeneratedAST.testsuite",
+			"org/hibernate/query/ast/origin/hql/parse/gUnitHQLGrammar.testsuite",
+			"org/hibernate/query/ast/origin/hql/parse/gUnitHQLTokens.testsuite",
 		};
 
 	public static void main(String[] args) throws IOException, RecognitionException {
