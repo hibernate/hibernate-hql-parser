@@ -24,25 +24,60 @@
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <!--
+        <parent>
+            <groupId>org.hibernate.jpql</groupId>
+            <artifactId>hibernate-jpql-parser-parent</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <relativePath>../pom.xml</relativePath>
+        </parent>
+    -->
 
     <groupId>org.hibernate.jpql</groupId>
-    <artifactId>hibernate-jpql-parser-parent</artifactId>
+    <artifactId>hibernate-jpql-parser</artifactId>
+    <packaging>jar</packaging>
     <version>1.0.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
 
-    <name>Hibernate JP-QL Parser - Parent module</name>
-    <description>Provides capabilities to parse JP-QL Queries and convert them into other executable queries</description>
+    <name>Hibernate HQL/JP-QL Parser</name>
+    <description>Provides parsing/normalization of HQL/JP-QL queries into a semantic parse tree representing the "meaning" of the query</description>
     <url>http://ogm.hibernate.org</url>
 
     <inceptionYear>2012</inceptionYear>
 
-    <modules>
-        <module>hibernate-jpql-parser</module>
-        <!--
-           We'll split in modules in a second time
-           <module>hibernate-jpql2lucene</module>
-         -->
-    </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-search-engine</artifactId>
+            <version>${hibernateSearchVersion}</version>
+            <exclusions>
+                <!-- Not really needed to exclude these, but we don't need them: -->
+                <exclusion>
+                    <groupId>org.hibernate</groupId>
+                    <artifactId>hibernate-search-analyzers</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.avro</groupId>
+                    <artifactId>avro</artifactId>
+                </exclusion>
+            </exclusions>
+            <optional />
+        </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>gunit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
 
     <issueManagement>
         <system>JIRA</system>
@@ -69,7 +104,7 @@
     </licenses>
 
     <ciManagement>
-       <!-- TBD -->
+        <!-- TBD -->
     </ciManagement>
 
     <developers>
@@ -78,6 +113,11 @@
             <name>Sanne Grinovero</name>
             <email>sanne@hibernate.org</email>
             <url>http://in.relation.to/Bloggers/Sanne</url>
+        </developer>
+        <developer>
+            <id>sebersole</id>
+            <name>Steve Ebersole</name>
+            <email>steve@hibernate.org</email>
         </developer>
     </developers>
 
@@ -176,8 +216,26 @@
     </repositories>
 
     <build>
-        <defaultGoal>install</defaultGoal>
         <plugins>
+            <plugin>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr3-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Set to true to debug parser via ANTLRWorks -->
+                    <debug>false</debug>
+                    <!-- Output a report on the generated Lexers and Parsers -->
+                    <report>true</report>
+                    <!-- Have generated code output step details -->
+                    <trace>false</trace>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>antlr</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
