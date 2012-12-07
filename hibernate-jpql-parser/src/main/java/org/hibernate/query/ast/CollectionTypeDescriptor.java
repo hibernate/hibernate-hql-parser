@@ -1,4 +1,4 @@
-package org.hibernate.sql.ast;
+package org.hibernate.query.ast;
 
 /**
  * @author Steve Ebersole
