@@ -1,0 +1,128 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+
+        mavenRepo name: 'jboss-nexus', url: "http://repository.jboss.org/nexus/content/groups/public/"
+        mavenRepo name: "jboss-snapshots", url: "http://snapshots.jboss.org/maven2/"
+    }
+    dependencies {
+        classpath 'org.hibernate.build.gradle:gradle-upload-auth-plugin:1.1.1'
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+
+    mavenRepo name: 'jboss-nexus', url: "http://repository.jboss.org/nexus/content/groups/public/"
+    mavenRepo name: "jboss-snapshots", url: "http://snapshots.jboss.org/maven2/"
+}
+
+apply plugin: 'java'
+apply plugin: org.hibernate.build.gradle.api.plugins.antlr.Antlr3Plugin
+apply plugin: 'maven'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+
+defaultTasks 'build'
+
+group = 'org.hibernate.jpql'
+version = '1.0.0-SNAPSHOT'
+
+targetCompatibility = "1.6"
+sourceCompatibility = "1.6"
+
+
+configurations {
+    deployerJars {
+        description = 'Jars needed for doing deployment to JBoss Nexus repo'
+    }
+}
+
+dependencies {
+    compile( 'org.jboss.logging:jboss-logging:3.1.0.GA', )
+//    compile( 'org.antlr:antlr-runtime:3.4.1-preview-jbossorg-0' )
+    compile( 'org.antlr:antlr-runtime:3.4' )
+
+    // todo : remove
+    compile( 'org.hibernate:hibernate-search-engine:4.2.0.Beta1' )
+
+    testCompile( 'junit:junit:4.10' )
+//    testCompile( 'org.antlr:gunit:3.4.1-preview-jbossorg-0' )
+    testCompile( 'org.antlr:gunit:3.4' )
+
+    deployerJars "org.apache.maven.wagon:wagon-http:1.0"
+}
+
+
+// Artifact tasks ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+manifest.mainAttributes(
+        provider: 'gradle',
+        'Implementation-Url': 'http://hibernate.org',
+        'Implementation-Version': version,
+        'Implementation-Vendor': 'Hibernate.org',
+        'Implementation-Vendor-Id': 'org.hibernate'
+)
+
+// elements used to customize the generated POM used during upload
+def pomConfig = {
+    name 'Hibernate HQL/JP-QL Parser'
+    description 'The Hibernate HQL/JP-QL Parser'
+    url 'http://hibernate.org'
+    organization {
+        name 'Hibernate.org'
+        url 'http://hibernate.org'
+    }
+    issueManagement {
+        system 'jira'
+        url 'http://opensource.atlassian.com/projects/hibernate/browse/HQLPARSER'
+    }
+    scm {
+        url "http://github.com/hibernate/hibernate-jpql-parser"
+        connection "scm:git:http://github.com/hibernate/hibernate-jpql-parser.git"
+        developerConnection "scm:git:git@github.com:hibernate/hibernate-jpql-parser.git"
+    }
+    licenses {
+        license {
+            name 'GNU Lesser General Public License'
+            url 'http://www.gnu.org/licenses/lgpl-2.1.html'
+            comments 'See discussion at http://hibernate.org/license for more details.'
+            distribution 'repo'
+        }
+    }
+    developers {
+        developer {
+            id 'hibernate-team'
+            name 'The Hibernate Development Team'
+            organization 'Hibernate.org'
+            organizationUrl 'http://hibernate.org'
+        }
+    }
+}
+
+configure(install.repositories.mavenInstaller) {
+    pom.project pomConfig
+}
+
+uploadArchives {
+    repositories.mavenDeployer {
+        name = 'jbossDeployer'
+        configuration = configurations.deployerJars
+        pom.project pomConfig
+        repository(id: "jboss-releases-repository", url: "https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/")
+        snapshotRepository(id: "jboss-snapshots-repository", url: "https://repository.jboss.org/nexus/content/repositories/snapshots")
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: compileJava) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+uploadArchives.dependsOn sourcesJar

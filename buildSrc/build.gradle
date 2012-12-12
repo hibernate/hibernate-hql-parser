@@ -1,0 +1,29 @@
+apply plugin: 'groovy'
+apply plugin: 'idea'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    mavenRepo name: "jboss", url: "http://repository.jboss.org/nexus/content/groups/public/"
+}
+
+targetCompatibility = "1.6"
+sourceCompatibility = "1.6"
+
+dependencies {
+    // common
+    compile gradleApi()
+    compile localGroovy()
+
+    groovy localGroovy()
+}
+
+idea {
+    project {
+        languageLevel = '1.6'
+    }
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}
