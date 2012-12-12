@@ -3,17 +3,17 @@
 
 # Gradle work directory
 .gradle
-buildSrc/.gradle
+*/.gradle
 
 # Build output directies
-target
-build
-bin
-test-output
-antlr-generated
+/target
+*/target
+/build
+*/build
+testdb
 
 # IntelliJ specific files/directories
-/out
+out
 .idea
 *.ipr
 *.iws
@@ -26,6 +26,7 @@ atlassian-ide-plugin.xml
 .settings
 .externalToolBuilders
 .factorypath
+bin
 
 # NetBeans specific files/directories
 .nbattrs
@@ -34,4 +35,11 @@ atlassian-ide-plugin.xml
 *.log
 *.sh
 .clover
+
+# JBoss Transactions
+ObjectStore
+
+# Profiler and heap dumps
+*.jps
+*.hprof
 
