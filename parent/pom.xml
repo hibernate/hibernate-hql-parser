@@ -121,7 +121,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <antlrVersion>3.4.1-preview-jbossorg-0</antlrVersion>
+        <antlr3Version>3.4.1-preview-jbossorg-0</antlr3Version>
+        <antlr4Version>4.0</antlr4Version>
         <luceneVersion>3.6.1</luceneVersion>
         <hibernateVersion>4.1.4.Final</hibernateVersion>
         <hibernateSearchVersion>4.2.0.Beta1</hibernateSearchVersion>
@@ -160,7 +161,7 @@
             <dependency>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr</artifactId>
-                <version>${antlrVersion}</version>
+                <version>${antlr3Version}</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>antlr</artifactId>
@@ -171,8 +172,24 @@
             <dependency>
                 <groupId>org.antlr</groupId>
                 <artifactId>gunit</artifactId>
-                <version>${antlrVersion}</version>
+                <version>${antlr3Version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr-runtime</artifactId>
+                <version>${antlr3Version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>${antlr4Version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.easytesting</groupId>
+                <artifactId>fest-assert</artifactId>
+                <version>1.4</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -336,7 +353,33 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore />
+                                        <ignore/>
+                                    </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.antlr</groupId>
+                                        <artifactId>antlr3-maven-plugin</artifactId>
+                                        <versionRange>[${antlr3Version},)</versionRange>
+                                        <goals>
+                                            <goal>antlr</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <execute/>
+                                    </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.antlr</groupId>
+                                        <artifactId>antlr4-maven-plugin</artifactId>
+                                        <versionRange>[${antlr4Version},)</versionRange>
+                                        <goals>
+                                            <goal>antlr4</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <execute/>
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>
@@ -346,12 +389,22 @@
                 <plugin>
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr3-maven-plugin</artifactId>
-                    <version>${antlrVersion}</version>
+                    <version>${antlr3Version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.antlr</groupId>
                     <artifactId>maven-gunit-plugin</artifactId>
-                    <version>${antlrVersion}</version>
+                    <version>${antlr3Version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-maven-plugin</artifactId>
+                    <version>${antlr4Version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>1.8</version>
                 </plugin>
             </plugins>
         </pluginManagement>
