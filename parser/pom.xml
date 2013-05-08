@@ -59,14 +59,14 @@
             <artifactId>antlr</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>gunit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+             <artifactId>hibernate-jpql-testing</artifactId>
+             <scope>test</scope>
         </dependency>
     </dependencies>
 

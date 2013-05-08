@@ -20,11 +20,6 @@
  */
 package org.hibernate.jpql.tree;
 
-import org.hibernate.jpql.testhelpers.GUnitTest;
-import org.hibernate.jpql.testhelpers.GUnitTestRunner;
-import org.junit.runner.RunWith;
-
-
 /**
  * TODO
  */

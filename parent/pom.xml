@@ -139,6 +139,11 @@
                 <version>${hibernateSearchVersion}</version>
             </dependency>
             <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>hibernate-jpql-testing</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-core</artifactId>
                 <version>${luceneVersion}</version>
@@ -168,11 +173,6 @@
                         <groupId>antlr</groupId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.antlr</groupId>
-                <artifactId>gunit</artifactId>
-                <version>${antlr3Version}</version>
             </dependency>
             <dependency>
                 <groupId>org.antlr</groupId>
@@ -389,11 +389,6 @@
                 <plugin>
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr3-maven-plugin</artifactId>
-                    <version>${antlr3Version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.antlr</groupId>
-                    <artifactId>maven-gunit-plugin</artifactId>
                     <version>${antlr3Version}</version>
                 </plugin>
                 <plugin>
