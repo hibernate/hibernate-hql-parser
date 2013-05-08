@@ -20,16 +20,16 @@
  */
 package org.hibernate.jpql.grammars;
 
-import org.hibernate.jpql.testhelpers.GUnitTest;
-import org.hibernate.jpql.testhelpers.GUnitTestRunner;
+import org.hibernate.jpql.testing.ForGrammar;
+import org.hibernate.jpql.testing.junit.GrammarTestRunner;
 import org.junit.runner.RunWith;
 
 
 /**
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
  */
-@RunWith(GUnitTestRunner.class)
-@GUnitTest("org/hibernate/query/ast/origin/hql/parse/gUnitHQLGrammar.testsuite")
+@RunWith(GrammarTestRunner.class)
+@ForGrammar("/org/hibernate/query/ast/origin/hql/parse/gUnitHQLGrammar.testsuite")
 public class HQLGrammarTest {
 
 }
