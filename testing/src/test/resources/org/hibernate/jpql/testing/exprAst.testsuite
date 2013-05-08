@@ -1,0 +1,11 @@
+gunit ExprAst;
+
+@header{
+package com.example.calculator;
+}
+
+expr:
+"2 * 3 + 4" -> (+ (* 2 3) 4)
+
+multExpr:
+"2 * 3" -> (* 2 3)
