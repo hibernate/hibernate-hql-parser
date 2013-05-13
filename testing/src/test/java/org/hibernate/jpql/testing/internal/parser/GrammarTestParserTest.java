@@ -140,4 +140,42 @@ public class GrammarTestParserTest {
 		assertThat( multExprTest.getExpectedParsingResultStatus() ).isEqualTo( ParsingResult.Status.OK );
 		assertThat( multExprTest.getExpectedAst() ).isEqualTo( "(* 2 3)" );
 	}
+
+	@Test
+	public void shouldRetrieveSubGroups() throws Exception {
+		GrammarTestDescriptor grammarTest = parser.getGrammarTest(
+				GrammarTestParserTest.class,
+				"../../exprSubGroups.testsuite"
+		);
+
+		assertThat( grammarTest.getTestGroups() ).hasSize( 2 );
+
+		GrammarRuleTestGroupDescriptor idTests = grammarTest.getTestGroups().get( 0 );
+		assertThat( idTests.getTests() ).hasSize( 2 );
+		assertThat( idTests.getSubGroups() ).hasSize( 2 );
+
+		assertThat( idTests.getTests().get( 0 ).getExpression() ).isEqualTo( "a" );
+		assertThat( idTests.getTests().get( 1 ).getExpression() ).isEqualTo( "b" );
+
+		GrammarRuleTestGroupDescriptor lettersGroup = idTests.getSubGroups().get( 0 );
+		assertThat( lettersGroup.getName() ).isEqualTo( "[letters]" );
+		assertThat( lettersGroup.getTests() ).hasSize( 2 );
+		assertThat( lettersGroup.getTests().get( 0 ).getExpression() ).isEqualTo( "c" );
+		assertThat( lettersGroup.getTests().get( 1 ).getExpression() ).isEqualTo( "d" );
+
+		GrammarRuleTestGroupDescriptor othersGroup = idTests.getSubGroups().get( 1 );
+		assertThat( othersGroup.getName() ).isEqualTo( "[others]" );
+		assertThat( othersGroup.getTests() ).hasSize( 1 );
+		assertThat( othersGroup.getTests().get( 0 ).getExpression() ).isEqualTo( "_" );
+
+		GrammarRuleTestGroupDescriptor progTests = grammarTest.getTestGroups().get( 1 );
+		assertThat( progTests.getTests() ).isEmpty();
+		assertThat( progTests.getSubGroups() ).hasSize( 1 );
+
+		GrammarRuleTestGroupDescriptor multiLineGroup = progTests.getSubGroups().get( 0 );
+		assertThat( multiLineGroup.getName() ).isEqualTo( "[multi-line]" );
+		assertThat( multiLineGroup.getTests() ).hasSize( 2 );
+		assertThat( multiLineGroup.getTests().get( 0 ).getExpression() ).isEqualTo( "a = 1 + 1\n" );
+		assertThat( multiLineGroup.getTests().get( 1 ).getExpression() ).isEqualTo( "b = 2 * 2\n" );
+	}
 }

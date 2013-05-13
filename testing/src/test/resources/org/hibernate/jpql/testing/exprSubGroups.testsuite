@@ -1,0 +1,21 @@
+gunit Expr;
+
+@header{
+package com.example.calculator;
+}
+
+ID:
+"a" OK
+"b" OK
+[letters]
+"c" OK
+"d" OK
+[others]
+"_" FAIL
+
+prog:
+[multi-line]
+<<a = 1 + 1
+>> OK
+<<b = 2 * 2
+>> OK

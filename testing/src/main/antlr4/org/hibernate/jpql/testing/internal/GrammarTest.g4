@@ -9,7 +9,8 @@ grammar GrammarTest;
 grammarTest : 'gunit' ID ';' header (testGroup)+ ;
 header : '@header' '{' pakkage '}' ;
 pakkage : 'package' PACKAGE_ID ';' ;
-testGroup : ID ':' (test)+ ;
+testGroup : ID ':' (test)* (testSubGroup)* ;
+testSubGroup : TEST_GROUP_NAME (test)+ ;
 test : statement outcome ;
 statement : (STRING_LITERAL|MULTI_LINE) ;
 
@@ -25,6 +26,7 @@ ID : ('a'..'z'|'A'..'Z'|'_')+ ;
 PACKAGE_ID : ID('.'ID)* ;
 WS : [ \t\r\n]+ -> skip ; // skip spaces, tabs, newlines
 
+TEST_GROUP_NAME : '[' ~(']')* ']' ;
 STRING_LITERAL : '"' ( ESC | ~('\\'|'"') )* '"' ;
 AST : '(' ( ESC | ~('\\'|'"') )* ')' ;
 MULTI_LINE : '<<' .*? '>>' ;

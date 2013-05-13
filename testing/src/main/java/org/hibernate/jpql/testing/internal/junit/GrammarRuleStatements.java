@@ -35,51 +35,69 @@ import org.junit.runners.model.Statement;
 
 /**
  * A JUnit {@link ParentRunner} representing a group of tests for one given
- * grammar rule.
+ * grammar rule. Can contain single statements or sub-groups with statements.
  *
  * @author Gunnar Morling
  */
-public class GrammarRuleStatements extends ParentRunner<GrammarRuleStatement> {
+public class GrammarRuleStatements extends ParentRunner<GrammarRuleTest> implements GrammarRuleTest {
 
-	private final List<GrammarRuleStatement> statements;
+	private final List<GrammarRuleTest> children;
 	private final String name;
 
 	public GrammarRuleStatements(
 			Class<?> testClass,
 			GrammarTestDescriptor grammarTest,
 			GrammarRuleTestGroupDescriptor group) throws InitializationError {
+		this( testClass, grammarTest, group, group );
+	}
+
+	private GrammarRuleStatements(
+			Class<?> testClass,
+			GrammarTestDescriptor grammarTest,
+			GrammarRuleTestGroupDescriptor group,
+			GrammarRuleTestGroupDescriptor rootGroup) throws InitializationError {
 		super( testClass );
 
 		name = group.getName();
 
-		statements = new ArrayList<GrammarRuleStatement>();
+		children = new ArrayList<GrammarRuleTest>();
 		for ( GrammarRuleTestDescriptor test : group.getTests() ) {
-			statements.add( new GrammarRuleStatement( getTestClass(), grammarTest, group, test ) );
+			children.add( new GrammarRuleStatement( getTestClass(), grammarTest, rootGroup, test ) );
+		}
+
+		for ( GrammarRuleTestGroupDescriptor subGroup : group.getSubGroups() ) {
+			children.add( new GrammarRuleStatements( testClass, grammarTest, subGroup, rootGroup ) );
 		}
 	}
 
 	@Override
-	protected List<GrammarRuleStatement> getChildren() {
-		return statements;
+	protected List<GrammarRuleTest> getChildren() {
+		return children;
 	}
 
 	@Override
-	protected Description describeChild(GrammarRuleStatement test) {
-		return test.getDescription();
+	protected Description describeChild(GrammarRuleTest child) {
+		return child.getDescription();
 	}
 
 	@Override
-	protected void runChild(GrammarRuleStatement test, RunNotifier notifier) {
-		runLeaf(
-				test.getMethodBlock( getTestClass() ),
-				test.getDescription(),
-				notifier
-		);
+	protected void runChild(GrammarRuleTest child, RunNotifier notifier) {
+		child.run( this, notifier );
+	}
+
+	@Override
+	public void run(GrammarRuleStatements parent, RunNotifier notifier) {
+		run( notifier );
+	}
+
+	public void runLeafNode(Statement statement, Description description, RunNotifier notifier) {
+		runLeaf( statement, description, notifier );
 	}
 
 	/**
 	 * Returns the name of this group which is the name of the represented lexer
-	 * or parser rule.
+	 * or parser rule if this is root group for a given grammar rule or an
+	 * arbitrary group name if this is a sub-group.
 	 *
 	 * @return the name of this group
 	 */
