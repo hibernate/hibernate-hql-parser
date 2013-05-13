@@ -10,52 +10,46 @@ statement:
 /*
 SELECT/FROM STATEMENT
 */
-//testSimpleFrom
+[testSimpleFrom]
 "from com.acme.EntityName e"  OK
-//testConstantUsage
+[testConstantUsage]
 "from com.acme.EntityName where prop = org.hibernate.query.ast.phase.hql.parse.ParserTest.CONSTANT"  OK
 "from com.acme.EntityName where prop = compProp.subProp"  OK
-//testVariousPropertyReferences
+[testVariousPropertyReferences]
 "from A a where b = 1"  OK
 "from A a where a.b.c = 1"  OK
 "from X x where y[1].z = 2"  OK
 "from X x where x.y[1].z = 2"  OK
-//testEntityNamePathWithKeyword
+[testEntityNamePathWithKeyword]
 "from org.hibernate.test.Inner"  OK
-//testWhereClauseIdentPrimaryWithEmbeddedKeyword
+[testWhereClauseIdentPrimaryWithEmbeddedKeyword]
 "from org.hibernate.test.Inner i where i.outer.inner.middle = 'xyz'"  OK
-//testDynamicInstantiation
+[testDynamicInstantiation]
 "select new list(a, mate) from Animal a join a.mate as mate"  OK
 "from Animal join a.mate"  OK
 "from Animal, aaa , dddd"  OK
 "from Animal, aaa join fetch dddd" OK
-//testListOrMapKeywordReference
+[testListOrMapKeywordReference]
 "select p from eg.NameList nl, eg.Person p where p.name = some elements(nl.names)"  OK
 "select p from eg.NameList list, eg.Person p where p.name = some elements(list.names)"  OK
 "select p from eg.NameList map, eg.Person p where p.name = some elements(map.names)"  OK
-//testExplicitPropertyJoin
+[testExplicitPropertyJoin]
 "from eg.Cat as cat inner join fetch cat.mate as m fetch all properties left join fetch cat.kittens as k"  OK
-// tests copied over from org.hibernate.test.hql.HqlParserTest ~~~~~~~~~~~~
+[ tests copied over from org.hibernate.test.hql.HqlParserTest ~~~~~~~~~~~~]
 "from Animal a where a in (from Cat union from Dog)"  OK
-/**
- * Section 9.2 - from *
- */
+ [Section 9.2 - from]
 "from eg.Cat"  OK
 "from eg.Cat as cat"  OK
 "from eg.Cat cat"  OK
 "from Formula, Parameter"  OK
 "from Formula as form, Parameter as param"  OK
-/**
- * Section 9.3 - Associations and joins *
- */
+[Section 9.3 - Associations and joins]
 "from eg.Cat as cat inner join cat.mate as mate left outer join cat.kittens as kitten"  OK
 "from eg.Cat as cat left join cat.mate.kittens as kittens"  OK
 "from Formula form full join form.parameter param"  OK
 "from eg.Cat as cat join cat.mate as mate left join cat.kittens as kitten"  OK
 "from eg.Cat as cat inner join fetch cat.mate left join fetch cat.kittens"  OK
-/**
- * Section 9.4 - Select *
- */
+[Section 9.4 - Select]
 "select mate from eg.Cat as cat inner join cat.mate as mate"  OK
 "select cat.mate from eg.Cat cat"  OK
 "select elements(cat.kittens) from eg.Cat cat"  OK
@@ -63,21 +57,15 @@ SELECT/FROM STATEMENT
 "select cust.name.firstName from Customer as cust"  OK
 "select mother, offspr, mate.name from eg.DomesticCat  as mother inner join mother.mate as mate left outer join mother.kittens as offspr"  OK
 "select new Family(mother, mate, offspr) from eg.DomesticCat as mother join mother.mate as mate left join mother.kittens as offspr"  OK
-/**
- * Section 9.5 - Aggregate functions *
- */
+[Section 9.5 - Aggregate functions]
 "select avg(cat.weight), sum(cat.weight), max(cat.weight), count(cat) from eg.Cat cat"  OK
 "select cat, count( elements(cat.kittens) ) from eg.Cat cat group by cat"  OK
 "select distinct cat.name from eg.Cat cat"  OK
 "select count(distinct cat.name), count(cat) from eg.Cat cat"  OK
-/**
- * Section 9.6 - Polymorphism *
- */
+[Section 9.6 - Polymorphism]
 "from java.lang.Object o"  OK
 "from eg.Named n, eg.Named m where n.name = m.name"  OK
-/**
- * Section 9.7 - Where *
- */
+[Section 9.7 - Where]
 "from eg.Cat as cat where cat.name='Fritz'"  OK
 "select foo from eg.Foo foo, eg.Bar bar where foo.startDate = bar.date"  OK
 "from eg.Cat cat where cat.mate.name is not null"  OK
@@ -89,9 +77,7 @@ SELECT/FROM STATEMENT
 "from bank.Account account where account.owner.id.country = 'AU' and account.owner.id.medicareNumber = 123456"  OK
 "from eg.Cat cat where cat.class = eg.DomesticCat"  OK
 "from eg.AuditLog log, eg.Payment payment where log.item.class = 'eg.Payment' and log.item.id = payment.id"  OK
-/**
- * Section 9.8 - Expressions *
- */
+[Section 9.8 - Expressions]
 "from eg.DomesticCat cat where cat.name between 'A' and 'B'"  OK
 "from eg.DomesticCat cat where cat.name in ( 'Foo', 'Bar', 'Baz' )"  OK
 "from eg.DomesticCat cat where cat.name not between 'A' and 'B'"  OK
@@ -118,19 +104,19 @@ SELECT/FROM STATEMENT
 "select item from Item item, Order ord where ord.items[ size(ord.items) - 1 ] = item"  OK
 "from eg.DomesticCat cat where upper(cat.name) like 'FRI%'"  OK
 "select cust from Product prod, Store store inner join store.customers cust where prod.name = 'widget' and store.location.name in ( 'Melbourne', 'Sydney' ) and prod = all elements(cust.currentOrder.lineItems)"  OK
-//testDocoExamples99
+[testDocoExamples99]
 "from eg.DomesticCat cat order by cat.name asc, cat.weight desc, cat.birthdate"  OK
-//testDocoExamples910
+[testDocoExamples910]
 "select cat.color, sum(cat.weight), count(cat) from eg.Cat cat group by cat.color"  OK
 "select foo.id, avg( elements(foo.names) ), max( indices(foo.names) ) from eg.Foo foo group by foo.id"  OK
 "select cat.color, sum(cat.weight), count(cat) from eg.Cat cat group by cat.color having cat.color in (eg.Color.TABBY, eg.Color.BLACK)"  OK
 "select cat from eg.Cat cat join cat.kittens kitten group by cat having avg(kitten.weight) > 100 order by count(kitten) asc, sum(kitten.weight) desc"  OK
-//testDocoExamples911
+[testDocoExamples911]
 "from eg.Cat as fatcat where fatcat.weight > (select avg(cat.weight) from eg.DomesticCat cat)"  OK
 "from eg.DomesticCat as cat where cat.name = some (select name.nickName from eg.Name as name)"  OK
 "from eg.Cat as cat where not exists (from eg.Cat as mate where mate.mate = cat)"  OK
 "from eg.DomesticCat as cat where cat.name not in (select name.nickName from eg.Name as name)"  OK
-//testDocoExamples912
+[testDocoExamples912]
 <<select ord.id, sum(price.amount), count(item)
   from Order as ord join ord.lineItems as item
   join item.product as product, Catalog as catalog
@@ -186,49 +172,49 @@ SELECT/FROM STATEMENT
   where :currentUser = user
       and PaymentStatus.UNPAID = isNull(payment.currentStatus.name, PaymentStatus.UNPAID)
   order by account.type.sortOrder, account.accountNumber, payment.dueDate>>  OK
-//testExamples1
+[testExamples1]
 "select new org.hibernate.test.S(s.count, s.address) from s in class Simple"  OK
 "select s.name, sysdate, trunc(s.pay), round(s.pay) from s in class Simple"  OK
 "select abs(round(s.pay)) from s in class Simple"  OK
 "select trunc(round(sysdate)) from s in class Simple"  OK
-//testMultipleActualParameters
+[testMultipleActualParameters]
 "select round(s.pay, 2) from s"  OK
-//testMultipleFromClasses
+[testMultipleFromClasses]
 "from eg.mypackage.Cat qat, com.toadstool.Foo f"  OK
 "from eg.mypackage.Cat qat, org.jabberwocky.Dipstick"  OK
-//testFromWithJoin
+[testFromWithJoin]
 "from eg.mypackage.Cat qat, com.toadstool.Foo f join net.sf.blurb.Blurb"  OK
 "from eg.mypackage.Cat qat  left join com.multijoin.JoinORama , com.toadstool.Foo f join net.sf.blurb.Blurb"  OK
-//testSelect
+[testSelect]
 "select f from eg.mypackage.Cat qat, com.toadstool.Foo f join net.sf.blurb.Blurb"  OK
 "select distinct bar from eg.mypackage.Cat qat  left join com.multijoin.JoinORama as bar, com.toadstool.Foo f join net.sf.blurb.Blurb"  OK
 "select count(*) from eg.mypackage.Cat qat"  OK
 "select avg(qat.weight) from eg.mypackage.Cat qat"  OK
-//testWhere
+[testWhere]
 "from eg.mypackage.Cat qat where qat.name like '%fluffy%' or qat.toes > 5"  OK
 "from eg.mypackage.Cat qat where not qat.name like '%fluffy%' or qat.toes > 5"  OK
 "from eg.mypackage.Cat qat where not qat.name not like '%fluffy%'"  OK
 "from eg.mypackage.Cat qat where qat.name in ('crater','bean','fluffy')"  OK
 "from eg.mypackage.Cat qat where qat.name not in ('crater','bean','fluffy')"  OK
-//testGroupBy
+[testGroupBy]
 "from eg.mypackage.Cat qat group by qat.breed"  OK
 "from eg.mypackage.Cat qat group by qat.breed, qat.eyecolor"  OK
-//testOrderBy
+[testOrderBy]
 "from eg.mypackage.Cat qat order by avg(qat.toes)"  OK
 "from Animal an order by sqrt(an.bodyWeight)/2"  OK
-//testDoubleLiteral
+[testDoubleLiteral]
 "from eg.Cat as tinycat where fatcat.weight < 3.1415"  OK
 "from eg.Cat as enormouscat where fatcat.weight > 3.1415e3"  OK
-//testComplexConstructor
+[testComplexConstructor]
 "select new Foo(count(bar)) from bar"  OK
 "select new Foo(count(bar),(select count(*) from doofus d where d.gob = 'fat' )) from bar"  OK
-//testInNotIn
+[testInNotIn]
 "from foo where foo.bar in ('a' , 'b', 'c')"  OK
 "from foo where foo.bar not in ('a' , 'b', 'c')"  OK
-//testOperatorPrecedence
+[testOperatorPrecedence]
 "from foo where foo.bar = 123 + foo.baz * foo.not"  OK
 "from foo where foo.bar like 'testzzz' || foo.baz or foo.bar in ('duh', 'gob')"  OK
-//testUnitTestHql
+[testUnitTestHql]
 "select foo from foo in class org.hibernate.test.Foo, fee in class org.hibernate.test.Fee where foo.dependent = fee order by foo.string desc, foo.component.count asc, fee.id"  OK
 "select foo.foo, foo.dependent from foo in class org.hibernate.test.Foo order by foo.foo.string desc, foo.component.count asc, foo.dependent.id"  OK
 "select foo from foo in class org.hibernate.test.Foo order by foo.dependent.id, foo.dependent.fi"  OK
@@ -652,17 +638,17 @@ SELECT/FROM STATEMENT
 "from ChildMap cm where cm.parent is not null"  OK
 "from ParentMap cm where cm.child is not null"  OK
 "from org.hibernate.test.Componentizable"  OK
-//testUnnamedParameter
+[testUnnamedParameter]
 "select foo, bar from org.hibernate.test.Foo foo left outer join foo.foo bar where foo = ?"  OK
-//testInElements
+[testInElements]
 "from bar in class org.hibernate.test.Bar, foo in elements(bar.baz.fooArray)"  OK
 "from org.hibernate.test.Bar bar, foo in elements(bar.baz.fooArray)"  OK
-//testDotElements
+[testDotElements]
 "select distinct foo from baz in class org.hibernate.test.Baz, foo in elements(baz.fooArray)"  OK
 "select foo from baz in class org.hibernate.test.Baz, foo in elements(baz.fooSet)"  OK
 "select foo from baz in class org.hibernate.test.Baz, foo in elements(baz.fooArray)"  OK
 "from org.hibernate.test.Baz baz where 'b' in elements(baz.collectionComponent.nested.foos) and 1.0 in elements(baz.collectionComponent.nested.floats)"  OK
-//testNot
+[testNot]
 "from eg.Cat cat where not ( cat.kittens.size < 1 )"  OK
 "from eg.Cat cat where not ( cat.kittens.size > 1 )"  OK
 "from eg.Cat cat where not ( cat.kittens.size >= 1 )"  OK
@@ -671,7 +657,7 @@ SELECT/FROM STATEMENT
 "from eg.DomesticCat cat where not ( cat.name not between 'A' and 'B' )"  OK
 "from eg.Cat cat where not ( not cat.kittens.size <= 1 )"  OK
 "from eg.Cat cat where not  not ( not cat.kittens.size <= 1 )"  OK
-//testOtherSyntax
+[testOtherSyntax]
 "select bar from org.hibernate.test.Bar bar order by ((bar.x - :valueX)*(bar.x - :valueX))"  OK
 "from bar in class org.hibernate.test.Bar, foo in elements(bar.baz.fooSet)"  OK
 "from one in class org.hibernate.test.One, many in elements(one.manies) where one.id = 1 and many.id = 1"  OK
@@ -685,18 +671,18 @@ SELECT/FROM STATEMENT
 //"select bar.string, foo.string from bar in class org.hibernate.test.Bar, bar.baz as baz, elements(baz.fooSet) as foo where baz.name = 'name'"  OK
 //"select count(*) where this.amount>-1 and this.name is null"  OK
 //"from sm in class org.hibernate.test.SubMulti where exists sm.children.elements"  OK
-//testEjbqlExtensions
+[testEjbqlExtensions]
 "select object(a) from Animal a where a.mother member of a.offspring"  OK
 "select object(a) from Animal a where a.offspring is empty"  OK
-//testHB1042
+[testHB1042]
 "select x from fmc_web.pool.Pool x left join x.containers c0 where (upper(x.name) = upper(':') and c0.id = 1)"  OK
-//testKeywordInPath
+[testKeywordInPath]
 "from Customer c where c.order.status = 'argh'"  OK
 "from Customer c where c.order.count > 3"  OK
 "select c.where from Customer c where c.order.count > 3"  OK
 "from Interval i where i.end <:end"  OK
 "from Letter l where l.case = :case"  OK
-//testPathologicalKeywordAsIdentifier
+[testPathologicalKeywordAsIdentifier]
 "from Order order"  OK
 "from Order order join order.group"  OK
 "from X x order by x.group.by.from"  OK
@@ -706,23 +692,23 @@ SELECT/FROM STATEMENT
 "from Order order where order.group.by.from is not null"  OK
 "from Order order order by order.group.by.from"  OK
 "from Group as group group by group.by.from"  OK
-//testHHH354
+[testHHH354]
 "from Foo f where f.full = 'yep'"  OK
-//testWhereAsIdentifier
+[testWhereAsIdentifier]
 "from where.Order"  OK
-//testConstructorIn
+[testConstructorIn]
 "from org.hibernate.test.Bar bar where (b.x, b.y, b.z) in (select foo, bar, baz from org.hibernate.test.Foo)"  OK
-//testMultiByteCharacters
+[testMultiByteCharacters]
 "from User user where user.name like '%nn\u4e2dnn%'"  OK
 //FIXME "from User user where user.\u432d like '%\u4e2d%'"  OK
 //FIXME "from \u432d \u432d where \u432d.name like '%fred%'"  OK
-//testHHH719
+[testHHH719]
 "from Foo f order by com.fooco.SpecialFunction(f.id)"  OK
-//testHHH1107
+[testHHH1107]
 "from Animal where zoo.address.street = '123 Bogus St.'"  OK
-//testHHH1247
+[testHHH1247]
 "select distinct user.party from com.itf.iceclaims.domain.party.user.UserImpl user inner join user.party.$RelatedWorkgroups relatedWorkgroups where relatedWorkgroups.workgroup.id = :workgroup and relatedWorkgroups.effectiveTime.start <= :datesnow and relatedWorkgroups.effectiveTime.end > :dateenow "  OK
-//testLineAndColumnNumber
+[testLineAndColumnNumber]
 "from Foo f where f.name = 'fred'"  OK
 //
 "from Animal a where a.bodyWeight = ?1"  OK
@@ -768,100 +754,100 @@ SELECT/FROM STATEMENT
 "select ( (m.age - p.age) * 12 ), trim(upper(p.name)) from Person p, Person m where p.mother = m.id and ( p.age = (select max(p0.age) from Person p0 where (p0.mother=m.id)) and p.name like ? )"  OK
 "select * from Address a join Person p on a.pid = p.id, Person m join Address b on b.pid = m.id where p.mother = m.id and p.name like ?"  FAIL
 "select case when p.age > 50 then 'old' when p.age > 18 then 'adult' else 'child' end from Person p where ( case when p.age > 50 then 'old' when p.age > 18 then 'adult' else 'child' end ) like ?"  OK
-//HQLTest.testInvalidCollectionDereferencesFail
+[HQLTest.testInvalidCollectionDereferencesFail]
 "from Animal a where a.offspring.description = 'xyz'"  OK
 "from Animal a where a.offspring.father.description = 'xyz'"  OK
-//HQLTest.testSubComponentReferences
+[HQLTest.testSubComponentReferences]
 "select c.address.zip.code from ComponentContainer c"  OK
 "select c.address.zip from ComponentContainer c"  OK
 "select c.address from ComponentContainer c"  OK
-//HQLTest.testManyToAnyReferences
+[HQLTest.testManyToAnyReferences]
 "from PropertySet p where p.someSpecificProperty.id is not null"  OK
 "from PropertySet p join p.generalProperties gp where gp.id is not null"  OK
-//HQLTest.testCollectionJoinsInSubselect
+[HQLTest.testCollectionJoinsInSubselect]
 "select a.id, a.description from Animal a left join a.offspring where a in ( select a1 from Animal a1 left join a1.offspring o where a1.id=1)"  OK
 "select h.id, h.description from Human h left join h.friends where h in ( select h1 from Human h1 left join h1.friends f where h1.id=1 )"  OK
-//HQLTest.testEmptyInListFailureExpected
+[HQLTest.testEmptyInListFailureExpected]
 "select a from Animal a where a.description in ()"  FAIL
 "select o.orderDate - o.orderDate from Order o"  OK
-//HQLTest.testDateTimeArithmeticReturnTypesAndParameterGuessing
+[HQLTest.testDateTimeArithmeticReturnTypesAndParameterGuessing]
 "select o.orderDate + 2 from Order o"  OK
 "select o.orderDate -2 from Order o"  OK
 "from Order o where o.orderDate > ?"  OK
 "select o.orderDate + ? from Order o"  OK
-//HQLTest.testReturnMetadata
+[HQLTest.testReturnMetadata]
 "select a as animal from Animal a"  OK
 "select o as entity from java.lang.Object o"  OK
-//HQLTest.testImplicitJoinsAlongWithCartesianProduct
+[HQLTest.testImplicitJoinsAlongWithCartesianProduct]
 "select foo.foo from Foo foo, Foo foo2"  OK
 "select foo.foo.foo from Foo foo, Foo foo2"  OK
-//HQLTest.testSubselectBetween
+[HQLTest.testSubselectBetween]
 "from Animal x where (select max(a.bodyWeight) from Animal a) between :min and :max"  OK
 "from Animal x where (select max(a.description) from Animal a) like 'big%'"  OK
 "from Animal x where (select max(a.bodyWeight) from Animal a) is not null"  OK
 "from Animal x where exists (select max(a.bodyWeight) from Animal a)"  OK
 "from Animal x where (select max(a.bodyWeight) from Animal a) in (1,2,3)"  OK
-//HQLTest.testFetchOrderBy
+[HQLTest.testFetchOrderBy]
 "from Animal a left outer join fetch a.offspring where a.mother.id = :mid order by a.description"  OK
-//HQLTest.testCollectionOrderBy
+[HQLTest.testCollectionOrderBy]
 "from Animal a join a.offspring o order by a.description"  OK
 "from Animal a join fetch a.offspring order by a.description"  OK
 "from Animal a join fetch a.offspring o order by o.description"  OK
 "from Animal a join a.offspring o order by a.description, o.description"  OK
-//HQLTest.testExpressionWithParamInFunction
+[HQLTest.testExpressionWithParamInFunction]
 "from Animal a where abs(a.bodyWeight-:param) < 2.0"  OK
 "from Animal a where abs(:param - a.bodyWeight) < 2.0"  OK
-//HQLTest.testCompositeKeysWithPropertyNamedId
+[HQLTest.testCompositeKeysWithPropertyNamedId]
 "select e.id.id from EntityWithCrazyCompositeKey e"  OK
 "select max(e.id.id) from EntityWithCrazyCompositeKey e"  OK
-//HQLTest.testMaxindexHqlFunctionInElementAccessorFailureExpected
+[HQLTest.testMaxindexHqlFunctionInElementAccessorFailureExpected]
 "select c from ContainerX c where c.manyToMany[ maxindex(c.manyToMany) ].count = 2"  OK
 "select c from Container c where c.manyToMany[ maxIndex(c.manyToMany) ].count = 2"  OK
-//HQLTest.testMultipleElementAccessorOperatorsFailureExpected
+[HQLTest.testMultipleElementAccessorOperatorsFailureExpected]
 "select c from ContainerX c where c.oneToMany[ c.manyToMany[0].count ].name = 's'"  OK
-//HQLTest.testKeyManyToOneJoinFailureExpected
+[HQLTest.testKeyManyToOneJoinFailureExpected]
 "from Order o left join fetch o.lineItems li left join fetch li.product p"  OK
 "from Outer o where o.id.master.id.sup.dudu is not null"  OK
-//HQLTest.testDuplicateExplicitJoinFailureExpected
+[HQLTest.testDuplicateExplicitJoinFailureExpected]
 "from Animal a join a.mother m1 join a.mother m2"  OK
 "from Zoo zoo join zoo.animals an join zoo.mammals m"  OK
 "from Zoo zoo join zoo.mammals an join zoo.mammals m"  OK
-//HQLTest.testIndexWithExplicitJoin
+[HQLTest.testIndexWithExplicitJoin]
 "from Zoo zoo join zoo.animals an where zoo.mammals[ index(an) ] = an"  OK
 "from Zoo zoo join zoo.mammals dog where zoo.mammals[ index(dog) ] = dog"  OK
 "from Zoo zoo join zoo.mammals dog where dog = zoo.mammals[ index(dog) ]"  OK
-//HQLTest.testOneToManyMapIndex
+[HQLTest.testOneToManyMapIndex]
 "from Zoo zoo where zoo.mammals['dog'].description like '%black%'"  OK
 "from Zoo zoo where zoo.mammals['dog'].father.description like '%black%'"  OK
 "from Zoo zoo where zoo.mammals['dog'].father.id = 1234"  OK
 "from Zoo zoo where zoo.animals['1234'].description like '%black%'"  OK
-//HQLTest.testExplicitJoinMapIndex
+[HQLTest.testExplicitJoinMapIndex]
 "from Zoo zoo, Dog dog where zoo.mammals['dog'] = dog"  OK
 "from Zoo zoo join zoo.mammals dog where zoo.mammals['dog'] = dog"  OK
-//HQLTest.testIndexFunction
+[HQLTest.testIndexFunction]
 "from Zoo zoo join zoo.mammals dog where index(dog) = 'dog'"  OK
 "from Zoo zoo join zoo.animals an where index(an) = '1234'"  OK
-//HQLTest.testSelectCollectionOfValues
+[HQLTest.testSelectCollectionOfValues]
 "select baz, date from Baz baz join baz.stringDateMap date where index(date) = 'foo'"  OK
-//HQLTest.testCollectionOfValues
+[HQLTest.testCollectionOfValues]
 "from Baz baz join baz.stringDateMap date where index(date) = 'foo'"  OK
-//HQLTest.testHHH719
+[HQLTest.testHHH719]
 "from Baz b order by org.bazco.SpecialFunction(b.id)"  OK
 "from Baz b order by anypackage.anyFunction(b.id)"  OK
-//HQLTest.testParameterListExpansion
+[HQLTest.testParameterListExpansion]
 "from Animal as animal where animal.id in (:idList_1, :idList_2)"  OK
-//HQLTest.testComponentManyToOneDereferenceShortcut
+[HQLTest.testComponentManyToOneDereferenceShortcut]
 "from Zoo z where z.address.stateProvince.id is null"  OK
-//HQLTest.testNestedCollectionImplicitJoins
+[HQLTest.testNestedCollectionImplicitJoins]
 "select h.friends.offspring from Human h"  OK
-//HQLTest.testExplicitJoinsInSubquery
+[HQLTest.testExplicitJoinsInSubquery]
 "from org.hibernate.test.hql.Animal as animal where animal.id in ( select a.id from org.hibernate.test.hql.Animal as a left join a.mother as mo )"  OK
-//HQLTest.testImplicitJoinsInGroupBy
+[HQLTest.testImplicitJoinsInGroupBy]
 "select o.mother.bodyWeight, count(distinct o) from Animal an join an.offspring as o group by o.mother.bodyWeight"  OK
-//HQLTest.testCrazyIdFieldNames
+[HQLTest.testCrazyIdFieldNames]
 "select e.heresAnotherCrazyIdFieldName from MoreCrazyIdFieldNameStuffEntity e where e.heresAnotherCrazyIdFieldName is not null"  OK
 "select e.heresAnotherCrazyIdFieldName.heresAnotherCrazyIdFieldName from MoreCrazyIdFieldNameStuffEntity e where e.heresAnotherCrazyIdFieldName is not null"  OK
-//HQLTest.testSizeFunctionAndProperty
+[HQLTest.testSizeFunctionAndProperty]
 "from Animal a where a.offspring.size > 0"  OK
 "from Animal a join a.offspring where a.offspring.size > 1"  OK
 "from Animal a where size(a.offspring) > 0"  OK
@@ -872,87 +858,87 @@ SELECT/FROM STATEMENT
 "from Human a where size(a.family) > 0"  OK
 "from Human a join a.family o where size(a.family) > 1"  OK
 "from Human a where a.family.size > 0 and a.family.size < 100"  OK
-//HQLTest.testFromOnly
+[HQLTest.testFromOnly]
 "from Animal"  OK
 "from Model"  OK
-//HQLTest.testJoinPathEndingInValueCollection
+[HQLTest.testJoinPathEndingInValueCollection]
 "select h from Human as h join h.nickNames as nn where h.nickName=:nn1 and (nn=:nn2 or nn=:nn3)"  OK
-//HQLTest.testSerialJoinPathEndingInValueCollection
+[HQLTest.testSerialJoinPathEndingInValueCollection]
 "select h from Human as h join h.friends as f join f.nickNames as nn where h.nickName=:nn1 and (nn=:nn2 or nn=:nn3)"  OK
-//HQLTest.testImplicitJoinContainedByCollectionFunction
+[HQLTest.testImplicitJoinContainedByCollectionFunction]
 "from Human as h where 'shipping' in indices(h.father.addresses)"  OK
 "from Human as h where 'shipping' in indices(h.father.father.addresses)"  OK
 "from Human as h where 'sparky' in elements(h.father.nickNames)"  OK
 "from Human as h where 'sparky' in elements(h.father.father.nickNames)"  OK
-//HQLTest.testImpliedJoinInSubselectFrom
+[HQLTest.testImpliedJoinInSubselectFrom]
 "from Animal a where exists( from a.mother.offspring )"  OK
-//HQLTest.testSubselectImplicitJoins
+[HQLTest.testSubselectImplicitJoins]
 "from Simple s where s = some( select sim from Simple sim where sim.other.count=s.other.count )"  OK
-//HQLTest.testCollectionOfValuesSize
+[HQLTest.testCollectionOfValuesSize]
 "select size(baz.stringDateMap) from org.hibernate.test.legacy.Baz baz"  OK
-//HQLTest.testCollectionFunctions
+[HQLTest.testCollectionFunctions]
 "from Zoo zoo where size(zoo.animals) > 100"  OK
 "from Zoo zoo where maxindex(zoo.mammals) = 'dog'"  OK
-//HQLTest.testImplicitJoinInExplicitJoin
+[HQLTest.testImplicitJoinInExplicitJoin]
 "from Animal an inner join an.mother.mother gm"  OK
 "from Animal an inner join an.mother.mother.mother ggm"  OK
 "from Animal an inner join an.mother.mother.mother.mother gggm"  OK
-//HQLTest.testImpliedManyToManyProperty
+[HQLTest.testImpliedManyToManyProperty]
 "select c from ContainerX c where c.manyToMany[0].name = 's'"  OK
 "select size(zoo.animals) from Zoo zoo"  OK
-//HQLTest.testCollectionIndexFunctionsInSelect"  OK
+[HQLTest.testCollectionIndexFunctionsInSelect"  OK]
 "select maxindex(zoo.animals) from Zoo zoo"  OK
 "select minindex(zoo.animals) from Zoo zoo"  OK
 "select indices(zoo.animals) from Zoo zoo"  OK
-//HQLTest.testCollectionElementFunctionsInSelect
+[HQLTest.testCollectionElementFunctionsInSelect]
 "select maxelement(zoo.animals) from Zoo zoo"  OK
 "select minelement(zoo.animals) from Zoo zoo"  OK
 "select elements(zoo.animals) from Zoo zoo"  OK
-//HQLTest.testFetchCollectionOfValues
+[HQLTest.testFetchCollectionOfValues]
 "from Baz baz left join fetch baz.stringSet"  OK
-//HQLTest.testFetchList
+[HQLTest.testFetchList]
 "from User u join fetch u.permissions"  OK
-//HQLTest.testCollectionFetchWithExplicitThetaJoin
+[HQLTest.testCollectionFetchWithExplicitThetaJoin]
 "select m from Master m1, Master m left join fetch m.details where m.name=m1.name"  OK
-//HQLTest.testListElementFunctionInSelect
+[HQLTest.testListElementFunctionInSelect]
 "select maxelement(u.permissions) from User u"  OK
 "select elements(u.permissions) from User u"  OK
-//HQLTest.testListElementFunctionInWhere
+[HQLTest.testListElementFunctionInWhere]
 "from User u where 'read' in elements(u.permissions)"  OK
 "from User u where 'write' <> all elements(u.permissions)"  OK
-//HQLTest.testManyToManyElementFunctionInSelect
+[HQLTest.testManyToManyElementFunctionInSelect]
 "select maxelement(human.friends) from Human human"  OK
 "select elements(human.friends) from Human human"  OK
-//HQLTest.testManyToManyMaxElementFunctionInWhere
+[HQLTest.testManyToManyMaxElementFunctionInWhere]
 "from Human human where 5 = maxelement(human.friends)"  OK
-//HQLTest.testCollectionIndexFunctionsInWhere
+[HQLTest.testCollectionIndexFunctionsInWhere]
 "from Zoo zoo where 4 = maxindex(zoo.animals)"  OK
 "from Zoo zoo where 2 = minindex(zoo.animals)"  OK
-//HQLTest.testCollectionIndicesInWhere
+[HQLTest.testCollectionIndicesInWhere]
 "from Zoo zoo where 4 > some indices(zoo.animals)"  OK
 "from Zoo zoo where 4 > all indices(zoo.animals)"  OK
-//HQLTest.testIndicesInWhere
+[HQLTest.testIndicesInWhere]
 "from Zoo zoo where 4 in indices(zoo.animals)"  OK
 "from Zoo zoo where exists indices(zoo.animals)"  OK
-//HQLTest.testCollectionElementInWhere
+[HQLTest.testCollectionElementInWhere]
 "from Zoo zoo where 4 > some elements(zoo.animals)"  OK
 "from Zoo zoo where 4 > all elements(zoo.animals)"  OK
-//HQLTest.testElementsInWhere
+[HQLTest.testElementsInWhere]
 "from Zoo zoo where 4 in elements(zoo.animals)"  OK
 "from Zoo zoo where exists elements(zoo.animals)"  OK
-//HQLTest.testNull
+[HQLTest.testNull]
 "from Human h where h.nickName is null"  OK
 "from Human h where h.nickName is not null"  OK
-//HQLTest.testSubstitutions
+[HQLTest.testSubstitutions]
 "from Human h where h.pregnant = yes"  OK
 "from Human h where h.pregnant = foo"  OK
-//HQLTest.testEscapedQuote
+[HQLTest.testEscapedQuote]
 "from Human h where h.nickName='1 ov''tha''few'"  OK
-//HQLTest.testCaseWhenElse
+[HQLTest.testCaseWhenElse]
 "from Human h where case when h.nickName='1ovthafew' then 'Gavin' when h.nickName='turin' then 'Christian' else h.nickName end = h.name.first"  OK
-//HQLTest.testCaseExprWhenElse
+[HQLTest.testCaseExprWhenElse]
 "from Human h where case h.nickName when '1ovthafew' then 'Gavin' when 'turin' then 'Christian' else h.nickName end = h.name.first"  OK
-//HQLTest.testInvalidHql
+[HQLTest.testInvalidHql]
 "from Animal foo where an.bodyWeight > 10"  OK
 "select an.name from Animal foo"  OK
 "from Animal foo where an.verybogus > 10"  OK
@@ -960,29 +946,29 @@ SELECT/FROM STATEMENT
 "select an.name"  FAIL
 "from Animal an where (((an.bodyWeight > 10 and an.bodyWeight < 100)) or an.bodyWeight is null"  FAIL
 "from Animal an where an.bodyWeight is null where an.bodyWeight is null"  FAIL
-//"from where name='foo'"  FAIL //This fails only when no entity is named "where" (Improve on?)
+["from where name='foo'"  FAIL //This fails only when no entity is named "where" (Improve on?)]
 "from NonexistentClass where name='foo'"  OK
 "select new FOO_BOGUS_Animal(an.description, an.bodyWeight) from Animal an"  OK
 "select new Animal(an.description, an.bodyWeight, 666) from Animal an"  OK
-//HQLTest.testWhereBetween
+[HQLTest.testWhereBetween]
 "from Animal an where an.bodyWeight between 1 and 10"  OK
-//HQLTest.testConcatenation
+[HQLTest.testConcatenation]
 "from Human h where h.nickName = '1' || 'ov' || 'tha' || 'few'"  OK
-//HQLTest.testWhereLike
+[HQLTest.testWhereLike]
 "from Animal a where a.description like '%black%'"  OK
 "from Animal an where an.description like '%fat%'"  OK
 "from Animal an where lower(an.description) like '%fat%'"  OK
-//HQLTest.testWhereIn
+[HQLTest.testWhereIn]
 "from Animal an where an.description in ('fat', 'skinny')"  OK
-//HQLTest.testLiteralInFunction
+[HQLTest.testLiteralInFunction]
 "from Animal an where an.bodyWeight > abs(5)"  OK
 "from Animal an where an.bodyWeight > abs(-5)"  OK
-//HQLTest.testExpressionInFunction
+[HQLTest.testExpressionInFunction]
 "from Animal an where an.bodyWeight > abs(3-5)"  OK
 "from Animal an where an.bodyWeight > abs(3/5)"  OK
 "from Animal an where an.bodyWeight > abs(3+5)"  OK
 "from Animal an where an.bodyWeight > abs(3*5)"  OK
-//HQLTest.testNotOrWhereClause
+[HQLTest.testNotOrWhereClause]
 "from Simple s where 'foo'='bar' or not 'foo'='foo'"  OK
 "from Simple s where 'foo'='bar' or not ('foo'='foo')"  OK
 "from Simple s where not ( 'foo'='bar' or 'foo'='foo' )"  OK
@@ -996,13 +982,13 @@ SELECT/FROM STATEMENT
 "from Simple s where ('foo'='bar' and 'foo'='foo') or 'x'='y'"  OK
 "from Simple s where ('foo'='bar' or 'foo'='foo') and 'x'='y'"  OK
 "from Simple s where not( upper( s.name ) ='yada' or 1=2 or 'foo'='bar' or not('foo'='foo') or 'foo' like 'bar' )"  OK
-//HQLTest.testComplexExpressionInFunction
+[HQLTest.testComplexExpressionInFunction]
 "from Animal an where an.bodyWeight > abs((3-5)/4)"  OK
-//HQLTest.testStandardFunctions
+[HQLTest.testStandardFunctions]
 "from Animal where current_date = current_time"  OK
 "from Animal a where upper(a.description) = 'FAT'"  OK
 "select lower(a.description) from Animal a"  OK
-//HQLTest.testOrderBy
+[HQLTest.testOrderBy]
 "from Animal an order by an.bodyWeight"  OK
 "from Animal an order by an.bodyWeight asc"  OK
 "from Animal an order by an.bodyWeight desc"  OK
@@ -1011,72 +997,72 @@ SELECT/FROM STATEMENT
 "from Animal an order by an.bodyWeight, an.description"  OK
 "from Animal an order by an.bodyWeight asc, an.description desc"  OK
 "from Human h order by sqrt(h.bodyWeight), year(h.birthdate)"  OK
-//HQLTest.testGroupByFunction
+[HQLTest.testGroupByFunction]
 "select count(*) from Human h group by year(h.birthdate)"  OK
 "select count(*) from Human h group by trunc( sqrt(h.bodyWeight*4)/2 )"  OK
 "select count(*) from Human h group by year(sysdate)"  OK
-//HQLTest.testPolymorphism
+[HQLTest.testPolymorphism]
 "from Mammal"  OK
 "from Dog"  OK
 "from Mammal m where m.pregnant = false and m.bodyWeight > 10"  OK
 "from Dog d where d.pregnant = false and d.bodyWeight > 10"  OK
-//HQLTest.testProduct
+[HQLTest.testProduct]
 "from Animal, Animal"  OK
 "from Animal x, Animal y where x.bodyWeight = y.bodyWeight"  OK
 "from Animal x, Mammal y where x.bodyWeight = y.bodyWeight and not y.pregnant = true"  OK
 "from Mammal, Mammal"  OK
-//HQLTest.testJoinedSubclassProduct
+[HQLTest.testJoinedSubclassProduct]
 "from PettingZoo, PettingZoo"  OK
-//HQLTest.testProjectProduct
+[HQLTest.testProjectProduct]
 "select x from Human x, Human y where x.nickName = y.nickName"  OK
 "select x, y from Human x, Human y where x.nickName = y.nickName"  OK
-//HQLTest.testExplicitEntityJoins
+[HQLTest.testExplicitEntityJoins]
 "from Animal an inner join an.mother mo"  OK
 "from Animal an left outer join an.mother mo"  OK
 "from Animal an left outer join fetch an.mother"  OK
-//HQLTest.testMultipleExplicitEntityJoins
+[HQLTest.testMultipleExplicitEntityJoins]
 "from Animal an inner join an.mother mo inner join mo.mother gm"  OK
 "from Animal an left outer join an.mother mo left outer join mo.mother gm"  OK
 "from Animal an inner join an.mother m inner join an.father f"  OK
 "from Animal an left join fetch an.mother m left join fetch an.father f"  OK
-//HQLTest.testMultipleExplicitJoins
+[HQLTest.testMultipleExplicitJoins]
 "from Animal an inner join an.mother mo inner join an.offspring os"  OK
 "from Animal an left outer join an.mother mo left outer join an.offspring os"  OK
-//HQLTest.testExplicitEntityJoinsWithRestriction
+[HQLTest.testExplicitEntityJoinsWithRestriction]
 "from Animal an inner join an.mother mo where an.bodyWeight < mo.bodyWeight"  OK
-//HQLTest.testIdProperty
+[HQLTest.testIdProperty]
 "from Animal a where a.mother.id = 12"  OK
-//HQLTest.testSubclassAssociation
+[HQLTest.testSubclassAssociation]
 "from DomesticAnimal da join da.owner o where o.nickName = 'Gavin'"  OK
 "from DomesticAnimal da left join fetch da.owner"  OK
 "from Human h join h.pets p where p.pregnant = 1"  OK
 "from Human h join h.pets p where p.bodyWeight > 100"  OK
 "from Human h left join fetch h.pets"  OK
-//HQLTest.testExplicitCollectionJoins
+[HQLTest.testExplicitCollectionJoins]
 "from Animal an inner join an.offspring os"  OK
 "from Animal an left outer join an.offspring os"  OK
-//HQLTest.testExplicitOuterJoinFetch
+[HQLTest.testExplicitOuterJoinFetch]
 "from Animal an left outer join fetch an.offspring"  OK
-//HQLTest.testExplicitOuterJoinFetchWithSelect
+[HQLTest.testExplicitOuterJoinFetchWithSelect]
 "select an from Animal an left outer join fetch an.offspring"  OK
-//HQLTest.testExplicitJoins
+[HQLTest.testExplicitJoins]
 "from Zoo zoo join zoo.mammals mam where mam.pregnant = true and mam.description like '%white%'"  OK
 "from Zoo zoo join zoo.animals an where an.description like '%white%'"  OK
-//HQLTest.testMultibyteCharacterConstant
+[HQLTest.testMultibyteCharacterConstant]
 "from Zoo zoo join zoo.animals an where an.description like '%\u4e2d%'"  OK
-//HQLTest.testImplicitJoins
+[HQLTest.testImplicitJoins]
 "from Animal an where an.mother.bodyWeight > ?"  OK
 "from Animal an where an.mother.bodyWeight > 10"  OK
 "from Dog dog where dog.mother.bodyWeight > 10"  OK
 "from Animal an where an.mother.mother.bodyWeight > 10"  OK
 "from Animal an where an.mother is not null"  OK
 "from Animal an where an.mother.id = 123"  OK
-//HQLTest.testImplicitJoinInSelect
+[HQLTest.testImplicitJoinInSelect]
 "select foo, foo.long from Foo foo"  OK
 "select foo.foo from Foo foo"  OK
 "select foo, foo.foo from Foo foo"  OK
 "select foo.foo from Foo foo where foo.foo is not null"  OK
-//HQLTest.testSelectExpressions
+[HQLTest.testSelectExpressions]
 "select an.mother.mother from Animal an"  OK
 "select an.mother.mother.mother from Animal an"  OK
 "select an.mother.mother.bodyWeight from Animal an"  OK
@@ -1086,229 +1072,229 @@ SELECT/FROM STATEMENT
 "select u.human.name.last, u.human.name.first from User u"  OK
 "select bar.baz.name from Bar bar"  OK
 "select bar.baz.name, bar.baz.count from Bar bar"  OK
-//HQLTest.testSelectStandardFunctionsNoParens
+[HQLTest.testSelectStandardFunctionsNoParens]
 "select current_date, current_time, current_timestamp from Animal"  OK
-//HQLTest.testMapIndex
+[HQLTest.testMapIndex]
 "from User u where u.permissions['hibernate']='read'"  OK
-//HQLTest.testCollectionFunctionsInSelect
+[HQLTest.testCollectionFunctionsInSelect]
 "select baz, size(baz.stringSet), count( distinct elements(baz.stringSet) ), max( elements(baz.stringSet) ) from Baz baz group by baz"  OK
 "select elements(fum1.friends) from org.hibernate.test.legacy.Fum fum1"  OK
 "select elements(one.manies) from org.hibernate.test.legacy.One one"  OK
-//HQLTest.testNamedParameters
+[HQLTest.testNamedParameters]
 "from Animal an where an.mother.bodyWeight > :weight"  OK
-//HQLTest.testClassProperty
+[HQLTest.testClassProperty]
 "from Animal a where a.mother.class = Reptile"  OK
-//HQLTest.testComponent
+[HQLTest.testComponent]
 "from Human h where h.name.first = 'Gavin'"  OK
-//HQLTest.testSelectEntity
+[HQLTest.testSelectEntity]
 "select an from Animal an inner join an.mother mo where an.bodyWeight < mo.bodyWeight"  OK
 "select mo, an from Animal an inner join an.mother mo where an.bodyWeight < mo.bodyWeight"  OK
-//HQLTest.testValueAggregate
+[HQLTest.testValueAggregate]
 "select max(p), min(p) from User u join u.permissions p"  OK
-//HQLTest.testAggregation
+[HQLTest.testAggregation]
 "select count(an) from Animal an"  OK
 "select count(distinct an) from Animal an"  OK
 "select count(distinct an.id) from Animal an"  OK
 "select count(all an.id) from Animal an"  OK
-//HQLTest.testSelectProperty
+[HQLTest.testSelectProperty]
 "select an.bodyWeight, mo.bodyWeight from Animal an inner join an.mother mo where an.bodyWeight < mo.bodyWeight"  OK
-//HQLTest.testSelectEntityProperty
+[HQLTest.testSelectEntityProperty]
 "select an.mother from Animal an"  OK
 "select an, an.mother from Animal an"  OK
-//HQLTest.testSelectDistinctAll
+[HQLTest.testSelectDistinctAll]
 "select distinct an.description, an.bodyWeight from Animal an"  OK
 "select all an from Animal an"  OK
-//HQLTest.testSelectAssociatedEntityId
+[HQLTest.testSelectAssociatedEntityId]
 "select an.mother.id from Animal an"  OK
-//HQLTest.testGroupBy
+[HQLTest.testGroupBy]
 "select an.mother.id, max(an.bodyWeight) from Animal an group by an.mother.id having max(an.bodyWeight)>1.0"  OK
-//HQLTest.testGroupByMultiple
+[HQLTest.testGroupByMultiple]
 "select s.id, s.count, count(t), max(t.date) from org.hibernate.test.legacy.Simple s, org.hibernate.test.legacy.Simple t where s.count = t.count group by s.id, s.count order by s.count"  OK
-//HQLTest.testManyToMany
+[HQLTest.testManyToMany]
 "from Human h join h.friends f where f.nickName = 'Gavin'"  OK
 "from Human h join h.friends f where f.bodyWeight > 100"  OK
-//HQLTest.testManyToManyElementFunctionInWhere
+[HQLTest.testManyToManyElementFunctionInWhere]
 "from Human human where human in elements(human.friends)"  OK
 "from Human human where human = some elements(human.friends)"  OK
-//HQLTest.testManyToManyElementFunctionInWhere2
+[HQLTest.testManyToManyElementFunctionInWhere2]
 "from Human h1, Human h2 where h2 in elements(h1.family)"  OK
 "from Human h1, Human h2 where 'father' in indices(h1.family)"  OK
-//HQLTest.testManyToManyFetch
+[HQLTest.testManyToManyFetch]
 "from Human h left join fetch h.friends"  OK
-//HQLTest.testManyToManyIndexAccessor
+[HQLTest.testManyToManyIndexAccessor]
 "select c from ContainerX c, Simple s where c.manyToMany[2] = s"  OK
 "select s from ContainerX c, Simple s where c.manyToMany[2] = s"  OK
 "from ContainerX c, Simple s where c.manyToMany[2] = s"  OK
-//HQLTest.testSelectNew
+[HQLTest.testSelectNew]
 "select new Animal(an.description, an.bodyWeight) from Animal an"  OK
 "select new org.hibernate.test.hql.Animal(an.description, an.bodyWeight) from Animal an"  OK
-//HQLTest.testSimpleCorrelatedSubselect
+[HQLTest.testSimpleCorrelatedSubselect]
 "from Animal a where a.bodyWeight = (select o.bodyWeight from a.offspring o)"  OK
 "from Animal a where a = (from a.offspring o)"  OK
-//HQLTest.testSimpleUncorrelatedSubselect
+[HQLTest.testSimpleUncorrelatedSubselect]
 "from Animal a where a.bodyWeight = (select an.bodyWeight from Animal an)"  OK
 "from Animal a where a = (from Animal an)"  OK
-//HQLTest.testSimpleCorrelatedSubselect2
+[HQLTest.testSimpleCorrelatedSubselect2]
 "from Animal a where a = (select o from a.offspring o)"  OK
 "from Animal a where a in (select o from a.offspring o)"  OK
-//HQLTest.testSimpleUncorrelatedSubselect2
+[HQLTest.testSimpleUncorrelatedSubselect2]
 "from Animal a where a = (select an from Animal an)"  OK
 "from Animal a where a in (select an from Animal an)"  OK
-//HQLTest.testUncorrelatedSubselect2
+[HQLTest.testUncorrelatedSubselect2]
 "from Animal a where a.bodyWeight = (select max(an.bodyWeight) from Animal an)"  OK
-//HQLTest.testCorrelatedSubselect2
+[HQLTest.testCorrelatedSubselect2]
 "from Animal a where a.bodyWeight > (select max(o.bodyWeight) from a.offspring o)"  OK
-//HQLTest.testManyToManyJoinInSubselect
+[HQLTest.testManyToManyJoinInSubselect]
 "select foo from Foo foo where foo in (select elt from Baz baz join baz.fooArray elt)"  OK
-//HQLTest.testImplicitJoinInSubselect
+[HQLTest.testImplicitJoinInSubselect]
 "from Animal a where a = (select an.mother from Animal an)"  OK
 "from Animal a where a.id = (select an.mother.id from Animal an)"  OK
-//HQLTest.testManyToOneSubselect
+[HQLTest.testManyToOneSubselect]
 "from Animal a where 'foo' in (select m.description from a.mother m)"  OK
-//HQLTest.testPositionalParameters
+[HQLTest.testPositionalParameters]
 "from Animal an where an.bodyWeight > ?"  OK
-//HQLTest.testKeywordPropertyName
+[HQLTest.testKeywordPropertyName]
 "from Glarch g order by g.order asc"  OK
 "select g.order from Glarch g where g.order = 3"  OK
-//HQLTest.testJavaConstant
+[HQLTest.testJavaConstant]
 "from org.hibernate.test.legacy.Category c where c.name = org.hibernate.test.legacy.Category.ROOT_CATEGORY"  OK
 "from org.hibernate.test.legacy.Category c where c.id = org.hibernate.test.legacy.Category.ROOT_ID"  OK
 "from Category c where c.name = Category.ROOT_CATEGORY"  OK
 "select c.name, Category.ROOT_ID from Category as c"  OK
-//HQLTest.testClassName
+[HQLTest.testClassName]
 "from Zoo zoo where zoo.class = PettingZoo"  OK
 "from DomesticAnimal an where an.class = Dog"  OK
-//HQLTest.testSelectDialectFunction
+[HQLTest.testSelectDialectFunction]
 "select mod(s.count, 2) from org.hibernate.test.legacy.Simple as s where s.id = 10"  OK
 "select upper(human.name.first) from Human human"  OK
 "from Human human where lower(human.name.first) like 'gav%'"  OK
 "select max(a.bodyWeight) from Animal a"  OK
-//HQLTest.testTwoJoins
+[HQLTest.testTwoJoins]
 "from Human human join human.friends, Human h join h.mother"  OK
 "from Human human join human.friends f, Animal an join an.mother m where f=m"  OK
 "from Baz baz left join baz.fooToGlarch, Bar bar join bar.foo"  OK
-//HQLTest.testToOneToManyManyJoinSequence
+[HQLTest.testToOneToManyManyJoinSequence]
 "from Dog d join d.owner h join h.friends f where f.name.first like 'joe%'"  OK
-//HQLTest.testToOneToManyJoinSequence
+[HQLTest.testToOneToManyJoinSequence]
 "from Animal a join a.mother m join m.offspring"  OK
 "from Dog d join d.owner m join m.offspring"  OK
 "from Animal a join a.mother m join m.offspring o where o.bodyWeight > a.bodyWeight"  OK
-//HQLTest.testSubclassExplicitJoin
+[HQLTest.testSubclassExplicitJoin]
 "from DomesticAnimal da join da.owner o where o.nickName = 'gavin'"  OK
 "from DomesticAnimal da join da.owner o where o.bodyWeight > 0"  OK
-//HQLTest.testMultipleExplicitCollectionJoins
+[HQLTest.testMultipleExplicitCollectionJoins]
 "from Animal an inner join an.offspring os join os.offspring gc"  OK
 "from Animal an left outer join an.offspring os left outer join os.offspring gc"  OK
-//HQLTest.testSelectDistinctComposite
+[HQLTest.testSelectDistinctComposite]
 "select distinct p from org.hibernate.test.compositeelement.Parent p join p.children c where c.name like 'Child%'"  OK
-//HQLTest.testDotComponent
+[HQLTest.testDotComponent]
 "select fum.id from org.hibernate.test.legacy.Fum as fum where not fum.fum='FRIEND'"  OK
-//HQLTest.testOrderByCount
+[HQLTest.testOrderByCount]
 "from Animal an group by an.zoo.id order by an.zoo.id, count(*)"  OK
-//HQLTest.testHavingCount
+[HQLTest.testHavingCount]
 "from Animal an group by an.zoo.id having count(an.zoo.id) > 1"  OK
-//HQLTest.selectWhereElements
+[HQLTest.selectWhereElements]
 "select foo from Foo foo, Baz baz where foo in elements(baz.fooArray)"  OK
-//HQLTest.testCollectionOfComponents
+[HQLTest.testCollectionOfComponents]
 "from Baz baz inner join baz.components comp where comp.name='foo'"  OK
-//HQLTest.testOneToOneJoinedFetch
+[HQLTest.testOneToOneJoinedFetch]
 "from org.hibernate.test.onetoone.joined.Person p join fetch p.address left join fetch p.mailingAddress"  OK
-//HQLTest.testSubclassImplicitJoin
+[HQLTest.testSubclassImplicitJoin]
 "from DomesticAnimal da where da.owner.nickName like 'Gavin%'"  OK
 "from DomesticAnimal da where da.owner.nickName = 'gavin'"  OK
 "from DomesticAnimal da where da.owner.bodyWeight > 0"  OK
-//HQLTest.testComponent2
+[HQLTest.testComponent2]
 "from Dog dog where dog.owner.name.first = 'Gavin'"  OK
-//HQLTest.testOneToOne
+[HQLTest.testOneToOne]
 "from User u where u.human.nickName='Steve'"  OK
 "from User u where u.human.name.first='Steve'"  OK
-//HQLTest.testSelectClauseImplicitJoin
+[HQLTest.testSelectClauseImplicitJoin]
 "select d.owner.mother from Dog d"  OK
 "select d.owner.mother.description from Dog d"  OK
 "select d.owner.mother from Dog d, Dog h"  OK
-//HQLTest.testFromClauseImplicitJoin
+[HQLTest.testFromClauseImplicitJoin]
 "from DomesticAnimal da join da.owner.mother m where m.bodyWeight > 10"  OK
-//HQLTest.testImplicitJoinInFrom
+[HQLTest.testImplicitJoinInFrom]
 "from Human h join h.mother.mother.offspring o"  OK
-//HQLTest.testDuplicateImplicitJoinInSelect
+[HQLTest.testDuplicateImplicitJoinInSelect]
 "select an.mother.bodyWeight from Animal an join an.mother m where an.mother.bodyWeight > 10"  OK
 "select an.mother.bodyWeight from Animal an where an.mother.bodyWeight > 10"  OK
 "select an.mother from Animal an where an.mother.bodyWeight is not null"  OK
 "select an.mother.bodyWeight from Animal an order by an.mother.bodyWeight"  OK
-//HQLTest.testSelectProperty2
+[HQLTest.testSelectProperty2]
 "select an, mo.bodyWeight from Animal an inner join an.mother mo where an.bodyWeight < mo.bodyWeight"  OK
 "select an, mo, an.bodyWeight, mo.bodyWeight from Animal an inner join an.mother mo where an.bodyWeight < mo.bodyWeight"  OK
-//HQLTest.testSubclassWhere
+[HQLTest.testSubclassWhere]
 "from PettingZoo pz1, PettingZoo pz2 where pz1.id = pz2.id"  OK
 "from PettingZoo pz1, PettingZoo pz2 where pz1.id = pz2"  OK
 "from PettingZoo pz where pz.id > 0 "  OK
-//HQLTest.testNestedImplicitJoinsInSelect
+[HQLTest.testNestedImplicitJoinsInSelect]
 "select foo.foo.foo.foo.string from org.hibernate.test.legacy.Foo foo where foo.foo.foo = 'bar'"  OK
 "select foo.foo.foo.foo.string from org.hibernate.test.legacy.Foo foo"  OK
-//HQLTest.testNestedComponent
+[HQLTest.testNestedComponent]
 "from org.hibernate.test.legacy.Foo foo where foo.component.subcomponent.name='bar'"  OK
-//HQLTest.testNull2
+[HQLTest.testNull2]
 "from Human h where not( h.nickName is null )"  OK
 "from Human h where not( h.nickName is not null )"  OK
-//HQLTest.testUnknownFailureFromMultiTableTest
+[HQLTest.testUnknownFailureFromMultiTableTest]
 "from Lower s where s.yetanother.name='name'"  OK
-//HQLTest.testJoinInSubselect
+[HQLTest.testJoinInSubselect]
 "from Animal a where a in (select m from Animal an join an.mother m)"  OK
 "from Animal a where a in (select o from Animal an join an.offspring o)"  OK
-//HQLTest.testJoinedSubclassImplicitJoin
+[HQLTest.testJoinedSubclassImplicitJoin]
 "from org.hibernate.test.legacy.Lower s where s.yetanother.name='name'"  OK
-//HQLTest.testProjectProductJoinedSubclass
+[HQLTest.testProjectProductJoinedSubclass]
 "select zoo from Zoo zoo, PettingZoo pz where zoo=pz"  OK
 "select zoo, pz from Zoo zoo, PettingZoo pz where zoo=pz"  OK
-//HQLTest.testCorrelatedSubselect1
+[HQLTest.testCorrelatedSubselect1]
 "from Animal a where exists (from a.offspring o where o.bodyWeight>10)"  OK
-//HQLTest.testOuterAliasInSubselect
+[HQLTest.testOuterAliasInSubselect]
 "from Human h where h = (from Animal an where an = h)"  OK
-//HQLTest.testFetch
+[HQLTest.testFetch]
 "from Zoo zoo left join zoo.mammals"  OK
 "from Zoo zoo left join fetch zoo.mammals"  OK
-//HQLTest.testOneToManyElementFunctionInWhere
+[HQLTest.testOneToManyElementFunctionInWhere]
 "from Zoo zoo where 'dog' in indices(zoo.mammals)"  OK
 "from Zoo zoo, Dog dog where dog in elements(zoo.mammals)"  OK
-//HQLTest.testManyToManyElementFunctionInSelect
+[HQLTest.testManyToManyElementFunctionInSelect]
 "select elements(zoo.mammals) from Zoo zoo"  OK
 "select indices(zoo.mammals) from Zoo zoo"  OK
-//HQLTest.testManyToManyInJoin
+[HQLTest.testManyToManyInJoin]
  "select x.id from Human h1 join h1.family x"   OK
 "select index(h2) from Human h1 join h1.family h2"  OK
-//HQLTest.testManyToManyInSubselect
+[HQLTest.testManyToManyInSubselect]
  "from Human h1, Human h2 where h2 in (select x.id from h1.family x)"  OK
-//HQLTest.testOneToManyIndexAccess
+[HQLTest.testOneToManyIndexAccess]
  "from Zoo zoo where zoo.mammals['dog'] is not null"  OK
-//HQLTest.testImpliedSelect
+[HQLTest.testImpliedSelect]
  "select zoo from Zoo zoo"  OK
  "from Zoo zoo"  OK
  "from Zoo zoo join zoo.mammals m"  OK
  "from Zoo"  OK
  "from Zoo zoo join zoo.mammals"  OK
-//HQLTest.testVectorSubselect
+[HQLTest.testVectorSubselect]
  "from Animal a where ('foo', 'bar') in (select m.description, m.bodyWeight from a.mother m)"  OK
-//HQLTest.testWierdSubselectImplicitJoinStuff
+[HQLTest.testWierdSubselectImplicitJoinStuff]
 "from Simple s where s = some( select sim from Simple sim where sim.other.count=s.other.count ) and s.other.count > 0"  OK
-//HQLTest.testCollectionsInSelect2
+[HQLTest.testCollectionsInSelect2]
  "select foo.string from Bar bar left join bar.baz.fooArray foo where bar.string = foo.string"  OK
-//HQLTest.testAssociationPropertyWithoutAlias
+[HQLTest.testAssociationPropertyWithoutAlias]
 "from Animal where zoo is null"  OK
-//HQLTest.testComponentNoAlias
+[HQLTest.testComponentNoAlias]
 "from Human where name.first = 'Gavin'"  OK
-//ASTParserLoadingTest.testComponentNullnessChecks
+[ASTParserLoadingTest.testComponentNullnessChecks]
 "from Human where name is null"  OK
 "from Human where name is not null"  OK
 "from Human where cast(? as string) is null"  OK
 "from Human where ? is null"  OK
-//ASTParserLoadingTest.testInvalidCollectionDereferencesFail
+[ASTParserLoadingTest.testInvalidCollectionDereferencesFail]
 "from Animal a join a.offspring o where o.description = 'xyz'"  OK
 "from Animal a join a.offspring o where o.father.description = 'xyz'"  OK
 "from Animal a join a.offspring o order by o.description"  OK
 "from Animal a join a.offspring o order by o.father.description"  OK
 "from Animal a order by a.offspring.description"  OK
 "from Animal a order by a.offspring.father.description"  OK
-//ASTParserLoadingTest.testExpressionWithParamInFunction
+[ASTParserLoadingTest.testExpressionWithParamInFunction]
 "from Animal where abs(cast(:x as long) - :y) < 2.0"  OK
 "from Animal where abs(:x - cast(:y as long)) < 2.0"  OK
 "from Animal where abs(cast(:x as long) - cast(:y as long)) < 2.0"  OK
@@ -1319,25 +1305,25 @@ SELECT/FROM STATEMENT
 "from Animal where lower(upper('foo') || upper(cast(:bar as string))) like 'f%'"  OK
 "from Animal where lower(upper('foo') || upper(:bar)) like 'f%'"  OK
 "from Animal where abs(cast(1 as float) - cast(:param as float)) = 1.0"  OK
-//ASTParserLoadingTest.testCrazyIdFieldNames
+[ASTParserLoadingTest.testCrazyIdFieldNames]
 "select e.heresAnotherCrazyIdFieldName from MoreCrazyIdFieldNameStuffEntity e"  OK
-//ASTParserLoadingTest.testImplicitJoinsInDifferentClauses
+[ASTParserLoadingTest.testImplicitJoinsInDifferentClauses]
 "select e.owner from SimpleAssociatedEntity e"  OK
 "select e.id, e.owner from SimpleAssociatedEntity e"  OK
 "from SimpleAssociatedEntity e order by e.owner"  OK
 "select e.owner.id, count(*) from SimpleAssociatedEntity e group by e.owner"  OK
-//ASTParserLoadingTest.testNestedComponentIsNull
+[ASTParserLoadingTest.testNestedComponentIsNull]
 "from Commento c where c.marelo.commento.mcompr is null"  OK
-//ASTParserLoadingTest.testSpecialClassPropertyReference
+[ASTParserLoadingTest.testSpecialClassPropertyReference]
 "select a.description from Animal a where a.class = Mammal"  OK
 "select a.class from Animal a"  OK
 "from Animal an where an.class = Dog"  OK
-//ASTParserLoadingTest.testSpecialClassPropertyReferenceFQN
+[ASTParserLoadingTest.testSpecialClassPropertyReferenceFQN]
 "from Zoo zoo where zoo.class = org.hibernate.test.hql.PettingZoo"  OK
 "select a.description from Animal a where a.class = org.hibernate.test.hql.Mammal"  OK
 "from DomesticAnimal an where an.class = org.hibernate.test.hql.Dog"  OK
 "from Animal an where an.class = org.hibernate.test.hql.Dog"  OK
-//ASTParserLoadingTest.testSubclassOrSuperclassPropertyReferenceInJoinedSubclass
+[ASTParserLoadingTest.testSubclassOrSuperclassPropertyReferenceInJoinedSubclass]
 "from Zoo z join z.mammals as m where m.name.first = 'John'"  OK
 "from Zoo z join z.mammals as m where m.pregnant = false"  OK
 "select m.pregnant from Zoo z join z.mammals as m where m.pregnant = false"  OK
@@ -1349,9 +1335,9 @@ SELECT/FROM STATEMENT
 "select m.name from Zoo z join z.mammals as m"  OK
 "from DomesticAnimal da join da.owner as o where o.nickName = 'Gavin'"  OK
 "select da.father from DomesticAnimal da join da.owner as o where o.nickName = 'Gavin'"  OK
-//ASTParserLoadingTest.testJPAPositionalParameterList
+[ASTParserLoadingTest.testJPAPositionalParameterList]
 "from Human where name.last in (?1)"  OK
-//ASTParserLoadingTest.testComponentQueries
+[ASTParserLoadingTest.testComponentQueries]
 "select h.name from Human h"  OK
 "from Human h where h.name = h.name"  OK
 "from Human h where h.name = :name"  OK
@@ -1363,35 +1349,35 @@ SELECT/FROM STATEMENT
 "from Human h where ('John', 'X', 'Doe') <> h.name"  OK
 "from Human h where ('John', 'X', 'Doe') >= h.name"  OK
 "from Human h order by h.name"  OK
-//ASTParserLoadingTest.testComponentParameterBinding
+[ASTParserLoadingTest.testComponentParameterBinding]
 "from Order o where o.customer.name =:name and o.id = :id"  OK
 "from Order o where o.id = :id and o.customer.name =:name "  OK
-//ASTParserLoadingTest.testAnyMappingReference
+[ASTParserLoadingTest.testAnyMappingReference]
 "from PropertySet p where p.someSpecificProperty = :ssp"  OK
-//ASTParserLoadingTest.testJdkEnumStyleEnumConstant
+[ASTParserLoadingTest.testJdkEnumStyleEnumConstant]
 "from Zoo z where z.classification = org.hibernate.test.hql.Classification.LAME"  OK
-//ASTParserLoadingTest.testParameterTypeMismatchFailureExpected
+[ASTParserLoadingTest.testParameterTypeMismatchFailureExpected]
 "from Animal a where a.description = :nonstring"  OK
-//ASTParserLoadingTest.testMultipleBagFetchesFail
+[ASTParserLoadingTest.testMultipleBagFetchesFail]
 "from Human h join fetch h.friends f join fetch f.friends fof"  OK
-//ASTParserLoadingTest.testCollectionJoinsInSubselect
+[ASTParserLoadingTest.testCollectionJoinsInSubselect]
 "select h.id, h.description from Human h left join h.friends where h in ( select h1 from Human h1 left join h1.friends f where h1.id=1)"  OK
 "select h.id, h.description from Human h left join h.friends f where f in ( select h1 from Human h1 left join h1.friends f1 where h = f1 )"  OK
-//ASTParserLoadingTest.testCollectionFetchWithDistinctionAndLimit
+[ASTParserLoadingTest.testCollectionFetchWithDistinctionAndLimit]
 "select distinct p from Animal p inner join fetch p.offspring"  OK
 "select p from Animal p inner join fetch p.offspring order by p.id"  OK
-//ASTParserLoadingTest.testFetchInSubqueryFails
+[ASTParserLoadingTest.testFetchInSubqueryFails]
 "from Animal a where a.mother in (select m from Animal a1 inner join a1.mother as m join fetch m.mother)"  OK
-//ASTParserLoadingTest.testQueryMetadataRetrievalWithFetching
+[ASTParserLoadingTest.testQueryMetadataRetrievalWithFetching]
 "from Animal a inner join fetch a.mother"  OK
-//ASTParserLoadingTest.testSuperclassPropertyReferenceAfterCollectionIndexedAccess
+[ASTParserLoadingTest.testSuperclassPropertyReferenceAfterCollectionIndexedAccess]
 "from Zoo zoo where zoo.mammals['tiger'].mother.bodyWeight > 3.0f"  OK
-//ASTParserLoadingTest.testJoinFetchCollectionOfValues
+[ASTParserLoadingTest.testJoinFetchCollectionOfValues]
 "select h from Human as h join fetch h.nickNames"  OK
-//ASTParserLoadingTest.testIntegerLiterals
+[ASTParserLoadingTest.testIntegerLiterals]
 "from Foo where long = 1"  OK
 "from Foo where long = 1L"  OK
-//ASTParserLoadingTest.testDecimalLiterals
+[ASTParserLoadingTest.testDecimalLiterals]
 "from Animal where bodyWeight > 100.0e-10"  OK
 "from Animal where bodyWeight > 100.0E-10"  OK
 "from Animal where bodyWeight > 100.001f"  OK
@@ -1402,23 +1388,23 @@ SELECT/FROM STATEMENT
 "from Animal where bodyWeight > 100e-10"  OK
 "from Animal where bodyWeight > .01E-10"  OK
 "from Animal where bodyWeight > 1e-38"  OK
-//ASTParserLoadingTest.testNakedPropertyRef
+[ASTParserLoadingTest.testNakedPropertyRef]
 "from Animal where bodyWeight = bodyWeight"  OK
 "select bodyWeight from Animal"  OK
 "select max(bodyWeight) from Animal"  OK
-//ASTParserLoadingTest.testNakedComponentPropertyRef
+[ASTParserLoadingTest.testNakedComponentPropertyRef]
 "select name from Human"  OK
 "select upper(h.name.first) from Human as h"  OK
 "select upper(name.first) from Human"  OK
-//ASTParserLoadingTest.testNakedImplicitJoins
+[ASTParserLoadingTest.testNakedImplicitJoins]
 "from Animal where mother.father.id = 1"  OK
-//ASTParserLoadingTest.testNakedEntityAssociationReference
+[ASTParserLoadingTest.testNakedEntityAssociationReference]
 "from Animal where mother = :mother"  OK
-//ASTParserLoadingTest.testNakedMapIndex
+[ASTParserLoadingTest.testNakedMapIndex]
 "from Zoo where mammals['dog'].description like '%black%'"  OK
-//ASTParserLoadingTest.testInvalidFetchSemantics
+[ASTParserLoadingTest.testInvalidFetchSemantics]
 "select mother from Human a left join fetch a.mother mother"  OK
-//ASTParserLoadingTest.testArithmetic
+[ASTParserLoadingTest.testArithmetic]
 "select 2*2*2*2*(2*2) from Zoo"  OK
 "select 2 / (1+1) from Zoo"  OK
 "select 2 - (1+1) from Zoo"  OK
@@ -1428,64 +1414,64 @@ SELECT/FROM STATEMENT
 "select 4 / 2 * 2 from Zoo"  OK
 "select 2 * (2/2) from Zoo"  OK
 "select 2 * (2/2+1) from Zoo"  OK
-//ASTParserLoadingTest.testNestedCollectionFetch
+[ASTParserLoadingTest.testNestedCollectionFetch]
 "from Animal a left join fetch a.offspring o left join fetch o.offspring where a.mother.id = 1 order by a.description"  OK
 "from Zoo z left join fetch z.animals a left join fetch a.offspring where z.name ='MZ' order by a.description"  OK
 "from Human h left join fetch h.pets a left join fetch a.offspring where h.name.first ='Gavin' order by a.description"  OK
-//ASTParserLoadingTest.testSelectClauseSubselect
+[ASTParserLoadingTest.testSelectClauseSubselect]
 "select (select max(z.id) from a.zoo z) from Animal a"  OK
 "select (select max(z.id) from a.zoo z where z.name=:name) from Animal a"  OK
-//ASTParserLoadingTest.testInitProxy
+[ASTParserLoadingTest.testInitProxy]
 "from Animal a"  OK
-//ASTParserLoadingTest.testSelectClauseImplicitJoin
+[ASTParserLoadingTest.testSelectClauseImplicitJoin]
 "select distinct a.zoo from Animal a where a.zoo is not null"  OK
-//ASTParserLoadingTest.testComponentOrderBy
+[ASTParserLoadingTest.testComponentOrderBy]
 "from Human as h order by h.name"  OK
-//ASTParserLoadingTest.testCastInSelect
+[ASTParserLoadingTest.testCastInSelect]
 "select cast(bodyWeight as integer) from Animal"  OK
 "select cast(a.bodyWeight as integer) from Animal a"  OK
-//ASTParserLoadingTest.testAliases
+[ASTParserLoadingTest.testAliases]
 "select a.bodyWeight as abw, a.description from Animal a"  OK
 "select count(*), avg(a.bodyWeight) as avg from Animal a"  OK
-//ASTParserLoadingTest.testParameterMixing
+[ASTParserLoadingTest.testParameterMixing]
 "from Animal a where a.description = ? and a.bodyWeight = ? or a.bodyWeight = :bw"  OK
-//ASTParserLoadingTest.testOrdinalParameters
+[ASTParserLoadingTest.testOrdinalParameters]
 "from Animal a where a.description = ? and a.bodyWeight = ?"  OK
 "from Animal a where a.bodyWeight in (?, ?)"  OK
-//ASTParserLoadingTest.testIndexParams
+[ASTParserLoadingTest.testIndexParams]
 "from Zoo zoo where zoo.mammals[:name] = :id"  OK
 "from Zoo zoo where zoo.mammals[:name].bodyWeight > :w"  OK
 "from Zoo zoo where zoo.animals[:sn].mother.bodyWeight < :mw"  OK
 "from Zoo zoo where zoo.animals[:sn].description like :desc and zoo.animals[:sn].bodyWeight > :wmin and zoo.animals[:sn].bodyWeight < :wmax"  OK
 "from Human where addresses[:type].city = :city and addresses[:type].country = :country"  OK
-//ASTParserLoadingTest.testAggregation
+[ASTParserLoadingTest.testAggregation]
 "select sum(h.bodyWeight) from Human h"  OK
 "select avg(h.height) from Human h"  OK
 "select max(a.id) from Animal a"  OK
-//ASTParserLoadingTest.testSelectClauseCase
+[ASTParserLoadingTest.testSelectClauseCase]
 "select case nickName when 'Oney' then 'gavin' when 'Turin' then 'christian' else nickName end from Human"  OK
 "select case when bodyWeight > 100 then 'fat' else 'skinny' end from Human"  OK
-//ASTParserLoadingTest.testImplicitPolymorphism
+[ASTParserLoadingTest.testImplicitPolymorphism]
 "from java.lang.Comparable"  OK
 "from java.lang.Object"  OK
-//ASTParserLoadingTest.testCoalesce
+[ASTParserLoadingTest.testCoalesce]
 "from Human h where coalesce(h.nickName, h.name.first, h.name.last) = 'max'"  OK
 "select nullif(nickName, '1e1') from Human"  OK
-//ASTParserLoadingTest.testStr
+[ASTParserLoadingTest.testStr]
 "select str(an.bodyWeight) from Animal an where str(an.bodyWeight) like '%1%'"  OK
 "select str(an.bodyWeight, 8, 3) from Animal an where str(an.bodyWeight, 8, 3) like '%1%'"  OK
 "select str(current_date) from Animal"  OK
 "select str(year(current_date))||'-'||str(month(current_date))||'-'||str(day(current_date)) from Animal"  OK
-//ASTParserLoadingTest.testCast
+[ASTParserLoadingTest.testCast]
 "from Human h where h.nickName like 'G%'"  OK
 "from Animal a where cast(a.bodyWeight as string) like '1.%'"  OK
 "from Animal a where cast(a.bodyWeight as integer) = 1"  OK
-//ASTParserLoadingTest.testExtract
+[ASTParserLoadingTest.testExtract]
 "select second(current_timestamp()), minute(current_timestamp()), hour(current_timestamp()) from Mammal m"  OK
 "select day(m.birthdate), month(m.birthdate), year(m.birthdate) from Mammal m"  OK
 "select extract(second from current_timestamp()), extract(minute from current_timestamp()), extract(hour from current_timestamp()) from Mammal m"  OK
 "select extract(day from m.birthdate), extract(month from m.birthdate), extract(year from m.birthdate) from Mammal m"  OK
-//ASTParserLoadingTest.testSelectExpressions
+[ASTParserLoadingTest.testSelectExpressions]
 "select 'found', lower(h.name.first) from Human h where lower(h.name.first) = 'gavin'"  OK
 "select 'found', lower(h.name.first) from Human h where concat(h.name.first, ' ', h.name.initial, ' ', h.name.last) = 'Gavin A King'"  OK
 "select 'found', lower(h.name.first) from Human h where h.name.first||' '||h.name.initial||' '||h.name.last = 'Gavin A King'"  OK
@@ -1504,38 +1490,38 @@ SELECT/FROM STATEMENT
 "select lower(upper('foo')) from Animal"  OK
 "select lower(upper('foo') || upper('bar')) from Animal"  OK
 "select sum(abs(bodyWeight - 1.0) * abs(length('ffobar')-3)) from Animal"  OK
-//ASTParserLoadingTest.testImplicitJoin
+[ASTParserLoadingTest.testImplicitJoin]
 "from Animal a where a.mother.bodyWeight < 2.0 or a.mother.bodyWeight > 9.0"  OK
 "from Animal a where a.mother.bodyWeight > 2.0 and a.mother.bodyWeight > 9.0"  OK
-//ASTParserLoadingTest.testSimpleSelect
+[ASTParserLoadingTest.testSimpleSelect]
 "select a.mother from Animal as a"  OK
-//ASTParserLoadingTest.testWhere
+[ASTParserLoadingTest.testWhere]
 "from Animal an where an.bodyWeight > 10"  OK
 "from Animal an where not an.bodyWeight > 10"  OK
 "from Animal an where an.bodyWeight between 0 and 10"  OK
 "from Animal an where an.bodyWeight not between 0 and 10"  OK
 "from Animal an where sqrt(an.bodyWeight)/2 > 10"  OK
 "from Animal an where (an.bodyWeight > 10 and an.bodyWeight < 100) or an.bodyWeight is null"  OK
-//ASTParserLoadingTest.testEntityFetching
+[ASTParserLoadingTest.testEntityFetching]
 "from Animal an join fetch an.mother"  OK
 "select an from Animal an join fetch an.mother"  OK
-//ASTParserLoadingTest.testCollectionFetching
+[ASTParserLoadingTest.testCollectionFetching]
 "from Animal an join fetch an.offspring"  OK
 "select an from Animal an join fetch an.offspring"  OK
-//ASTParserLoadingTest.testProjectionQueries
+[ASTParserLoadingTest.testProjectionQueries]
 "select an.mother.id, max(an.bodyWeight) from Animal an group by an.mother.id"  OK
-//ASTParserLoadingTest.testStandardFunctions
+[ASTParserLoadingTest.testStandardFunctions]
 "select current_time(), current_date(), current_timestamp() from Product"  OK
-//ASTParserLoadingTest.testDynamicInstantiationQueries
+[ASTParserLoadingTest.testDynamicInstantiationQueries]
 "select new list(an.description, an.bodyWeight) from Animal an"  OK
 "select new map(an.description, an.bodyWeight) from Animal an"  OK
 "select new map(an.description as descr, an.bodyWeight as bw) from Animal an"  OK
-//ASTParserLoadingTest.testResultTransformerScalarQueries
+[ASTParserLoadingTest.testResultTransformerScalarQueries]
 "select an.description as description, an.bodyWeight as bodyWeight from Animal an order by bodyWeight desc"  OK
 "select a from Animal a, Animal b order by a.id"  OK
-//ASTParserLoadingTest.testResultTransformerEntityQueries
+[ASTParserLoadingTest.testResultTransformerEntityQueries]
 "select an as an from Animal an order by bodyWeight desc"  OK
-//ASTParserLoadingTest.testEJBQLFunctions
+[ASTParserLoadingTest.testEJBQLFunctions]
 "from Animal a where a.description = concat('1', concat('2','3'), '4'||'5')||'0'"  OK
 "from Animal a where substring(a.description, 1, 3) = 'cat'"  OK
 "from Animal a where lower(a.description) = 'cat'"  OK
@@ -1556,14 +1542,12 @@ SELECT/FROM STATEMENT
 "from Animal a where a.description like '%a%'"  OK
 "from Animal a where a.description not like '%a%'"  OK
 "from Animal a where a.description like 'x%ax%' escape 'x'"  OK
-//ASTParserLoadingTest.testSubselectBetween
+[ASTParserLoadingTest.testSubselectBetween]
 "from Animal x where (select max(a.bodyWeight) from Animal a) between 0 and 100"  OK
 //
 "from Animal x where (x.name, x.bodyWeight) = ('cat', 20)"  OK
 
-/*
-DELETE STATEMENT
-*/
+[DELETE STATEMENT]
 "delete Animal where mother is not null"  OK
 "delete Animal where not mother is not null"  OK
 "delete Animal"  OK
@@ -1601,9 +1585,7 @@ DELETE STATEMENT
 "delete from PICKUP"  OK
 "delete from Address where id = ? and version = ?"  OK
 "delete Address[1]"  FAIL
-/*
-UDPATE STATEMENT
-*/
+[UDPATE STATEMENT]
 "update Paper set color = :newColor"  OK
 "update Document set name = :newName where name = :oldName"  OK
 "update Mammal set bodyWeight = null"  OK
@@ -1658,9 +1640,7 @@ UDPATE STATEMENT
 "update Person p set p.name = 'Shawn'"  OK
 "update Address set city = ?, state=?, zip=?, version = ? where id in (select aid from Person)"  OK
 "update Address set city = ?, state=?, zip=?, version = ? where id = ? and version = ?  "  OK
-/*
-INSERT STATEMENT
-*/
+[INSERT STATEMENT]
 "insert into Simple ( name, address, count_, date_, other, id_ ) values ( ?, ?, ?, ?, ?, ? )"  FAIL
 "insert into Animal (description, bodyWeight) select h.description, h.bodyWeight from Human h join h.mother m where m.mother is not null"  OK
 "insert into Animal (description, bodyWeight) select h.description, h.bodyWeight from Human h where h.mother.mother is not null"  OK
