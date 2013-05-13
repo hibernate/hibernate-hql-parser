@@ -36,6 +36,7 @@ import org.junit.internal.runners.statements.Fail;
 import org.junit.rules.RunRules;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
+import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
 
@@ -47,8 +48,9 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Gunnar Morling
  */
-class GrammarRuleStatement extends Statement {
+class GrammarRuleStatement extends Statement implements GrammarRuleTest {
 
+	private final TestClass testClass;
 	private final GrammarRuleTestDescriptor grammarRuleTest;
 	private final Description description;
 	private final GrammarRuleTestRunner grammarRuleTestRunner;
@@ -59,6 +61,7 @@ class GrammarRuleStatement extends Statement {
 			GrammarRuleTestGroupDescriptor grammarRuleTestGroup,
 			GrammarRuleTestDescriptor grammarRuleTest) {
 
+		this.testClass = testClass;
 		this.grammarRuleTest = grammarRuleTest;
 		this.description = createDescription( testClass, grammarRuleTest );
 		this.grammarRuleTestRunner = new GrammarRuleTestRunner( grammarTest, grammarRuleTestGroup, grammarRuleTest );
@@ -81,6 +84,7 @@ class GrammarRuleStatement extends Statement {
 		return Description.createTestDescription( testClass.getJavaClass(), name );
 	}
 
+	@Override
 	public Description getDescription() {
 		return description;
 	}
@@ -107,6 +111,11 @@ class GrammarRuleStatement extends Statement {
 		if ( grammarRuleTest.getExpectedAst() != null ) {
 			assertEquals( "Unexpected AST: ", grammarRuleTest.getExpectedAst(), parsingResult.getAst() );
 		}
+	}
+
+	@Override
+	public void run(GrammarRuleStatements parent, RunNotifier notifier) {
+		parent.runLeafNode( getMethodBlock( testClass ), getDescription(), notifier );
 	}
 
 	/**

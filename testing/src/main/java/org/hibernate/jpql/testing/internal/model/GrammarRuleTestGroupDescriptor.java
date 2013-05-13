@@ -24,18 +24,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents the group of tests for one rule of the grammar under test.
+ * Represents the group of tests for one rule of the grammar under test. Can
+ * contain tests directly and/or sub-groups with tests.
  *
  * @author Gunnar Morling
  */
 public class GrammarRuleTestGroupDescriptor {
 
 	private final String name;
+	private final RuleType ruleType;
 	private final List<GrammarRuleTestDescriptor> tests;
+	private final List<GrammarRuleTestGroupDescriptor> subGroups;
 
-	public GrammarRuleTestGroupDescriptor(String name, List<GrammarRuleTestDescriptor> tests) {
+	private GrammarRuleTestGroupDescriptor(
+			String name,
+			RuleType ruleType,
+			List<GrammarRuleTestDescriptor> tests,
+			List<GrammarRuleTestGroupDescriptor> subGroups) {
 		this.name = name;
+		this.ruleType = ruleType;
 		this.tests = tests;
+		this.subGroups = subGroups;
 	}
 
 	public String getName() {
@@ -46,37 +55,88 @@ public class GrammarRuleTestGroupDescriptor {
 		return tests;
 	}
 
-	public RuleType getRuleType() {
-		return startsLowerCase( name ) ? RuleType.PARSER : RuleType.LEXER;
+	public List<GrammarRuleTestGroupDescriptor> getSubGroups() {
+		return subGroups;
 	}
 
-	private boolean startsLowerCase(String string) {
-		return string.startsWith( string.substring( 0, 1 ).toLowerCase() );
+	public RuleType getRuleType() {
+		return ruleType;
 	}
 
 	public static class Builder {
 
 		private String name;
+		private final boolean isSubGroup;
+		private RuleType ruleType;
+		private final List<Builder> subGroupBuilders;
 		private final List<GrammarRuleTestDescriptor> tests;
+		private Builder currentSubGroup;
 
 		public Builder() {
+			this( false );
+		}
+
+		private Builder(boolean isSubGroup) {
+			this.isSubGroup = isSubGroup;
+			this.subGroupBuilders = new ArrayList<GrammarRuleTestGroupDescriptor.Builder>();
 			this.tests = new ArrayList<GrammarRuleTestDescriptor>();
 		}
 
 		public void addTest(int lineNumber, String expression, ParsingResult.Status expectedTestStatus) {
-			tests.add( new GrammarRuleTestDescriptor( lineNumber, expression, expectedTestStatus ) );
+			if ( currentSubGroup != null ) {
+				currentSubGroup.addTest( lineNumber, expression, expectedTestStatus );
+			}
+			else {
+				tests.add( new GrammarRuleTestDescriptor( lineNumber, expression, expectedTestStatus ) );
+			}
 		}
 
 		public void addAstTest(int lineNumber, String expression, String expectedAst) {
-			tests.add( new GrammarRuleTestDescriptor( lineNumber, expression, expectedAst ) );
+			if ( currentSubGroup != null ) {
+				currentSubGroup.addAstTest( lineNumber, expression, expectedAst );
+			}
+			else {
+				tests.add( new GrammarRuleTestDescriptor( lineNumber, expression, expectedAst ) );
+			}
 		}
 
 		public void setName(String name) {
 			this.name = name;
+			if ( !isSubGroup ) {
+				ruleType = startsLowerCase( name ) ? RuleType.PARSER : RuleType.LEXER;
+			}
+		}
+
+		public void setRuleType(RuleType ruleType) {
+			this.ruleType = ruleType;
+		}
+
+		public void addSubGroup() {
+			currentSubGroup = new Builder( true );
+			subGroupBuilders.add( currentSubGroup );
+		}
+
+		public void setSubGroupName(String name) {
+			currentSubGroup.setName( name );
 		}
 
 		public GrammarRuleTestGroupDescriptor build() {
-			return new GrammarRuleTestGroupDescriptor( name, tests );
+			return new GrammarRuleTestGroupDescriptor( name, ruleType, tests, buildSubGroups() );
+		}
+
+		private List<GrammarRuleTestGroupDescriptor> buildSubGroups() {
+			List<GrammarRuleTestGroupDescriptor> subGroups = new ArrayList<GrammarRuleTestGroupDescriptor>();
+
+			for ( Builder builder : subGroupBuilders ) {
+				builder.setRuleType( ruleType );
+				subGroups.add( builder.build() );
+			}
+
+			return subGroups;
+		}
+
+		private boolean startsLowerCase(String string) {
+			return string.startsWith( string.substring( 0, 1 ).toLowerCase() );
 		}
 	}
 }

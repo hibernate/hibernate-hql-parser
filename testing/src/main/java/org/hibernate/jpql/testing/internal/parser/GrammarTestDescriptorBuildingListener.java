@@ -27,6 +27,7 @@ import org.hibernate.jpql.testing.internal.GrammarTestParser.PakkageContext;
 import org.hibernate.jpql.testing.internal.GrammarTestParser.TestContext;
 import org.hibernate.jpql.testing.internal.GrammarTestParser.TestGroupContext;
 import org.hibernate.jpql.testing.internal.GrammarTestParser.TestResultContext;
+import org.hibernate.jpql.testing.internal.GrammarTestParser.TestSubGroupContext;
 import org.hibernate.jpql.testing.internal.model.GrammarRuleTestGroupDescriptor;
 import org.hibernate.jpql.testing.internal.model.GrammarTestDescriptor;
 import org.hibernate.jpql.testing.internal.model.ParsingResult;
@@ -83,16 +84,29 @@ public class GrammarTestDescriptorBuildingListener extends GrammarTestBaseListen
 		);
 	}
 
-	private String withoutLiteralDelimiters(String statement) {
-		if ( statement.startsWith( "\"" ) ) {
-			return statement.substring( 1, statement.length() - 1 );
-		}
-		else {
-			return statement.substring( 2, statement.length() - 2 );
-		}
+	@Override
+	public void enterTestSubGroup(TestSubGroupContext ctx) {
+		testGroupBuilder.addSubGroup();
+	}
+
+	@Override
+	public void exitTestSubGroup(TestSubGroupContext ctx) {
+		testGroupBuilder.setSubGroupName( ctx.TEST_GROUP_NAME().getText() );
 	}
 
 	public GrammarTestDescriptor getGrammarTest() {
 		return testBuilder.build();
 	}
+
+	private String withoutLiteralDelimiters(String statement) {
+		//"..."
+		if ( statement.startsWith( "\"" ) ) {
+			return statement.substring( 1, statement.length() - 1 );
+		}
+		//<<...>>
+		else {
+			return statement.substring( 2, statement.length() - 2 );
+		}
+	}
+
 }
