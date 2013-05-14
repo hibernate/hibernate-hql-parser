@@ -11,10 +11,10 @@ statement:
 SELECT/FROM STATEMENT
 */
 [testSimpleFrom]
-"from com.acme.EntityName e"  OK
+"from com.example.EntityName e"  OK
 [testConstantUsage]
-"from com.acme.EntityName where prop = org.hibernate.query.ast.phase.hql.parse.ParserTest.CONSTANT"  OK
-"from com.acme.EntityName where prop = compProp.subProp"  OK
+"from com.example.EntityName where prop = org.hibernate.query.ast.phase.hql.parse.ParserTest.CONSTANT"  OK
+"from com.example.EntityName where prop = compProp.subProp"  OK
 [testVariousPropertyReferences]
 "from A a where b = 1"  OK
 "from A a where a.b.c = 1"  OK
