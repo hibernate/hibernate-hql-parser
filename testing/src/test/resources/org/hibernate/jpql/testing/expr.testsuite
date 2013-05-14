@@ -1,0 +1,26 @@
+gunit Expr;
+
+@header{
+package com.acme.calculator;
+}
+
+/*
+A multi-line comment
+*/
+
+ID:
+"a" OK
+"_" FAIL
+
+//A single-line comment
+INT:
+"1" OK
+"Pi" FAIL
+
+prog:
+<<a = 1 + 1
+>> OK
+
+multExpr:
+"4 * 12" OK
+"4 * " FAIL
