@@ -75,7 +75,7 @@ SELECT/FROM STATEMENT
 "from eg.Cat cat where cat.class = eg.DomesticCat"  OK
 "from eg.AuditLog log, eg.Payment payment where log.item.class = 'eg.Payment' and log.item.id = payment.id"  OK
 [Section 9.8 - Expressions]
-"from eg.DomesticCat cat where cat.name between 'A' and 'B'"  -> (QUERY (QUERY_SPEC (SELECT_FROM (from (PERSISTER_SPACE (ENTITY_PERSISTER_REF eg.DomesticCat cat))) (SELECT (SELECT_LIST (SELECT_ITEM cat)))) (where (between (PATH (. cat name)) (BETWEEN_LIST 'A' 'B')))))
+"from eg.DomesticCat cat where cat.name between 'A' and 'B'"  -> (QUERY (QUERY_SPEC (SELECT_FROM (from (PERSISTER_SPACE (ENTITY_PERSISTER_REF eg.DomesticCat cat))) (SELECT (SELECT_LIST (SELECT_ITEM cat)))) (where (between (PATH (. cat name)) (BETWEEN_LIST (CONST_STRING_VALUE A) (CONST_STRING_VALUE B))))))
 "from eg.DomesticCat cat where cat.name in ( 'Foo', 'Bar', 'Baz' )"  OK
 "from eg.DomesticCat cat where cat.name not between 'A' and 'B'"  OK
 "from eg.DomesticCat cat where cat.name not in ( 'Foo', 'Bar', 'Baz' )"  OK
@@ -1569,11 +1569,11 @@ SELECT/FROM STATEMENT
 "delete EntityWithCrazyCompositeKey where id.id = 1 and id.otherId = 2"  ->  (delete EntityWithCrazyCompositeKey <gen:0> (where (and (= (PATH (. id id)) 1) (= (PATH (. id otherId)) 2))))
 "delete from EntityWithCrazyCompositeKey where id.id = 1 and id.otherId = 2"  -> (delete EntityWithCrazyCompositeKey <gen:0> (where (and (= (PATH (. id id)) 1) (= (PATH (. id otherId)) 2))))
 "delete from EntityWithCrazyCompositeKey e where e.id.id = 1 and e.id.otherId = 2"  -> (delete EntityWithCrazyCompositeKey e (where (and (= (PATH (. (. e id) id)) 1) (= (PATH (. (. e id) otherId)) 2))))
-"delete from Bar where barString = 's'"  -> (delete Bar <gen:0> (where (= (PATH barString) 's')))
+"delete from Bar where barString = 's'"  -> (delete Bar <gen:0> (where (= (PATH barString) (CONST_STRING_VALUE s))))
 "delete Vehicle where owner = :owner"  -> (delete Vehicle <gen:0> (where (= (PATH owner) owner)))
 "delete Mammal where bodyWeight > 150"  -> (delete Mammal <gen:0> (where (> (PATH bodyWeight) 150)))
 //"delete from User u where u not in (select u from User u)"  -> (delete User u (where (not in (PATH u) (IN_LIST (SUB_QUERY (QUERY (QUERY_SPEC (SELECT_FROM (from (PERSISTER_SPACE (ENTITY_PERSISTER_REF User u))) (select (SELECT_LIST (SELECT_ITEM (PATH u))))))))))))
-"delete SimpleEntityWithAssociation e where size( e.associatedEntities ) = 0 and e.name like '%'"  -> (delete SimpleEntityWithAssociation e (where (and (= (size (PROPERTY_REFERENCE (. e associatedEntities))) 0) (like (PATH (. e name)) '%'))))
+"delete SimpleEntityWithAssociation e where size( e.associatedEntities ) = 0 and e.name like '%'"  -> (delete SimpleEntityWithAssociation e (where (and (= (size (PROPERTY_REFERENCE (. e associatedEntities))) 0) (like (PATH (. e name)) (CONST_STRING_VALUE %)))))
 "delete Animal where bodyWeight = null"  -> (delete Animal <gen:0> (where (= (PATH bodyWeight) null)))
 "delete from PICKUP"  -> (delete PICKUP <gen:0>)
 "delete from Address where id = ? and version = ?"  -> (delete Address <gen:0> (where (and (= (PATH id) ?) (= (PATH version) ?))))

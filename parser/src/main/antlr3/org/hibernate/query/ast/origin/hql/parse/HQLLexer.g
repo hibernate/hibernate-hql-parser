@@ -230,7 +230,7 @@ fragment
 FLOAT_TYPE_SUFFIX : ('f'|'F'|'d'|'D') ;
 
 CHARACTER_LITERAL
-	:	'\'' ( ESCAPE_SEQUENCE | ~('\''|'\\') ) '\''
+	:	'\'' ( ESCAPE_SEQUENCE | ~('\''|'\\') ) '\'' {setText(getText().substring(1, getText().length()-1));}
 	;
 
 STRING_LITERAL

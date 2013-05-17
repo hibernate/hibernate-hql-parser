@@ -94,6 +94,11 @@ public class TreeWalkTest {
 	}
 
 	@Test
+	public void shouldCreateBetweenQueryForCharacterLiterals() {
+		transformationAssert( "select e from IndexedEntity e where e.name between 'a' and 'z'", "name:[a TO z]" );
+	}
+
+	@Test
 	public void shouldCreateBetweenQueryWithNamedParameters() {
 		Map<String, Object> namedParameters = new HashMap<String, Object>();
 		namedParameters.put( "lower", "aaa" );
