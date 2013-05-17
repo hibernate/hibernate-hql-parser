@@ -1,4 +1,4 @@
-/* 
+/*
  * Hibernate, Relational Persistence for Idiomatic Java
  * 
  * JBoss, Home of Professional Open Source
@@ -24,21 +24,19 @@ import java.util.HashMap;
 
 import org.hibernate.query.ast.origin.hql.resolve.EntityNamesResolver;
 
-
 /**
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
  */
 public class MapBasedEntityNamesResolver implements EntityNamesResolver {
 
-	private final HashMap<String, Class> entityNames;
+	private final HashMap<String, Class<?>> entityNames;
 
-	public MapBasedEntityNamesResolver(HashMap<String, Class> entityNames) {
+	public MapBasedEntityNamesResolver(HashMap<String, Class<?>> entityNames) {
 		this.entityNames = entityNames;
 	}
 
 	@Override
-	public Class getClassFromName(String entityName) {
+	public Class<?> getClassFromName(String entityName) {
 		return entityNames.get( entityName );
 	}
-
 }

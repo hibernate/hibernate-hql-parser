@@ -1,4 +1,4 @@
-/* 
+/*
  * Hibernate, Relational Persistence for Idiomatic Java
  * 
  * JBoss, Home of Professional Open Source
@@ -102,7 +102,7 @@ public class LuceneJPQLWalker extends org.hibernate.query.ast.origin.hql.resolve
 
 	public LuceneJPQLWalker(TreeNodeStream input, SearchFactoryImplementor searchFactory,
 			EntityNamesResolver entityNames) {
-		this( input, searchFactory, entityNames, Collections.EMPTY_MAP );
+		this( input, searchFactory, entityNames, Collections.<String, Object> emptyMap() );
 	}
 
 	public LuceneJPQLWalker(TreeNodeStream input, SearchFactoryImplementor searchFactory,
@@ -125,7 +125,7 @@ public class LuceneJPQLWalker extends org.hibernate.query.ast.origin.hql.resolve
 					"Alias reuse currently not supported: alias " + alias.getText()
 							+ " already assigned to type " + put );
 		}
-		Class targetedType = entityNames.getClassFromName( entityName.getText() );
+		Class<?> targetedType = entityNames.getClassFromName( entityName.getText() );
 		if ( targetedType == null ) {
 			throw new IllegalStateException( "Unknown entity name " + entityName.getText() );
 		}
@@ -216,7 +216,7 @@ public class LuceneJPQLWalker extends org.hibernate.query.ast.origin.hql.resolve
 		definingSelectStrategy = false;
 	}
 
-	public Class getTargetEntity() {
+	public Class<?> getTargetEntity() {
 		return targetType;
 	}
 

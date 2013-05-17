@@ -125,7 +125,7 @@ public class TreeWalkTest {
 			System.out.println( jpaql );
 		}
 		SearchFactoryMock searchFactory = new SearchFactoryMock();
-		HashMap<String,Class> entityNames = new HashMap<String,Class>();
+		HashMap<String, Class<?>> entityNames = new HashMap<String, Class<?>>();
 		entityNames.put( "com.acme.IndexedEntity", IndexedEntity.class );
 		entityNames.put( "IndexedEntity", IndexedEntity.class );
 		//generated alias:
@@ -138,7 +138,8 @@ public class TreeWalkTest {
 		}
 	}
 
-	private LuceneJPQLWalker assertTreeParsed(ParserContext context, String input, SearchFactoryImplementor searchFactory, HashMap<String,Class> entityNames, Map<String, Object> namedParameters) {
+	private LuceneJPQLWalker assertTreeParsed(ParserContext context, String input, SearchFactoryImplementor searchFactory,
+			HashMap<String, Class<?>> entityNames, Map<String, Object> namedParameters) {
 		HQLLexer lexed = new HQLLexer( new ANTLRStringStream( input ) );
 		Assert.assertEquals( 0, lexed.getNumberOfSyntaxErrors() );
 		CommonTokenStream tokens = new CommonTokenStream( lexed );
