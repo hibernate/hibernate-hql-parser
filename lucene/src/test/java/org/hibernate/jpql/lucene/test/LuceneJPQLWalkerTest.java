@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.jpql.lucene;
+package org.hibernate.jpql.lucene.test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,10 +30,14 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
+import org.hibernate.jpql.lucene.LuceneJPQLWalker;
+import org.hibernate.jpql.lucene.test.model.IndexedEntity;
+import org.hibernate.jpql.lucene.testutil.BaseSearchFactoryImplementor;
+import org.hibernate.jpql.lucene.testutil.MapBasedEntityNamesResolver;
 import org.hibernate.query.ast.common.ParserContext;
 import org.hibernate.query.ast.origin.hql.parse.HQLLexer;
 import org.hibernate.query.ast.origin.hql.parse.HQLParser;
-import org.hibernate.query.ast.origin.hql.resolve.LuceneJPQLWalker;
+import org.hibernate.query.ast.spi.EntityNamesResolver;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
 import org.junit.Test;
 
@@ -43,7 +47,7 @@ import org.junit.Test;
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
  * @author Gunnar Morling
  */
-public class TreeWalkTest {
+public class LuceneJPQLWalkerTest {
 
 	private static boolean USE_STDOUT = true;
 
@@ -116,9 +120,9 @@ public class TreeWalkTest {
 		// - Add explicit support for NOT_EQUAL like we did for EQUALS
 		// - Have the AST rewrite such cases into a unique form: [a != b] --> [NOT a = b]
 		// - Have ANTLR generate the Walker embedding Lucene Queries as return types for each predicate
-//		transformationAssert(
-//				"select e from IndexedEntity e where e.name = 'same' and e.id != 5" ,
-//				"+name:'same' +(-id:5)" );
+		//		transformationAssert(
+		//				"select e from IndexedEntity e where e.name = 'same' and e.id != 5" ,
+		//				"+name:'same' +(-id:5)" );
 	}
 
 	private void transformationAssert(String jpaql, String expectedLuceneQuery) {
@@ -173,7 +177,7 @@ public class TreeWalkTest {
 			// AST nodes have payloads referring to the tokens from the Lexer:
 			treeStream.setTokenStream( tokens );
 
-			MapBasedEntityNamesResolver nameResolver = new MapBasedEntityNamesResolver( entityNames );
+			EntityNamesResolver nameResolver = new MapBasedEntityNamesResolver( entityNames );
 			// Finally create the treewalker:
 			LuceneJPQLWalker walker = new LuceneJPQLWalker( treeStream, searchFactory, nameResolver, namedParameters );
 			try {

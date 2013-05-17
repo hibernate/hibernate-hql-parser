@@ -1,6 +1,6 @@
 /*
  * Hibernate, Relational Persistence for Idiomatic Java
- * 
+ *
  * JBoss, Home of Professional Open Source
  * Copyright 2012 Red Hat Inc. and/or its affiliates and other contributors
  * as indicated by the @authors tag. All rights reserved.
@@ -18,20 +18,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.jpql.lucene;
+package org.hibernate.jpql.lucene.testutil;
 
-import java.util.HashMap;
+import java.util.Map;
 
-import org.hibernate.query.ast.origin.hql.resolve.EntityNamesResolver;
+import org.hibernate.query.ast.spi.EntityNamesResolver;
 
 /**
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
  */
 public class MapBasedEntityNamesResolver implements EntityNamesResolver {
 
-	private final HashMap<String, Class<?>> entityNames;
+	private final Map<String, Class<?>> entityNames;
 
-	public MapBasedEntityNamesResolver(HashMap<String, Class<?>> entityNames) {
+	public MapBasedEntityNamesResolver(Map<String, Class<?>> entityNames) {
 		this.entityNames = entityNames;
 	}
 

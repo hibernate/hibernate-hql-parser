@@ -1,6 +1,6 @@
-/* 
+/*
  * Hibernate, Relational Persistence for Idiomatic Java
- * 
+ *
  * JBoss, Home of Professional Open Source
  * Copyright 2012 Red Hat Inc. and/or its affiliates and other contributors
  * as indicated by the @authors tag. All rights reserved.
@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.jpql.lucene;
+package org.hibernate.jpql.testutil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,10 +28,10 @@ import org.hibernate.query.ast.DefaultParsingContext;
 import org.hibernate.query.ast.common.ParserContext;
 
 public class TestingParserContext extends DefaultParsingContext implements ParserContext {
-	
+
 	//map of <entityName,List entityImplementors>
 	private final HashMap<String,List> knownEntities = new HashMap<String,List>();
-	
+
 	public TestingParserContext(String... validEntities) {
 		for (int i = 0; i < validEntities.length; i++) {
 			String entityName = validEntities[i];
@@ -41,6 +41,7 @@ public class TestingParserContext extends DefaultParsingContext implements Parse
 		}
 	}
 
+	@Override
 	public List getEntityImplementors(String entityName) {
 		return knownEntities.get( entityName );
 	}

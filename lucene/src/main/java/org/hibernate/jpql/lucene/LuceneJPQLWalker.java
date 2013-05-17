@@ -1,6 +1,6 @@
 /*
  * Hibernate, Relational Persistence for Idiomatic Java
- * 
+ *
  * JBoss, Home of Professional Open Source
  * Copyright 2011 Red Hat Inc. and/or its affiliates and other contributors
  * as indicated by the @authors tag. All rights reserved.
@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.query.ast.origin.hql.resolve;
+package org.hibernate.jpql.lucene;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,6 +37,7 @@ import org.apache.lucene.search.TermRangeQuery;
 import org.hibernate.query.ast.common.JoinType;
 import org.hibernate.query.ast.origin.hql.resolve.path.PathedPropertyReference;
 import org.hibernate.query.ast.origin.hql.resolve.path.PathedPropertyReferenceSource;
+import org.hibernate.query.ast.spi.EntityNamesResolver;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import org.hibernate.search.query.dsl.impl.ConnectedQueryContextBuilder;
@@ -55,7 +56,7 @@ import org.hibernate.search.query.dsl.impl.ConnectedQueryContextBuilder;
  *   <li>Implement more predicates</li>
  *   <li>Support multiple types being targeted by the Query</li>
  *   <li>Support positional parameters (currently only consumed named parameters)<li>
- * 
+ *
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2011 Red Hat Inc.
  */
 public class LuceneJPQLWalker extends org.hibernate.query.ast.origin.hql.resolve.GeneratedHQLResolver {
@@ -85,7 +86,7 @@ public class LuceneJPQLWalker extends org.hibernate.query.ast.origin.hql.resolve
 	 */
 	private final EntityNamesResolver entityNames;
 
-//	private QueryBuilder queryBuilder = null;
+	//	private QueryBuilder queryBuilder = null;
 	private Class targetType = null;
 
 	private BooleanQuery booleanQuery;
@@ -123,7 +124,7 @@ public class LuceneJPQLWalker extends org.hibernate.query.ast.origin.hql.resolve
 		if ( put != null && !put.equalsIgnoreCase( entityName.getText() ) ) {
 			throw new UnsupportedOperationException(
 					"Alias reuse currently not supported: alias " + alias.getText()
-							+ " already assigned to type " + put );
+					+ " already assigned to type " + put );
 		}
 		Class<?> targetedType = entityNames.getClassFromName( entityName.getText() );
 		if ( targetedType == null ) {
@@ -133,7 +134,7 @@ public class LuceneJPQLWalker extends org.hibernate.query.ast.origin.hql.resolve
 			throw new IllegalStateException( "Can't target multiple types: " + targetType + " already selected before " + targetedType );
 		}
 		targetType = targetedType;
-//		queryBuilder = queryBuildContext.forEntity( targetedType ).get();
+		//		queryBuilder = queryBuildContext.forEntity( targetedType ).get();
 	}
 
 	@Override

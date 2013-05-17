@@ -1,4 +1,4 @@
-/* 
+/*
  * Hibernate, Relational Persistence for Idiomatic Java
  * 
  * JBoss, Home of Professional Open Source
@@ -26,6 +26,6 @@ public interface ParserContext {
 
 	String buildUniqueImplicitAlias();
 
-	List getEntityImplementors(String entityName);
+	List<?> getEntityImplementors(String entityName);
 
 }

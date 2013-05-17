@@ -26,7 +26,6 @@ import java.util.List;
 import org.hibernate.query.ast.alias.ImplicitAliasGenerator;
 import org.hibernate.query.ast.common.ParserContext;
 
-
 /**
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2011 Red Hat Inc.
  */
@@ -34,10 +33,12 @@ public class DefaultParsingContext implements ParserContext {
 
 	private final ImplicitAliasGenerator implicitAliasGenerator = new ImplicitAliasGenerator(); 
 
+	@Override
 	public List getEntityImplementors(String entityName) {
 		return Collections.singletonList( entityName );
 	}
 
+	@Override
 	public String buildUniqueImplicitAlias() {
 		return implicitAliasGenerator.buildUniqueImplicitAlias();
 	}
