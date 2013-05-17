@@ -129,6 +129,9 @@ import org.hibernate.query.ast.origin.hql.resolve.path.PathedPropertyReferenceSo
     //no-op by default: Hibernate ORM doesn't care
   }
 
+  protected void predicateBetween(String lower, String upper) {
+    //no-op by default: Hibernate ORM doesn't care
+  }
 }
 
 filterStatement[String collectionRole]
@@ -305,7 +308,7 @@ predicate
 	;
 
 betweenList
-	:	^( BETWEEN_LIST rowValueConstructor rowValueConstructor )
+	:	^( BETWEEN_LIST lower=rowValueConstructor upper=rowValueConstructor ) { predicateBetween( $lower.text, $upper.text ); }
 	;	
 
 comparativePredicateValue
