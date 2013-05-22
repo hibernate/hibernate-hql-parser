@@ -29,7 +29,7 @@ import org.hibernate.query.ast.origin.hql.resolve.path.PathedPropertyReferenceSo
  *
  * @author Gunnar Morling
  */
-public interface QueryParserDelegate {
+public interface QueryParserDelegate<T> {
 
 	void registerPersisterSpace(Tree entityName, Tree alias);
 
@@ -71,4 +71,11 @@ public interface QueryParserDelegate {
 	void predicateEquals(String comparativePredicate);
 
 	void predicateBetween(String lower, String upper);
+
+	/**
+	 * Returns the result created by this delegate after the tree processing has been finished.
+	 *
+	 * @return the result created by this delegate after the tree processing has been finished
+	 */
+	T getResult();
 }

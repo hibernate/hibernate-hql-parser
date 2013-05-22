@@ -59,7 +59,7 @@ import org.hibernate.search.query.dsl.impl.ConnectedQueryContextBuilder;
  *
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2011 Red Hat Inc.
  */
-public class LuceneJPQLWalker implements QueryParserDelegate {
+public class LuceneQueryBuilder implements QueryParserDelegate<LuceneQueryParsingResult> {
 
 	/**
 	 * Persister space: keep track of aliases and entity names.
@@ -101,11 +101,11 @@ public class LuceneJPQLWalker implements QueryParserDelegate {
 
 	private final Map<String, Object> namedParameters;
 
-	public LuceneJPQLWalker(SearchFactoryImplementor searchFactory, EntityNamesResolver entityNames) {
+	public LuceneQueryBuilder(SearchFactoryImplementor searchFactory, EntityNamesResolver entityNames) {
 		this( searchFactory, entityNames, Collections.<String, Object> emptyMap() );
 	}
 
-	public LuceneJPQLWalker(SearchFactoryImplementor searchFactory,
+	public LuceneQueryBuilder(SearchFactoryImplementor searchFactory,
 			EntityNamesResolver entityNames, Map<String,Object> namedParameters) {
 		this.searchFactory = searchFactory;
 		this.entityNames = entityNames;
@@ -215,10 +215,6 @@ public class LuceneJPQLWalker implements QueryParserDelegate {
 		definingSelectStrategy = false;
 	}
 
-	public Class<?> getTargetEntity() {
-		return targetType;
-	}
-
 	@Override
 	public void activateOR() {
 		activateBoolean();
@@ -309,7 +305,8 @@ public class LuceneJPQLWalker implements QueryParserDelegate {
 		return rootQuery.toString();
 	}
 
-	public Query getLuceneQuery() {
-		return rootQuery;
+	@Override
+	public LuceneQueryParsingResult getResult() {
+		return new LuceneQueryParsingResult( rootQuery, targetType );
 	}
 }

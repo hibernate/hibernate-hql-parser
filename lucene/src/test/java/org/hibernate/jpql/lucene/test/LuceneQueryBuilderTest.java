@@ -30,7 +30,8 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
-import org.hibernate.jpql.lucene.LuceneJPQLWalker;
+import org.hibernate.jpql.lucene.LuceneQueryBuilder;
+import org.hibernate.jpql.lucene.LuceneQueryParsingResult;
 import org.hibernate.jpql.lucene.test.model.IndexedEntity;
 import org.hibernate.jpql.lucene.testutil.BaseSearchFactoryImplementor;
 import org.hibernate.jpql.lucene.testutil.MapBasedEntityNamesResolver;
@@ -43,12 +44,12 @@ import org.hibernate.search.engine.spi.SearchFactoryImplementor;
 import org.junit.Test;
 
 /**
- * Test for {@link LuceneJPQLWalker}.
+ * Test for {@link LuceneQueryBuilder}.
  *
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
  * @author Gunnar Morling
  */
-public class LuceneJPQLWalkerTest {
+public class LuceneQueryBuilderTest {
 
 	private static boolean USE_STDOUT = true;
 
@@ -139,16 +140,16 @@ public class LuceneJPQLWalkerTest {
 		entityNames.put( "com.acme.IndexedEntity", IndexedEntity.class );
 		entityNames.put( "IndexedEntity", IndexedEntity.class );
 		//generated alias:
-		LuceneJPQLWalker walker = assertTreeParsed( null, jpaql , searchFactory, entityNames, namedParameters );
-		Assert.assertTrue( IndexedEntity.class.equals( walker.getTargetEntity() ) );
-		Assert.assertEquals( expectedLuceneQuery, walker.getLuceneQuery().toString() );
+		LuceneQueryParsingResult parsingResult = assertTreeParsed( null, jpaql, searchFactory, entityNames, namedParameters );
+		Assert.assertTrue( IndexedEntity.class.equals( parsingResult.getTargetEntity() ) );
+		Assert.assertEquals( expectedLuceneQuery, parsingResult.getQuery().toString() );
 		if ( USE_STDOUT ) {
 			System.out.println( expectedLuceneQuery );
 			System.out.println();
 		}
 	}
 
-	private LuceneJPQLWalker assertTreeParsed(ParserContext context, String input, SearchFactoryImplementor searchFactory,
+	private LuceneQueryParsingResult assertTreeParsed(ParserContext context, String input, SearchFactoryImplementor searchFactory,
 			HashMap<String, Class<?>> entityNames, Map<String, Object> namedParameters) {
 		HQLLexer lexed = new HQLLexer( new ANTLRStringStream( input ) );
 		Assert.assertEquals( 0, lexed.getNumberOfSyntaxErrors() );
@@ -180,12 +181,12 @@ public class LuceneJPQLWalkerTest {
 
 			EntityNamesResolver nameResolver = new MapBasedEntityNamesResolver( entityNames );
 			// Finally create the treewalker:
-			LuceneJPQLWalker delegate = new LuceneJPQLWalker( searchFactory, nameResolver, namedParameters );
+			LuceneQueryBuilder delegate = new LuceneQueryBuilder( searchFactory, nameResolver, namedParameters );
 			GeneratedHQLResolver walker = new GeneratedHQLResolver( treeStream, delegate );
 			try {
 				walker.statement();
 				Assert.assertEquals( 0, walker.getNumberOfSyntaxErrors() );
-				return delegate;
+				return delegate.getResult();
 			}
 			catch (RecognitionException e) {
 				Assert.fail( e.getMessage() );
