@@ -1,6 +1,6 @@
-/* 
+/*
  * Hibernate, Relational Persistence for Idiomatic Java
- * 
+ *
  * JBoss, Home of Professional Open Source
  * Copyright 2012 Red Hat Inc. and/or its affiliates and other contributors
  * as indicated by the @authors tag. All rights reserved.
@@ -18,9 +18,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.jpql.lucene;
+package org.hibernate.jpql.lucene.test;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import junit.framework.Assert;
 
@@ -29,46 +30,90 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
-import org.hibernate.search.engine.spi.SearchFactoryImplementor;
+import org.hibernate.jpql.lucene.LuceneQueryBuilder;
+import org.hibernate.jpql.lucene.LuceneQueryParsingResult;
+import org.hibernate.jpql.lucene.test.model.IndexedEntity;
+import org.hibernate.jpql.lucene.testutil.BaseSearchFactoryImplementor;
+import org.hibernate.jpql.lucene.testutil.MapBasedEntityNamesResolver;
 import org.hibernate.query.ast.common.ParserContext;
 import org.hibernate.query.ast.origin.hql.parse.HQLLexer;
 import org.hibernate.query.ast.origin.hql.parse.HQLParser;
-import org.hibernate.query.ast.origin.hql.resolve.LuceneJPQLWalker;
+import org.hibernate.query.ast.origin.hql.resolve.GeneratedHQLResolver;
+import org.hibernate.query.ast.spi.EntityNamesResolver;
+import org.hibernate.search.engine.spi.SearchFactoryImplementor;
 import org.junit.Test;
 
 /**
+ * Test for {@link LuceneQueryBuilder}.
+ *
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
+ * @author Gunnar Morling
  */
-public class TreeWalkTest {
+public class LuceneQueryBuilderTest {
 
 	private static boolean USE_STDOUT = true;
 
 	@Test
-	public void walkTest1() {
+	public void shouldCreateUnrestrictedQuery() {
 		transformationAssert(
 				"from IndexedEntity" ,
 				"*:*" );
 	}
 
 	@Test
-	public void walkTest2() {
+	public void shouldCreateRestrictedQueryUsingSelect() {
+		transformationAssert(
+				"select e from IndexedEntity e where e.name = 'same' and not e.id = 5" ,
+				"+name:same +(-id:5)" );
+	}
+
+	@Test
+	public void shouldCreateQueryWithNamedParameter() {
+		Map<String, Object> namedParameters = new HashMap<String, Object>();
+		namedParameters.put( "nameParameter", "Bob" );
+
+		transformationAssert(
+				"from IndexedEntity e where e.name = :nameParameter" ,
+				"name:Bob",
+				namedParameters);
+	}
+
+	@Test
+	public void shouldCreateBooleanQuery() {
 		transformationAssert(
 				"from IndexedEntity e where e.name = 'same' or ( e.id = 4 and e.name = 'booh')" ,
 				"name:same (+id:4 +name:booh)" );
 	}
 
 	@Test
-	public void walkTest3() {
+	public void shouldCreateBooleanQueryUsingSelect() {
 		transformationAssert(
 				"select e from IndexedEntity e where e.name = 'same' or ( e.id = 4 and e.name = 'booh')" ,
 				"name:same (+id:4 +name:booh)" );
 	}
 
 	@Test
-	public void walkTest4() {
+	public void shouldCreateBetweenQuery() {
 		transformationAssert(
-				"select e from IndexedEntity e where e.name = 'same' and not e.id = 5" ,
-				"+name:same +(-id:5)" );
+				"select e from IndexedEntity e where e.name between 'aaa' and 'zzz'" ,
+				"name:[aaa TO zzz]" );
+	}
+
+	@Test
+	public void shouldCreateBetweenQueryForCharacterLiterals() {
+		transformationAssert( "select e from IndexedEntity e where e.name between 'a' and 'z'", "name:[a TO z]" );
+	}
+
+	@Test
+	public void shouldCreateBetweenQueryWithNamedParameters() {
+		Map<String, Object> namedParameters = new HashMap<String, Object>();
+		namedParameters.put( "lower", "aaa" );
+		namedParameters.put( "upper", "zzz" );
+
+		transformationAssert(
+				"select e from IndexedEntity e where e.name between :lower and :upper" ,
+				"name:[aaa TO zzz]",
+				namedParameters);
 	}
 
 	@Test
@@ -77,34 +122,39 @@ public class TreeWalkTest {
 		// - Add explicit support for NOT_EQUAL like we did for EQUALS
 		// - Have the AST rewrite such cases into a unique form: [a != b] --> [NOT a = b]
 		// - Have ANTLR generate the Walker embedding Lucene Queries as return types for each predicate
-//		transformationAssert(
-//				"select e from IndexedEntity e where e.name = 'same' and e.id != 5" ,
-//				"+name:'same' +(-id:5)" );
+		//		transformationAssert(
+		//				"select e from IndexedEntity e where e.name = 'same' and e.id != 5" ,
+		//				"+name:'same' +(-id:5)" );
 	}
 
 	private void transformationAssert(String jpaql, String expectedLuceneQuery) {
+		transformationAssert( jpaql, expectedLuceneQuery, null );
+	}
+
+	private void transformationAssert(String jpaql, String expectedLuceneQuery, Map<String, Object> namedParameters) {
 		if ( USE_STDOUT ) {
 			System.out.println( jpaql );
 		}
 		SearchFactoryMock searchFactory = new SearchFactoryMock();
-		HashMap<String,Class> entityNames = new HashMap<String,Class>();
+		HashMap<String, Class<?>> entityNames = new HashMap<String, Class<?>>();
 		entityNames.put( "com.acme.IndexedEntity", IndexedEntity.class );
 		entityNames.put( "IndexedEntity", IndexedEntity.class );
 		//generated alias:
-		LuceneJPQLWalker walker = assertTreeParsed( null, jpaql , searchFactory, entityNames );
-		Assert.assertTrue( IndexedEntity.class.equals( walker.getTargetEntity() ) );
-		Assert.assertEquals( expectedLuceneQuery, walker.getLuceneQuery().toString() );
+		LuceneQueryParsingResult parsingResult = assertTreeParsed( null, jpaql, searchFactory, entityNames, namedParameters );
+		Assert.assertTrue( IndexedEntity.class.equals( parsingResult.getTargetEntity() ) );
+		Assert.assertEquals( expectedLuceneQuery, parsingResult.getQuery().toString() );
 		if ( USE_STDOUT ) {
 			System.out.println( expectedLuceneQuery );
 			System.out.println();
 		}
 	}
 
-	private LuceneJPQLWalker assertTreeParsed(ParserContext context, String input, SearchFactoryImplementor searchFactory, HashMap<String,Class> entityNames) {
+	private LuceneQueryParsingResult assertTreeParsed(ParserContext context, String input, SearchFactoryImplementor searchFactory,
+			HashMap<String, Class<?>> entityNames, Map<String, Object> namedParameters) {
 		HQLLexer lexed = new HQLLexer( new ANTLRStringStream( input ) );
 		Assert.assertEquals( 0, lexed.getNumberOfSyntaxErrors() );
 		CommonTokenStream tokens = new CommonTokenStream( lexed );
-		
+
 		CommonTree tree = null;
 		HQLParser parser = new HQLParser( tokens );
 		if ( context != null ) {
@@ -125,17 +175,18 @@ public class TreeWalkTest {
 			}
 			// To walk the resulting tree we need a treenode stream:
 			CommonTreeNodeStream treeStream = new CommonTreeNodeStream( tree );
-			
+
 			// AST nodes have payloads referring to the tokens from the Lexer:
 			treeStream.setTokenStream( tokens );
-			
-			MapBasedEntityNamesResolver nameResolver = new MapBasedEntityNamesResolver( entityNames );
+
+			EntityNamesResolver nameResolver = new MapBasedEntityNamesResolver( entityNames );
 			// Finally create the treewalker:
-			LuceneJPQLWalker walker = new LuceneJPQLWalker( treeStream, searchFactory, nameResolver );
+			LuceneQueryBuilder delegate = new LuceneQueryBuilder( searchFactory, nameResolver, namedParameters );
+			GeneratedHQLResolver walker = new GeneratedHQLResolver( treeStream, delegate );
 			try {
 				walker.statement();
 				Assert.assertEquals( 0, walker.getNumberOfSyntaxErrors() );
-				return walker;
+				return delegate.getResult();
 			}
 			catch (RecognitionException e) {
 				Assert.fail( e.getMessage() );
@@ -149,6 +200,4 @@ public class TreeWalkTest {
 		// We might want to add enough testing context to use the org.hibernate.search.query.dsl.QueryBuilder,
 		// and so take advantage of the well-known analyzers, fieldbridges and actual field names.
 	}
-
-
 }

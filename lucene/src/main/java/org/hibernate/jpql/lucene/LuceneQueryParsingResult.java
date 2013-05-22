@@ -1,8 +1,8 @@
 /*
  * Hibernate, Relational Persistence for Idiomatic Java
- * 
+ *
  * JBoss, Home of Professional Open Source
- * Copyright 2012 Red Hat Inc. and/or its affiliates and other contributors
+ * Copyright 2013 Red Hat Inc. and/or its affiliates and other contributors
  * as indicated by the @authors tag. All rights reserved.
  * See the copyright.txt in the distribution for a
  * full listing of individual contributors.
@@ -18,14 +18,40 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.query.ast.common;
+package org.hibernate.jpql.lucene;
 
-import java.util.List;
+import org.apache.lucene.search.Query;
 
-public interface ParserContext {
+/**
+ * The result of walking a query parse tree using a {@link LuceneQueryBuilder}.
+ *
+ * @author Gunnar Morling
+ */
+public class LuceneQueryParsingResult {
 
-	String buildUniqueImplicitAlias();
+	private final Query query;
+	private final Class<?> targetEntity;
 
-	List<?> getEntityImplementors(String entityName);
+	public LuceneQueryParsingResult(Query query, Class<?> targetEntity) {
+		this.query = query;
+		this.targetEntity = targetEntity;
+	}
 
+	/**
+	 * Returns the Lucene create created while walking the parse tree.
+	 *
+	 * @return the Lucene create created while walking the parse tree
+	 */
+	public Query getQuery() {
+		return query;
+	}
+
+	/**
+	 * Returns the entity type of the parsed query.
+	 *
+	 * @return the entity type of the parsed query
+	 */
+	public Class<?> getTargetEntity() {
+		return targetEntity;
+	}
 }

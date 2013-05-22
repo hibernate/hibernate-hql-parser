@@ -1,6 +1,6 @@
-/* 
+/*
  * Hibernate, Relational Persistence for Idiomatic Java
- * 
+ *
  * JBoss, Home of Professional Open Source
  * Copyright 2012 Red Hat Inc. and/or its affiliates and other contributors
  * as indicated by the @authors tag. All rights reserved.
@@ -18,12 +18,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.jpql.lucene;
-
+package org.hibernate.query.ast.spi;
 
 /**
+ * Map entity names to entity classes. An entity name might be
+ * the fully qualified class name or a short hand description.
+ *
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
  */
-public class IndexedEntity {
+public interface EntityNamesResolver {
+
+	Class<?> getClassFromName(String entityName);
 
 }

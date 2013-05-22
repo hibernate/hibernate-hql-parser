@@ -24,7 +24,6 @@ import org.hibernate.jpql.testing.ForGrammar;
 import org.hibernate.jpql.testing.junit.GrammarTestRunner;
 import org.junit.runner.RunWith;
 
-
 /**
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
  */

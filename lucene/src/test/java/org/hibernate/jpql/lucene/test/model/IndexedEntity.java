@@ -18,27 +18,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.jpql.lucene;
-
-import java.util.HashMap;
-
-import org.hibernate.query.ast.origin.hql.resolve.EntityNamesResolver;
-
+package org.hibernate.jpql.lucene.test.model;
 
 /**
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
  */
-public class MapBasedEntityNamesResolver implements EntityNamesResolver {
-
-	private final HashMap<String, Class> entityNames;
-
-	public MapBasedEntityNamesResolver(HashMap<String, Class> entityNames) {
-		this.entityNames = entityNames;
-	}
-
-	@Override
-	public Class getClassFromName(String entityName) {
-		return entityNames.get( entityName );
-	}
+public class IndexedEntity {
 
 }

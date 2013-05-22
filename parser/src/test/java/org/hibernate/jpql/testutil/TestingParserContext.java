@@ -1,6 +1,6 @@
-/* 
+/*
  * Hibernate, Relational Persistence for Idiomatic Java
- * 
+ *
  * JBoss, Home of Professional Open Source
  * Copyright 2012 Red Hat Inc. and/or its affiliates and other contributors
  * as indicated by the @authors tag. All rights reserved.
@@ -18,17 +18,32 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.query.ast.origin.hql.resolve;
+package org.hibernate.jpql.testutil;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
-/**
- * Map entity names to entity classes. An entity name might be
- * the fully qualified class name or a short hand description.
- * 
- * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
- */
-public interface EntityNamesResolver {
+import org.hibernate.query.ast.DefaultParsingContext;
+import org.hibernate.query.ast.common.ParserContext;
 
-	Class getClassFromName(String entityName);
+public class TestingParserContext extends DefaultParsingContext implements ParserContext {
+
+	//map of <entityName,List entityImplementors>
+	private final HashMap<String,List> knownEntities = new HashMap<String,List>();
+
+	public TestingParserContext(String... validEntities) {
+		for (int i = 0; i < validEntities.length; i++) {
+			String entityName = validEntities[i];
+			ArrayList implementors = new ArrayList();
+			implementors.add( entityName );
+			knownEntities.put( validEntities[i], implementors );
+		}
+	}
+
+	@Override
+	public List getEntityImplementors(String entityName) {
+		return knownEntities.get( entityName );
+	}
 
 }
