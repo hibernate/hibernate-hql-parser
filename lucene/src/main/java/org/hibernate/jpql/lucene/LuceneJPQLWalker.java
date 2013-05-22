@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.antlr.runtime.tree.Tree;
-import org.antlr.runtime.tree.TreeNodeStream;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
@@ -38,6 +37,7 @@ import org.hibernate.query.ast.common.JoinType;
 import org.hibernate.query.ast.origin.hql.resolve.path.PathedPropertyReference;
 import org.hibernate.query.ast.origin.hql.resolve.path.PathedPropertyReferenceSource;
 import org.hibernate.query.ast.spi.EntityNamesResolver;
+import org.hibernate.query.ast.spi.QueryParserDelegate;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import org.hibernate.search.query.dsl.impl.ConnectedQueryContextBuilder;
@@ -59,7 +59,7 @@ import org.hibernate.search.query.dsl.impl.ConnectedQueryContextBuilder;
  *
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2011 Red Hat Inc.
  */
-public class LuceneJPQLWalker extends org.hibernate.query.ast.origin.hql.resolve.GeneratedHQLResolver {
+public class LuceneJPQLWalker implements QueryParserDelegate {
 
 	/**
 	 * Persister space: keep track of aliases and entity names.
@@ -87,7 +87,7 @@ public class LuceneJPQLWalker extends org.hibernate.query.ast.origin.hql.resolve
 	private final EntityNamesResolver entityNames;
 
 	//	private QueryBuilder queryBuilder = null;
-	private Class targetType = null;
+	private Class<?> targetType = null;
 
 	private BooleanQuery booleanQuery;
 	private final Stack<BooleanQuery> booleanQueryStack = new Stack<BooleanQuery>();
@@ -101,14 +101,12 @@ public class LuceneJPQLWalker extends org.hibernate.query.ast.origin.hql.resolve
 
 	private final Map<String, Object> namedParameters;
 
-	public LuceneJPQLWalker(TreeNodeStream input, SearchFactoryImplementor searchFactory,
-			EntityNamesResolver entityNames) {
-		this( input, searchFactory, entityNames, Collections.<String, Object> emptyMap() );
+	public LuceneJPQLWalker(SearchFactoryImplementor searchFactory, EntityNamesResolver entityNames) {
+		this( searchFactory, entityNames, Collections.<String, Object> emptyMap() );
 	}
 
-	public LuceneJPQLWalker(TreeNodeStream input, SearchFactoryImplementor searchFactory,
+	public LuceneJPQLWalker(SearchFactoryImplementor searchFactory,
 			EntityNamesResolver entityNames, Map<String,Object> namedParameters) {
-		super( input );
 		this.searchFactory = searchFactory;
 		this.entityNames = entityNames;
 		this.namedParameters = namedParameters;
@@ -119,7 +117,7 @@ public class LuceneJPQLWalker extends org.hibernate.query.ast.origin.hql.resolve
 	 * See rule entityName
 	 */
 	@Override
-	protected void registerPersisterSpace(Tree entityName, Tree alias) {
+	public void registerPersisterSpace(Tree entityName, Tree alias) {
 		String put = aliasToEntityType.put( alias.getText(), entityName.getText() );
 		if ( put != null && !put.equalsIgnoreCase( entityName.getText() ) ) {
 			throw new UnsupportedOperationException(
@@ -138,18 +136,18 @@ public class LuceneJPQLWalker extends org.hibernate.query.ast.origin.hql.resolve
 	}
 
 	@Override
-	protected boolean isUnqualifiedPropertyReference() {
+	public boolean isUnqualifiedPropertyReference() {
 		return true; // TODO - very likely always true for our supported use cases
 	}
 
 	@Override
-	protected PathedPropertyReferenceSource normalizeUnqualifiedPropertyReference(Tree property) {
+	public PathedPropertyReferenceSource normalizeUnqualifiedPropertyReference(Tree property) {
 		this.propertyName = property.getText();
 		return null;// return value is ignored anyway
 	}
 
 	@Override
-	protected boolean isPersisterReferenceAlias() {
+	public boolean isPersisterReferenceAlias() {
 		if ( aliasToEntityType.size() == 1 ) {
 			return true; // should be safe
 		}
@@ -159,61 +157,61 @@ public class LuceneJPQLWalker extends org.hibernate.query.ast.origin.hql.resolve
 	}
 
 	@Override
-	protected PathedPropertyReferenceSource normalizeUnqualifiedRoot(Tree identifier382) {
-		throw new UnsupportedOperationException( "must be overridden!" );
+	public PathedPropertyReferenceSource normalizeUnqualifiedRoot(Tree identifier382) {
+		throw new UnsupportedOperationException( "Not yet implemented" );
 	}
 
 	@Override
-	protected PathedPropertyReferenceSource normalizeQualifiedRoot(Tree identifier381) {
+	public PathedPropertyReferenceSource normalizeQualifiedRoot(Tree identifier381) {
 		return new PathedPropertyReference( identifier381.getText(), aliasToEntityType );
 	}
 
 	@Override
-	protected PathedPropertyReferenceSource normalizePropertyPathIntermediary(
+	public PathedPropertyReferenceSource normalizePropertyPathIntermediary(
 			PathedPropertyReferenceSource source, Tree propertyName) {
-		throw new UnsupportedOperationException( "must be overridden!" );
+		throw new UnsupportedOperationException( "Not yet implemented" );
 	}
 
 	@Override
-	protected PathedPropertyReferenceSource normalizeIntermediateIndexOperation(
+	public PathedPropertyReferenceSource normalizeIntermediateIndexOperation(
 			PathedPropertyReferenceSource propertyReferenceSource, Tree collectionProperty, Tree selector) {
-		throw new UnsupportedOperationException( "must be overridden!" );
+		throw new UnsupportedOperationException( "Not yet implemented" );
 	}
 
 	@Override
-	protected void normalizeTerminalIndexOperation(
+	public void normalizeTerminalIndexOperation(
 			PathedPropertyReferenceSource propertyReferenceSource, Tree collectionProperty, Tree selector) {
-		throw new UnsupportedOperationException( "must be overridden!" );
+		throw new UnsupportedOperationException( "Not yet implemented" );
 	}
 
 	@Override
-	protected PathedPropertyReferenceSource normalizeUnqualifiedPropertyReferenceSource(Tree identifier394) {
-		throw new UnsupportedOperationException( "must be overridden!" );
+	public PathedPropertyReferenceSource normalizeUnqualifiedPropertyReferenceSource(Tree identifier394) {
+		throw new UnsupportedOperationException( "Not yet implemented" );
 	}
 
 	@Override
-	protected Tree normalizePropertyPathTerminus(PathedPropertyReferenceSource source, Tree propertyNameNode) {
+	public Tree normalizePropertyPathTerminus(PathedPropertyReferenceSource source, Tree propertyNameNode) {
 		// receives the property name on a specific entity reference _source_
 		this.propertyName = propertyNameNode.toString();
 		return null;
 	}
 
 	@Override
-	protected void pushFromStrategy(
+	public void pushFromStrategy(
 			JoinType joinType,
 			Tree assosiationFetchTree,
 			Tree propertyFetchTree,
 			Tree alias) {
-		throw new UnsupportedOperationException( "must be overridden!" );
+		throw new UnsupportedOperationException( "Not yet implemented" );
 	}
 
 	@Override
-	protected void pushSelectStrategy() {
+	public void pushSelectStrategy() {
 		definingSelectStrategy = true;
 	}
 
 	@Override
-	protected void popStrategy() {
+	public void popStrategy() {
 		definingSelectStrategy = false;
 	}
 
@@ -222,21 +220,21 @@ public class LuceneJPQLWalker extends org.hibernate.query.ast.origin.hql.resolve
 	}
 
 	@Override
-	protected void activateOR() {
+	public void activateOR() {
 		activateBoolean();
 		booleanQuery = new BooleanQuery();
 		booleanMode = Occur.SHOULD;
 	}
 
 	@Override
-	protected void activateAND() {
+	public void activateAND() {
 		activateBoolean();
 		booleanQuery = new BooleanQuery();
 		booleanMode = Occur.MUST;
 	}
 
 	@Override
-	protected void activateNOT() {
+	public void activateNOT() {
 		activateBoolean();
 		booleanQuery = new BooleanQuery();
 		booleanMode = Occur.MUST_NOT;
@@ -250,7 +248,7 @@ public class LuceneJPQLWalker extends org.hibernate.query.ast.origin.hql.resolve
 	 * it just passes it's text so we have to figure out the options again.
 	 */
 	@Override
-	protected void predicateEquals(final String comparativePredicate) {
+	public void predicateEquals(final String comparativePredicate) {
 		String comparisonValue = valueToString( fromNamedQuery( comparativePredicate ) );
 
 		TermQuery predicate = new TermQuery( new Term( propertyName, comparisonValue ) );
@@ -258,7 +256,7 @@ public class LuceneJPQLWalker extends org.hibernate.query.ast.origin.hql.resolve
 	}
 
 	@Override
-	protected void predicateBetween(String lower, String upper) {
+	public void predicateBetween(String lower, String upper) {
 		String lowerComparisonValue = valueToString( fromNamedQuery( lower ) );
 		String upperComparisonValue = valueToString( fromNamedQuery( upper ) );
 
@@ -294,7 +292,7 @@ public class LuceneJPQLWalker extends org.hibernate.query.ast.origin.hql.resolve
 	}
 
 	@Override
-	protected void deactivateBoolean() {
+	public void deactivateBoolean() {
 		BooleanQuery currentBoolean = booleanQuery;
 		booleanQuery = booleanQueryStack.pop();
 		booleanMode = booleanQueryModeStack.pop();

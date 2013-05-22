@@ -43,94 +43,15 @@ package org.hibernate.query.ast.origin.hql.resolve;
 import org.antlr.runtime.tree.CommonTree;
 import org.hibernate.query.ast.common.JoinType;
 import org.hibernate.query.ast.origin.hql.resolve.path.PathedPropertyReferenceSource;
+import org.hibernate.query.ast.spi.QueryParserDelegate;
 }
 
 @members {
-	protected void registerPersisterSpace(Tree entityName, Tree alias) {
-		throw new UnsupportedOperationException( "must be overridden!" );
-	}
+  private QueryParserDelegate delegate;
 
-	protected boolean isUnqualifiedPropertyReference() {
-		throw new UnsupportedOperationException( "must be overridden!" );
-	}
-
-	protected PathedPropertyReferenceSource normalizeUnqualifiedPropertyReference(Tree property) {
-		throw new UnsupportedOperationException( "must be overridden!" );
-	}
-	
-	protected boolean isPersisterReferenceAlias() {
-		throw new UnsupportedOperationException( "must be overridden!" );
-	}
-
-	protected PathedPropertyReferenceSource normalizeUnqualifiedRoot(Tree identifier382) {
-		throw new UnsupportedOperationException( "must be overridden!" );
-	}
-
-	protected PathedPropertyReferenceSource normalizeQualifiedRoot(Tree identifier381) {
-		throw new UnsupportedOperationException( "must be overridden!" );
-	}
-
-	protected PathedPropertyReferenceSource normalizePropertyPathIntermediary(
-			PathedPropertyReferenceSource source, Tree propertyName) {
-		throw new UnsupportedOperationException( "must be overridden!" );
-	}
-
-	protected PathedPropertyReferenceSource normalizeIntermediateIndexOperation(
-			PathedPropertyReferenceSource propertyReferenceSource, Tree collectionProperty, Tree selector) {
-		throw new UnsupportedOperationException( "must be overridden!" );
-	}
-
-	protected void normalizeTerminalIndexOperation(
-			PathedPropertyReferenceSource propertyReferenceSource, Tree collectionProperty, Tree selector ) {
-		throw new UnsupportedOperationException( "must be overridden!" );
-	}
-
-	protected PathedPropertyReferenceSource normalizeUnqualifiedPropertyReferenceSource(Tree identifier394) {
-		throw new UnsupportedOperationException( "must be overridden!" );
-	}
-
-	protected Tree normalizePropertyPathTerminus(PathedPropertyReferenceSource source, Tree propertyNameNode) {
-		throw new UnsupportedOperationException( "must be overridden!" );
-	}
-
-	protected void pushFromStrategy(
-			JoinType joinType,
-			Tree assosiationFetchTree,
-			Tree propertyFetchTree,
-			Tree alias) {
-		throw new UnsupportedOperationException( "must be overridden!" );
-	}
-	
-	protected void pushSelectStrategy() {
-		throw new UnsupportedOperationException( "must be overridden!" );
-	}
-
-	protected void popStrategy(){
-		throw new UnsupportedOperationException( "must be overridden!" );
-	}
-
-	protected void activateOR() {
-	  //no-op by default: Hibernate ORM doesn't care
-	}
-
-  protected void activateAND() {
-    //no-op by default: Hibernate ORM doesn't care
-  }
-
-  protected void activateNOT() {
-    //no-op by default: Hibernate ORM doesn't care
-  }
-
-  protected void deactivateBoolean() {
-    //no-op by default: Hibernate ORM doesn't care
-  }
-
-  protected void predicateEquals(String comparativePredicate) {
-    //no-op by default: Hibernate ORM doesn't care
-  }
-
-  protected void predicateBetween(String lower, String upper) {
-    //no-op by default: Hibernate ORM doesn't care
+  public GeneratedHQLResolver(TreeNodeStream input, QueryParserDelegate delegate) {
+    this(input, new RecognizerSharedState());
+    this.delegate = delegate;
   }
 }
 
@@ -236,9 +157,9 @@ persisterSpaceRoot
 
 joins
 	:	^(PROPERTY_JOIN jt=joinType ft=FETCH? an=ALIAS_NAME pf=PROP_FETCH?
-		{	pushFromStrategy($jt.joinType, $ft, $pf, $an );	}
+		{	delegate.pushFromStrategy($jt.joinType, $ft, $pf, $an );	}
 		(collectionExpression|propertyReference) withClause?)
-		{	popStrategy();	}
+		{	delegate.popStrategy();	}
 	|	^(PERSISTER_JOIN joinType persisterSpaceRoot onClause?)
 	;
 
@@ -257,8 +178,8 @@ joinType returns [JoinType joinType]
 	;
 
 selectClause
-@init	{	if (state.backtracking == 0) pushSelectStrategy();	}
-@after	{	popStrategy();	}
+@init	{	if (state.backtracking == 0) delegate.pushSelectStrategy();	}
+@after	{	delegate.popStrategy();	}
 	:	^(SELECT DISTINCT? rootSelectExpression) 
 	;
 
@@ -279,14 +200,14 @@ sortSpecification
 	;
 
 searchCondition
-	:	{ activateOR(); } ^( OR searchCondition searchCondition ) { deactivateBoolean(); }
-	|	{ activateAND(); } ^( AND searchCondition searchCondition ) { deactivateBoolean(); }
-	|	{ activateNOT(); } ^( NOT searchCondition ) { deactivateBoolean(); }
+	:	{ delegate.activateOR(); } ^( OR searchCondition searchCondition ) { delegate.deactivateBoolean(); }
+	|	{ delegate.activateAND(); } ^( AND searchCondition searchCondition ) { delegate.deactivateBoolean(); }
+	|	{ delegate.activateNOT(); } ^( NOT searchCondition ) { delegate.deactivateBoolean(); }
 	|	predicate
 	;
 
 predicate
-	:	^( EQUALS rowValueConstructor comparativePredicateValue ) { predicateEquals( $comparativePredicateValue.text); }//{ predicateEquals( $rowValueConstructor, $comparativePredicateValue ); }
+	:	^( EQUALS rowValueConstructor comparativePredicateValue ) { delegate.predicateEquals( $comparativePredicateValue.text); }//{ predicateEquals( $rowValueConstructor, $comparativePredicateValue ); }
 	|	^( NOT_EQUAL rowValueConstructor comparativePredicateValue )
 	|	^( LESS rowValueConstructor comparativePredicateValue )
 	|	^( LESS_EQUAL rowValueConstructor comparativePredicateValue )
@@ -308,7 +229,7 @@ predicate
 	;
 
 betweenList
-	:	^( BETWEEN_LIST lower=rowValueConstructor upper=rowValueConstructor ) { predicateBetween( $lower.text, $upper.text ); }
+	:	^( BETWEEN_LIST lower=rowValueConstructor upper=rowValueConstructor ) { delegate.predicateBetween( $lower.text, $upper.text ); }
 	;	
 
 comparativePredicateValue
@@ -591,7 +512,7 @@ numeric_literal
 
 entityName
 	:	ENTITY_NAME ALIAS_NAME
-	{	registerPersisterSpace($ENTITY_NAME, $ALIAS_NAME);	}
+	{	delegate.registerPersisterSpace($ENTITY_NAME, $ALIAS_NAME);	}
 	;
 
 propertyReference
@@ -599,49 +520,49 @@ propertyReference
 	;
 
 propertyReferencePath
-	: 	{isUnqualifiedPropertyReference()}? unqualifiedPropertyReference
+	: 	{delegate.isUnqualifiedPropertyReference()}? unqualifiedPropertyReference
 	|	pathedPropertyReference
 	|	terminalIndexOperation
 	;
 
 unqualifiedPropertyReference returns [PathedPropertyReferenceSource propertyReferenceSource]
 	:	IDENTIFIER
-	{	$propertyReferenceSource = normalizeUnqualifiedPropertyReference( $IDENTIFIER ); }
+	{	$propertyReferenceSource = delegate.normalizeUnqualifiedPropertyReference( $IDENTIFIER ); }
 	;
 
 pathedPropertyReference
 	:	^(DOT pathedPropertyReferenceSource IDENTIFIER)
-	{	normalizePropertyPathTerminus( $pathedPropertyReferenceSource.propertyReferenceSource, $IDENTIFIER );	}
+	{	delegate.normalizePropertyPathTerminus( $pathedPropertyReferenceSource.propertyReferenceSource, $IDENTIFIER );	}
 	;
 
 pathedPropertyReferenceSource returns [PathedPropertyReferenceSource propertyReferenceSource]
-	:	{(isPersisterReferenceAlias())}?=> IDENTIFIER { $propertyReferenceSource = normalizeQualifiedRoot( $IDENTIFIER ); }
-	|	{(isUnqualifiedPropertyReference())}?=> IDENTIFIER { $propertyReferenceSource = normalizeUnqualifiedRoot( $IDENTIFIER ); }
+	:	{(delegate.isPersisterReferenceAlias())}?=> IDENTIFIER { $propertyReferenceSource = delegate.normalizeQualifiedRoot( $IDENTIFIER ); }
+	|	{(delegate.isUnqualifiedPropertyReference())}?=> IDENTIFIER { $propertyReferenceSource = delegate.normalizeUnqualifiedRoot( $IDENTIFIER ); }
 	|	intermediatePathedPropertyReference { $propertyReferenceSource = $intermediatePathedPropertyReference.propertyReferenceSource; }
 	|	intermediateIndexOperation { $propertyReferenceSource = $intermediateIndexOperation.propertyReferenceSource; }
 	;
 
 intermediatePathedPropertyReference returns [PathedPropertyReferenceSource propertyReferenceSource]
 	:	^(DOT source=pathedPropertyReferenceSource IDENTIFIER )
-	{	$propertyReferenceSource = normalizePropertyPathIntermediary( $pathedPropertyReferenceSource.propertyReferenceSource, $IDENTIFIER );	}
+	{	$propertyReferenceSource = delegate.normalizePropertyPathIntermediary( $pathedPropertyReferenceSource.propertyReferenceSource, $IDENTIFIER );	}
 	;
 
 intermediateIndexOperation returns [PathedPropertyReferenceSource propertyReferenceSource]
 	:	^( LEFT_SQUARE indexOperationSource indexSelector ) 
-	{	$propertyReferenceSource = normalizeIntermediateIndexOperation( $indexOperationSource.propertyReferenceSource, $indexOperationSource.collectionProperty, $indexSelector.tree );	}
+	{	$propertyReferenceSource = delegate.normalizeIntermediateIndexOperation( $indexOperationSource.propertyReferenceSource, $indexOperationSource.collectionProperty, $indexSelector.tree );	}
 	;
 
 terminalIndexOperation
 	:	^( LEFT_SQUARE indexOperationSource indexSelector ) 
-	{	normalizeTerminalIndexOperation( $indexOperationSource.propertyReferenceSource, $indexOperationSource.collectionProperty, $indexSelector.tree );	}
+	{	delegate.normalizeTerminalIndexOperation( $indexOperationSource.propertyReferenceSource, $indexOperationSource.collectionProperty, $indexSelector.tree );	}
 	;
 
 indexOperationSource returns [PathedPropertyReferenceSource propertyReferenceSource, Tree collectionProperty]
 	:	^(DOT pathedPropertyReferenceSource IDENTIFIER )
 	{	$propertyReferenceSource = $pathedPropertyReferenceSource.propertyReferenceSource;
 		$collectionProperty = $IDENTIFIER;	}
-		|	{(isUnqualifiedPropertyReference())}?=> IDENTIFIER
-		{	$propertyReferenceSource = normalizeUnqualifiedPropertyReferenceSource( $IDENTIFIER );
+		|	{(delegate.isUnqualifiedPropertyReference())}?=> IDENTIFIER
+		{	$propertyReferenceSource = delegate.normalizeUnqualifiedPropertyReferenceSource( $IDENTIFIER );
 			$collectionProperty = $IDENTIFIER;	}
 	;
 

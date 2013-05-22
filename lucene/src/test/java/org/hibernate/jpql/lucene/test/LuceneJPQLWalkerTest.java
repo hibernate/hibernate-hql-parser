@@ -37,6 +37,7 @@ import org.hibernate.jpql.lucene.testutil.MapBasedEntityNamesResolver;
 import org.hibernate.query.ast.common.ParserContext;
 import org.hibernate.query.ast.origin.hql.parse.HQLLexer;
 import org.hibernate.query.ast.origin.hql.parse.HQLParser;
+import org.hibernate.query.ast.origin.hql.resolve.GeneratedHQLResolver;
 import org.hibernate.query.ast.spi.EntityNamesResolver;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
 import org.junit.Test;
@@ -179,11 +180,12 @@ public class LuceneJPQLWalkerTest {
 
 			EntityNamesResolver nameResolver = new MapBasedEntityNamesResolver( entityNames );
 			// Finally create the treewalker:
-			LuceneJPQLWalker walker = new LuceneJPQLWalker( treeStream, searchFactory, nameResolver, namedParameters );
+			LuceneJPQLWalker delegate = new LuceneJPQLWalker( searchFactory, nameResolver, namedParameters );
+			GeneratedHQLResolver walker = new GeneratedHQLResolver( treeStream, delegate );
 			try {
 				walker.statement();
 				Assert.assertEquals( 0, walker.getNumberOfSyntaxErrors() );
-				return walker;
+				return delegate;
 			}
 			catch (RecognitionException e) {
 				Assert.fail( e.getMessage() );
