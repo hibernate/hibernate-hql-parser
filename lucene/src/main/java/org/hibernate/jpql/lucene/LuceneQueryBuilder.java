@@ -39,7 +39,6 @@ import org.hibernate.query.ast.origin.hql.resolve.path.PathedPropertyReferenceSo
 import org.hibernate.query.ast.spi.EntityNamesResolver;
 import org.hibernate.query.ast.spi.QueryParserDelegate;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
-import org.hibernate.search.query.dsl.QueryBuilder;
 import org.hibernate.search.query.dsl.impl.ConnectedQueryContextBuilder;
 
 /**
@@ -52,7 +51,7 @@ import org.hibernate.search.query.dsl.impl.ConnectedQueryContextBuilder;
  * output as a generic normalization AST transformer.</li>
  *   <li>We are assembling the Lucene Query directly, but this doesn't take
  *   into account parameter types which might need some transformation;
- *   the Hibernate Search provided {@link QueryBuilder} could do this.</li>
+ *   the Hibernate Search provided {@code QueryBuilder} could do this.</li>
  *   <li>Implement more predicates</li>
  *   <li>Support multiple types being targeted by the Query</li>
  *   <li>Support positional parameters (currently only consumed named parameters)<li>
@@ -102,7 +101,7 @@ public class LuceneQueryBuilder implements QueryParserDelegate<LuceneQueryParsin
 	private final Map<String, Object> namedParameters;
 
 	public LuceneQueryBuilder(SearchFactoryImplementor searchFactory, EntityNamesResolver entityNames) {
-		this( searchFactory, entityNames, Collections.<String, Object> emptyMap() );
+		this( searchFactory, entityNames, Collections.<String, Object>emptyMap() );
 	}
 
 	public LuceneQueryBuilder(SearchFactoryImplementor searchFactory,

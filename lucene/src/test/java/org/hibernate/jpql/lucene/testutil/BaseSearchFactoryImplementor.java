@@ -43,7 +43,6 @@ import org.hibernate.search.spi.InstanceInitializer;
 import org.hibernate.search.stat.Statistics;
 import org.hibernate.search.stat.spi.StatisticsImplementor;
 
-
 /**
  * Useful base class to create mocks of SearchFactory
  */

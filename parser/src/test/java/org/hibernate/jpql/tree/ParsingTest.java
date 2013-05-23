@@ -1,6 +1,6 @@
-/* 
+/*
  * Hibernate, Relational Persistence for Idiomatic Java
- * 
+ *
  * JBoss, Home of Professional Open Source
  * Copyright 2012 Red Hat Inc. and/or its affiliates and other contributors
  * as indicated by the @authors tag. All rights reserved.
@@ -33,7 +33,7 @@ import org.hibernate.query.ast.origin.hql.parse.HQLParser;
 import org.junit.Test;
 
 public class ParsingTest {
-	
+
 	@Test
 	public void testFromAnimal() {
 		ParserContext context = new TestingParserContext( "Animal" );
@@ -83,7 +83,7 @@ public class ParsingTest {
 	private void assertTreeParsed(ParserContext context, String input, String treeExpectation) {
 		HQLLexer lexed = new HQLLexer( new ANTLRStringStream( input ) );
 		CommonTokenStream tokens = new CommonTokenStream( lexed );
-		
+
 		HQLParser parser = new HQLParser( tokens );
 		if ( context != null ) {
 			parser.setParserContext( context );
