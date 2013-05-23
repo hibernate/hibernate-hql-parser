@@ -45,32 +45,20 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-search-engine</artifactId>
-            <exclusions>
-                <!-- Not really needed to exclude these, but we don't need them: -->
-                <exclusion>
-                    <groupId>org.hibernate</groupId>
-                    <artifactId>hibernate-search-analyzers</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.avro</groupId>
-                    <artifactId>avro</artifactId>
-                </exclusion>
-            </exclusions>
-            <optional />
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.antlr</groupId>
-            <artifactId>antlr</artifactId>
+            <artifactId>antlr-runtime</artifactId>
         </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-             <artifactId>hibernate-jpql-testing</artifactId>
-             <scope>test</scope>
         </dependency>
     </dependencies>
 

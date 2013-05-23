@@ -137,6 +137,17 @@
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-search-engine</artifactId>
                 <version>${hibernateSearchVersion}</version>
+                <exclusions>
+                    <!-- Not really needed to exclude these, but we don't need them: -->
+                    <exclusion>
+                        <groupId>org.hibernate</groupId>
+                        <artifactId>hibernate-search-analyzers</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.avro</groupId>
+                        <artifactId>avro</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -210,7 +221,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.0</version>
                 <executions>
                     <execution>
                         <id>enforce-java</id>
@@ -219,18 +229,38 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <rules>
-                        <requireJavaVersion>
-                            <!-- require JDK 1.6 to run the build -->
-                            <version>[1.6,)</version>
-                        </requireJavaVersion>
-                    </rules>
-                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>animal-sniffer-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-java</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>1.2</version>
+                    <configuration>
+                        <rules>
+                            <requireJavaVersion>
+                                <!-- require JDK 1.6 to run the build -->
+                                <version>[1.6,)</version>
+                            </requireJavaVersion>
+                            <DependencyConvergence/>
+                            <requirePluginVersions/>
+                        </rules>
+                    </configuration>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -254,7 +284,6 @@
                     <configuration>
                         <showWarnings>true</showWarnings>
                         <showDeprecation>true</showDeprecation>
-                        <!-- When not using Java6 to build, we should specify <bootclasspath> as well -->
                         <source>1.6</source>
                         <target>1.6</target>
                         <encoding>UTF-8</encoding>
@@ -341,6 +370,26 @@
                     <version>2.1.1</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>2.5</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.6</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.3</version>
+                </plugin>
+                <plugin>
                     <!-- This plugin's configuration is used in m2e only. -->
                     <groupId>org.eclipse.m2e</groupId>
                     <artifactId>lifecycle-mapping</artifactId>
@@ -424,6 +473,18 @@
                             <version>${project.version}</version>
                         </dependency>
                     </dependencies>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>animal-sniffer-maven-plugin</artifactId>
+                    <version>1.9</version>
+                    <configuration>
+                        <signature>
+                            <groupId>org.codehaus.mojo.signature</groupId>
+                            <artifactId>java16</artifactId>
+                            <version>1.0</version>
+                        </signature>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
