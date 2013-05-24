@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.jpql.lucene.test;
+package org.hibernate.query.lucene.test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,16 +30,16 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
-import org.hibernate.jpql.lucene.LuceneQueryBuilder;
-import org.hibernate.jpql.lucene.LuceneQueryParsingResult;
-import org.hibernate.jpql.lucene.test.model.IndexedEntity;
-import org.hibernate.jpql.lucene.testutil.BaseSearchFactoryImplementor;
-import org.hibernate.jpql.lucene.testutil.MapBasedEntityNamesResolver;
 import org.hibernate.query.ast.common.ParserContext;
 import org.hibernate.query.ast.origin.hql.parse.HQLLexer;
 import org.hibernate.query.ast.origin.hql.parse.HQLParser;
 import org.hibernate.query.ast.origin.hql.resolve.GeneratedHQLResolver;
 import org.hibernate.query.ast.spi.EntityNamesResolver;
+import org.hibernate.query.lucene.LuceneQueryBuilder;
+import org.hibernate.query.lucene.LuceneQueryParsingResult;
+import org.hibernate.query.lucene.test.model.IndexedEntity;
+import org.hibernate.query.lucene.testutil.BaseSearchFactoryImplementor;
+import org.hibernate.query.lucene.testutil.MapBasedEntityNamesResolver;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
 import org.junit.Test;
 

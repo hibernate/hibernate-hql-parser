@@ -2,7 +2,7 @@
  * Hibernate, Relational Persistence for Idiomatic Java
  *
  * JBoss, Home of Professional Open Source
- * Copyright 2012 Red Hat Inc. and/or its affiliates and other contributors
+ * Copyright 2013 Red Hat Inc. and/or its affiliates and other contributors
  * as indicated by the @authors tag. All rights reserved.
  * See the copyright.txt in the distribution for a
  * full listing of individual contributors.
@@ -18,25 +18,40 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.jpql.lucene.testutil;
+package org.hibernate.query.lucene;
 
-import java.util.Map;
-
-import org.hibernate.query.ast.spi.EntityNamesResolver;
+import org.apache.lucene.search.Query;
 
 /**
- * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
+ * The result of walking a query parse tree using a {@link LuceneQueryBuilder}.
+ *
+ * @author Gunnar Morling
  */
-public class MapBasedEntityNamesResolver implements EntityNamesResolver {
+public class LuceneQueryParsingResult {
 
-	private final Map<String, Class<?>> entityNames;
+	private final Query query;
+	private final Class<?> targetEntity;
 
-	public MapBasedEntityNamesResolver(Map<String, Class<?>> entityNames) {
-		this.entityNames = entityNames;
+	public LuceneQueryParsingResult(Query query, Class<?> targetEntity) {
+		this.query = query;
+		this.targetEntity = targetEntity;
 	}
 
-	@Override
-	public Class<?> getClassFromName(String entityName) {
-		return entityNames.get( entityName );
+	/**
+	 * Returns the Lucene create created while walking the parse tree.
+	 *
+	 * @return the Lucene create created while walking the parse tree
+	 */
+	public Query getQuery() {
+		return query;
+	}
+
+	/**
+	 * Returns the entity type of the parsed query.
+	 *
+	 * @return the entity type of the parsed query
+	 */
+	public Class<?> getTargetEntity() {
+		return targetEntity;
 	}
 }

@@ -2,7 +2,7 @@
  * Hibernate, Relational Persistence for Idiomatic Java
  *
  * JBoss, Home of Professional Open Source
- * Copyright 2013 Red Hat Inc. and/or its affiliates and other contributors
+ * Copyright 2012 Red Hat Inc. and/or its affiliates and other contributors
  * as indicated by the @authors tag. All rights reserved.
  * See the copyright.txt in the distribution for a
  * full listing of individual contributors.
@@ -18,24 +18,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.jpql;
+package org.hibernate.query.lucene.test.model;
 
 /**
- * Raised in case an error ocurred when parsing a JPQL query or walking the resulting parse tree.
- *
- * @author Gunnar Morling
+ * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
  */
-public class ParsingException extends RuntimeException {
+public class IndexedEntity {
 
-	public ParsingException(String message) {
-		super( message );
-	}
-
-	public ParsingException(Throwable cause) {
-		super( cause );
-	}
-
-	public ParsingException(String message, Throwable cause) {
-		super( message, cause );
-	}
 }

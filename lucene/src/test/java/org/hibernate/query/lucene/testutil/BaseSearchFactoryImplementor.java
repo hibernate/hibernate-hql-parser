@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.jpql.lucene.testutil;
+package org.hibernate.query.lucene.testutil;
 
 import java.util.Map;
 import java.util.Set;
