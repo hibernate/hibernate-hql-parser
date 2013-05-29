@@ -22,6 +22,7 @@ package org.hibernate.query.lucene.test.internal.builder.model;
 
 import javax.persistence.Id;
 
+import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.NumericField;
@@ -34,6 +35,7 @@ public class IndexedEntity {
 
 	private String id;
 	private String name;
+	private String description;
 
 	private int i;
 	private long l;
@@ -49,7 +51,7 @@ public class IndexedEntity {
 		this.id = id;
 	}
 
-	@Field
+	@Field(analyze = Analyze.NO)
 	public String getName() {
 		return name;
 	}
@@ -58,7 +60,16 @@ public class IndexedEntity {
 		this.name = name;
 	}
 
-	@Field
+	@Field(analyze = Analyze.YES)
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	@Field(analyze = Analyze.NO)
 	@NumericField
 	public int getI() {
 		return i;
@@ -68,7 +79,7 @@ public class IndexedEntity {
 		this.i = i;
 	}
 
-	@Field
+	@Field(analyze = Analyze.NO)
 	@NumericField
 	public long getL() {
 		return l;
@@ -78,7 +89,7 @@ public class IndexedEntity {
 		this.l = l;
 	}
 
-	@Field
+	@Field(analyze = Analyze.NO)
 	@NumericField
 	public float getF() {
 		return f;
@@ -88,7 +99,7 @@ public class IndexedEntity {
 		this.f = f;
 	}
 
-	@Field
+	@Field(analyze = Analyze.NO)
 	@NumericField
 	public double getD() {
 		return d;

@@ -75,4 +75,14 @@ public class PropertyHelperTest {
 	public void shouldConvertDoubleProperty() {
 		assertThat( propertyHelper.convertToPropertyType( "42.0", IndexedEntity.class, "d" ) ).isEqualTo( 42.0D );
 	}
+
+	@Test
+	public void shouldRecognizeAnalyzedField() {
+		assertThat( propertyHelper.isAnalyzed( IndexedEntity.class, "description" ) ).isTrue();
+	}
+
+	@Test
+	public void shouldRecognizeUnanalyzedField() {
+		assertThat( propertyHelper.isAnalyzed( IndexedEntity.class, "i" ) ).isFalse();
+	}
 }

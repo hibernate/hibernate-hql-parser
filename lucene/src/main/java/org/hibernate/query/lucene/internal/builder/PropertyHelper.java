@@ -20,6 +20,9 @@
  */
 package org.hibernate.query.lucene.internal.builder;
 
+import java.util.EnumSet;
+
+import org.apache.lucene.document.Field;
 import org.hibernate.query.lucene.internal.logging.Log;
 import org.hibernate.query.lucene.internal.logging.LoggerFactory;
 import org.hibernate.search.bridge.FieldBridge;
@@ -94,12 +97,31 @@ public class PropertyHelper {
 		else {
 			AbstractDocumentBuilder.PropertiesMetadata metadata = entityIndexBinding.getDocumentBuilder().getMetadata();
 			int index = metadata.fieldNames.indexOf( propertyName );
-
 			if ( index == -1 ) {
 				throw log.getNoSuchPropertyException( type.getCanonicalName(), propertyName );
 			}
 
 			return metadata.fieldBridges.get( index );
+		}
+	}
+
+	public boolean isAnalyzed(Class<?> type, String propertyName) {
+		EntityIndexBinder entityIndexBinding = searchFactory.getIndexBindingForEntity( type );
+		if ( entityIndexBinding == null ) {
+			throw log.getNoIndexedEntityException( type.getCanonicalName() );
+		}
+
+		if ( propertyName.equals( entityIndexBinding.getDocumentBuilder().getIdentifierName() ) ) {
+			return false;
+		}
+		else {
+			AbstractDocumentBuilder.PropertiesMetadata metadata = entityIndexBinding.getDocumentBuilder().getMetadata();
+			int index = metadata.fieldNames.indexOf( propertyName );
+			if ( index == -1 ) {
+				throw log.getNoSuchPropertyException( type.getCanonicalName(), propertyName );
+			}
+
+			return EnumSet.of( Field.Index.ANALYZED, Field.Index.ANALYZED_NO_NORMS ).contains( metadata.fieldIndex.get( index ) );
 		}
 	}
 }
