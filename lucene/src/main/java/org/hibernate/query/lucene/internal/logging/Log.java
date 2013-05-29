@@ -47,4 +47,7 @@ public interface Log extends BasicLogger {
 
 	@Message(id = 5, value = "The predicate %s can not be added since there may be only one sub-predicate in a NOT predicate.")
 	IllegalStateException getNotMoreThanOnePredicateInNegationAllowedException(Predicate predicate);
+
+	@Message(id = 6, value = "No queries can be applied to property %2$s in type %1$s since the property is analyzed.")
+	IllegalArgumentException getQueryOnAnalyzedPropertyNotSupportedException(String typeName, String propertyName);
 }

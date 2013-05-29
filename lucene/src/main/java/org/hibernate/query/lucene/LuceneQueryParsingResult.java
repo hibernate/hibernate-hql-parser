@@ -23,7 +23,7 @@ package org.hibernate.query.lucene;
 import org.apache.lucene.search.Query;
 
 /**
- * The result of walking a query parse tree using a {@link LuceneQueryBuilder}.
+ * The result of walking a query parse tree using a {@link LuceneQueryParserDelegate}.
  *
  * @author Gunnar Morling
  */
@@ -53,5 +53,10 @@ public class LuceneQueryParsingResult {
 	 */
 	public Class<?> getTargetEntity() {
 		return targetEntity;
+	}
+
+	@Override
+	public String toString() {
+		return "LuceneQueryParsingResult [query=" + query + ", targetEntity=" + targetEntity + "]";
 	}
 }

@@ -35,23 +35,27 @@ import org.hibernate.query.ast.origin.hql.parse.HQLLexer;
 import org.hibernate.query.ast.origin.hql.parse.HQLParser;
 import org.hibernate.query.ast.origin.hql.resolve.GeneratedHQLResolver;
 import org.hibernate.query.ast.spi.EntityNamesResolver;
-import org.hibernate.query.lucene.LuceneQueryBuilder;
+import org.hibernate.query.lucene.LuceneQueryParserDelegate;
 import org.hibernate.query.lucene.LuceneQueryParsingResult;
 import org.hibernate.query.lucene.test.model.IndexedEntity;
-import org.hibernate.query.lucene.testutil.BaseSearchFactoryImplementor;
 import org.hibernate.query.lucene.testutil.MapBasedEntityNamesResolver;
-import org.hibernate.search.engine.spi.SearchFactoryImplementor;
+import org.hibernate.search.spi.SearchFactoryIntegrator;
+import org.hibernate.search.test.programmaticmapping.TestingSearchFactoryHolder;
+import org.junit.Rule;
 import org.junit.Test;
 
 /**
- * Test for {@link LuceneQueryBuilder}.
+ * Integration test for {@link LuceneQueryParserDelegate}.
  *
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
  * @author Gunnar Morling
  */
-public class LuceneQueryBuilderTest {
+public class LuceneQueryParserDelegateTest {
 
 	private static boolean USE_STDOUT = true;
+
+	@Rule
+	public TestingSearchFactoryHolder factoryHolder = new TestingSearchFactoryHolder( IndexedEntity.class );
 
 	@Test
 	public void shouldCreateUnrestrictedQuery() {
@@ -64,7 +68,7 @@ public class LuceneQueryBuilderTest {
 	public void shouldCreateRestrictedQueryUsingSelect() {
 		transformationAssert(
 				"select e from IndexedEntity e where e.name = 'same' and not e.id = 5" ,
-				"+name:same +(-id:5)" );
+				"+name:same -id:5" );
 	}
 
 	@Test
@@ -135,8 +139,10 @@ public class LuceneQueryBuilderTest {
 		if ( USE_STDOUT ) {
 			System.out.println( jpaql );
 		}
-		SearchFactoryMock searchFactory = new SearchFactoryMock();
-		HashMap<String, Class<?>> entityNames = new HashMap<String, Class<?>>();
+
+		SearchFactoryIntegrator searchFactory = factoryHolder.getSearchFactory();
+
+		Map<String, Class<?>> entityNames = new HashMap<String, Class<?>>();
 		entityNames.put( "com.acme.IndexedEntity", IndexedEntity.class );
 		entityNames.put( "IndexedEntity", IndexedEntity.class );
 		//generated alias:
@@ -149,8 +155,8 @@ public class LuceneQueryBuilderTest {
 		}
 	}
 
-	private LuceneQueryParsingResult assertTreeParsed(ParserContext context, String input, SearchFactoryImplementor searchFactory,
-			HashMap<String, Class<?>> entityNames, Map<String, Object> namedParameters) {
+	private LuceneQueryParsingResult assertTreeParsed(ParserContext context, String input, SearchFactoryIntegrator searchFactory,
+			Map<String, Class<?>> entityNames, Map<String, Object> namedParameters) {
 		HQLLexer lexed = new HQLLexer( new ANTLRStringStream( input ) );
 		Assert.assertEquals( 0, lexed.getNumberOfSyntaxErrors() );
 		CommonTokenStream tokens = new CommonTokenStream( lexed );
@@ -181,7 +187,7 @@ public class LuceneQueryBuilderTest {
 
 			EntityNamesResolver nameResolver = new MapBasedEntityNamesResolver( entityNames );
 			// Finally create the treewalker:
-			LuceneQueryBuilder delegate = new LuceneQueryBuilder( searchFactory, nameResolver, namedParameters );
+			LuceneQueryParserDelegate delegate = new LuceneQueryParserDelegate( searchFactory, nameResolver, namedParameters );
 			GeneratedHQLResolver walker = new GeneratedHQLResolver( treeStream, delegate );
 			try {
 				walker.statement();
@@ -193,11 +199,5 @@ public class LuceneQueryBuilderTest {
 			}
 		}
 		return null; // failed
-	}
-
-	private class SearchFactoryMock extends BaseSearchFactoryImplementor {
-		// For now keep it simple.
-		// We might want to add enough testing context to use the org.hibernate.search.query.dsl.QueryBuilder,
-		// and so take advantage of the well-known analyzers, fieldbridges and actual field names.
 	}
 }
