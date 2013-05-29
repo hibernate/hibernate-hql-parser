@@ -77,11 +77,19 @@ public class LuceneQueryBuilderTest {
 	@Test
 	public void shouldBuildDoubleEqualsQuery() {
 		Query query = queryBuilder
-			.setEntityType( IndexedEntity.class )
-			.addEqualsPredicate( "d", "10.0" )
-			.build();
+				.setEntityType( IndexedEntity.class )
+				.addEqualsPredicate( "d", "10.0" )
+				.build();
 
 		assertThat( query.toString() ).isEqualTo( "d:[10.0 TO 10.0]" );
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldFailQueryOnAnalyzedField() {
+		queryBuilder
+				.setEntityType( IndexedEntity.class )
+				.addEqualsPredicate( "description", "foo" )
+				.build();
 	}
 
 	@Test
