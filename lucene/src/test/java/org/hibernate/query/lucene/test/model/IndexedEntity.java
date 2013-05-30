@@ -25,6 +25,7 @@ import javax.persistence.Id;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.NumericField;
 
 /**
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
@@ -34,6 +35,7 @@ public class IndexedEntity {
 
 	private String id;
 	private String name;
+	private long position;
 
 	@Id
 	public String getId() {
@@ -51,5 +53,15 @@ public class IndexedEntity {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	@Field(analyze = Analyze.NO)
+	@NumericField
+	public long getPosition() {
+		return position;
+	}
+
+	public void setPosition(long position) {
+		this.position = position;
 	}
 }

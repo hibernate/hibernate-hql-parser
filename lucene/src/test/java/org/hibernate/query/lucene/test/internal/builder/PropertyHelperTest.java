@@ -22,6 +22,9 @@ package org.hibernate.query.lucene.test.internal.builder;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+import java.util.Calendar;
+import java.util.TimeZone;
+
 import org.hibernate.query.lucene.internal.builder.PropertyHelper;
 import org.hibernate.query.lucene.test.internal.builder.model.IndexedEntity;
 import org.hibernate.search.test.programmaticmapping.TestingSearchFactoryHolder;
@@ -74,6 +77,14 @@ public class PropertyHelperTest {
 	@Test
 	public void shouldConvertDoubleProperty() {
 		assertThat( propertyHelper.convertToPropertyType( "42.0", IndexedEntity.class, "d" ) ).isEqualTo( 42.0D );
+	}
+
+	@Test
+	public void shouldConvertDateProperty() {
+		Calendar calendar = Calendar.getInstance( TimeZone.getTimeZone( "GMT" ) );
+		calendar.clear();
+		calendar.set( 2012, 8, 25 );
+		assertThat( propertyHelper.convertToPropertyType( "20120925", IndexedEntity.class, "date" ) ).isEqualTo( calendar.getTime() );
 	}
 
 	@Test
