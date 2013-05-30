@@ -87,7 +87,7 @@ public class LuceneQueryBuilder {
 		return this;
 	}
 
-	public LuceneQueryBuilder addEqualsPredicate(String propertyName, String value) {
+	public LuceneQueryBuilder addEqualsPredicate(String propertyName, Object value) {
 		assertPropertyIsNotAnalyzed( propertyName );
 
 		Object typedValue = propertyHelper.convertToPropertyType( value, entityType, propertyName );
@@ -96,7 +96,7 @@ public class LuceneQueryBuilder {
 		return this;
 	}
 
-	public LuceneQueryBuilder addRangePredicate(String propertyName, String lower, String upper) {
+	public LuceneQueryBuilder addRangePredicate(String propertyName, Object lower, Object upper) {
 		assertPropertyIsNotAnalyzed( propertyName );
 
 		Object lowerValue = propertyHelper.convertToPropertyType( lower, entityType, propertyName );

@@ -206,20 +206,16 @@ public class LuceneQueryParserDelegate implements QueryParserDelegate<LuceneQuer
 	 */
 	@Override
 	public void predicateEquals(final String comparativePredicate) {
-		String comparisonValue = valueToString( fromNamedQuery( comparativePredicate ) );
+		Object comparisonValue = fromNamedQuery( comparativePredicate );
 		builder.addEqualsPredicate( propertyName, comparisonValue );
 	}
 
 	@Override
 	public void predicateBetween(String lower, String upper) {
-		String lowerComparisonValue = valueToString( fromNamedQuery( lower ) );
-		String upperComparisonValue = valueToString( fromNamedQuery( upper ) );
+		Object lowerComparisonValue = fromNamedQuery( lower );
+		Object upperComparisonValue = fromNamedQuery( upper );
 
 		builder.addRangePredicate( propertyName, lowerComparisonValue, upperComparisonValue );
-	}
-
-	private String valueToString(Object comparison) {
-		return comparison.toString();
 	}
 
 	private Object fromNamedQuery(String comparativePredicate) {

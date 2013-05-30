@@ -20,12 +20,16 @@
  */
 package org.hibernate.query.lucene.test.internal.builder.model;
 
+import java.util.Date;
+
 import javax.persistence.Id;
 
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.DateBridge;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.NumericField;
+import org.hibernate.search.annotations.Resolution;
 
 /**
  * @author Gunnar Morling
@@ -41,6 +45,8 @@ public class IndexedEntity {
 	private long l;
 	private float f;
 	private double d;
+
+	private Date date;
 
 	@Id
 	public String getId() {
@@ -107,5 +113,15 @@ public class IndexedEntity {
 
 	public void setD(double d) {
 		this.d = d;
+	}
+
+	@Field(analyze = Analyze.NO)
+	@DateBridge(resolution = Resolution.DAY)
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
 	}
 }

@@ -57,26 +57,33 @@ public class PropertyHelper {
 	 * @param value the value to convert
 	 * @param entityType the type hosting the property
 	 * @param propertyName the name of the property
-	 *
 	 * @return the given value converted into the type of the given property
 	 */
-	public Object convertToPropertyType(String value, Class<?> entityType, String propertyName) {
+	public Object convertToPropertyType(Object value, Class<?> entityType, String propertyName) {
 		FieldBridge bridge = getFieldBridge( entityType, propertyName );
 
-		if (bridge instanceof TwoWayString2FieldBridgeAdaptor) {
-			return ( (TwoWayString2FieldBridgeAdaptor)bridge ).unwrap().stringToObject( value );
+		// For non-string fields we're assuming they have the correct type already; If that's not
+		// the case, the Lucene query creation will fail later on
+		if ( !( value instanceof String ) ) {
+			return value;
+		}
+
+		String stringValue = (String) value;
+
+		if ( bridge instanceof TwoWayString2FieldBridgeAdaptor ) {
+			return ( (TwoWayString2FieldBridgeAdaptor) bridge ).unwrap().stringToObject( stringValue );
 		}
 		else if ( bridge instanceof IntegerNumericFieldBridge ) {
-			return Integer.parseInt( value );
+			return Integer.parseInt( stringValue );
 		}
 		else if ( bridge instanceof LongNumericFieldBridge ) {
-			return Long.parseLong( value );
+			return Long.parseLong( stringValue );
 		}
 		else if ( bridge instanceof FloatNumericFieldBridge ) {
-			return Float.parseFloat( value );
+			return Float.parseFloat( stringValue );
 		}
 		else if ( bridge instanceof DoubleNumericFieldBridge ) {
-			return Double.parseDouble( value );
+			return Double.parseDouble( stringValue );
 		}
 		else {
 			return value;
