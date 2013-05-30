@@ -122,6 +122,18 @@ public class LuceneQueryParserDelegateTest {
 	}
 
 	@Test
+	public void shouldCreateNumericBetweenQuery() {
+		Map<String, Object> namedParameters = new HashMap<String, Object>();
+		namedParameters.put( "lower", 10L );
+		namedParameters.put( "upper", 20L );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.position between :lower and :upper" ,
+				namedParameters,
+				"position:[10 TO 20]");
+	}
+
+	@Test
 	public void walkTest5() {
 		//TODO, we have several options:
 		// - Add explicit support for NOT_EQUAL like we did for EQUALS

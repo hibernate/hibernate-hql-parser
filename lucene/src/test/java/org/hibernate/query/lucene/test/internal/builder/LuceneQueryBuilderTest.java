@@ -22,6 +22,10 @@ package org.hibernate.query.lucene.test.internal.builder;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 import org.apache.lucene.search.Query;
 import org.hibernate.query.lucene.internal.builder.LuceneQueryBuilder;
 import org.hibernate.query.lucene.internal.builder.PropertyHelper;
@@ -82,6 +86,49 @@ public class LuceneQueryBuilderTest {
 				.build();
 
 		assertThat( query.toString() ).isEqualTo( "d:[10.0 TO 10.0]" );
+	}
+
+	@Test
+	public void shouldBuildDateEqualsQuery() {
+		Query query = queryBuilder
+				.setEntityType( IndexedEntity.class )
+				.addEqualsPredicate( "date", "201209251130" )
+				.build();
+
+		//Only "day" resolution expected as per the field's configuration
+		assertThat( query.toString() ).isEqualTo( "date:20120925" );
+	}
+
+	@Test
+	public void shouldBuildDateEqualsQueryForTypedDate() {
+		Calendar calendar = Calendar.getInstance( TimeZone.getTimeZone( "GMT" ) );
+		calendar.set( 2012, 8, 25 );
+
+		Query query = queryBuilder
+				.setEntityType( IndexedEntity.class )
+				.addEqualsPredicate( "date", calendar.getTime() )
+				.build();
+
+		//Only "day" resolution expected as per the field's configuration
+		assertThat( query.toString() ).isEqualTo( "date:20120925" );
+	}
+
+	@Test
+	public void shouldBuildRangeQueryForTypedDates() {
+		Calendar calendar = Calendar.getInstance( TimeZone.getTimeZone( "GMT" ) );
+		calendar.set( 2012, 8, 25 );
+		Date start = calendar.getTime();
+
+		calendar.set( 2012, 10, 25 );
+		Date end = calendar.getTime();
+
+		Query query = queryBuilder
+				.setEntityType( IndexedEntity.class )
+				.addRangePredicate( "date", start, end )
+				.build();
+
+		//Only "day" resolution expected as per the field's configuration
+		assertThat( query.toString() ).isEqualTo( "date:[20120925 TO 20121125]" );
 	}
 
 	@Test(expected = IllegalArgumentException.class)
