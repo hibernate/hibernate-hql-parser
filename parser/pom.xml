@@ -89,6 +89,8 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>generate-antlr-sources</id>
+                        <phase>generate-sources</phase>
                         <goals>
                             <goal>antlr</goal>
                         </goals>
