@@ -29,7 +29,6 @@ import org.hibernate.jpql.testing.internal.model.GrammarRuleTestGroupDescriptor;
 import org.hibernate.jpql.testing.internal.model.GrammarTestDescriptor;
 import org.hibernate.jpql.testing.internal.parser.GrammarTestParser;
 
-import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
@@ -39,7 +38,7 @@ import org.junit.runners.model.InitializationError;
 /**
  * A JUnit test runner for executing Antlr grammar tests. The grammar test file
  * must be specified using the {@link ForGrammar} annotation. Note that this
- * runner supports {@link TestRule}s in the test classes but not the
+ * runner supports {@code TestRule}s in the test classes but not the
  * {@code @Before} and {@code @After} hooks.
  *
  * @author Gunnar Morling

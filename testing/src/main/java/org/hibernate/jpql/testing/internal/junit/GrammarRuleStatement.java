@@ -134,7 +134,8 @@ class GrammarRuleStatement extends Statement implements GrammarRuleTest {
 				protected Object runReflectiveCall() throws Throwable {
 					return testClass.getOnlyConstructor().newInstance();
 				}
-			}.run();
+			}
+			.run();
 		}
 		catch (Throwable e) {
 			return new Fail( e );

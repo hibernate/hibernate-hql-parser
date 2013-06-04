@@ -1,6 +1,6 @@
-/* 
+/*
  * Hibernate, Relational Persistence for Idiomatic Java
- * 
+ *
  * JBoss, Home of Professional Open Source
  * Copyright 2011 Red Hat Inc. and/or its affiliates and other contributors
  * as indicated by the @authors tag. All rights reserved.
@@ -31,7 +31,7 @@ import org.hibernate.query.ast.common.ParserContext;
  */
 public class DefaultParsingContext implements ParserContext {
 
-	private final ImplicitAliasGenerator implicitAliasGenerator = new ImplicitAliasGenerator(); 
+	private final ImplicitAliasGenerator implicitAliasGenerator = new ImplicitAliasGenerator();
 
 	@Override
 	public List getEntityImplementors(String entityName) {

@@ -40,8 +40,9 @@
     <dependencies>
         <dependency>
             <groupId>org.antlr</groupId>
-            <artifactId>antlr</artifactId>
+            <artifactId>antlr-runtime</artifactId>
         </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -90,6 +91,19 @@
                                 <source>${project.build.directory}/generated-sources/antlr3</source>
                             </sources>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>check-style</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>checkstyle</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

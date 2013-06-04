@@ -2,7 +2,7 @@
 <!--
   ~ Hibernate, Relational Persistence for Idiomatic Java
   ~
-  ~  Copyright (c) 2012, Red Hat, Inc. and/or its affiliates or third-party contributors as
+  ~  Copyright (c) 2013, Red Hat, Inc. and/or its affiliates or third-party contributors as
   ~  indicated by the @author tags or express copyright attribution
   ~  statements applied by the authors.  All third-party contributions are
   ~  distributed under license by Red Hat, Inc.
@@ -32,51 +32,9 @@
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>hibernate-jpql-lucene</artifactId>
+    <artifactId>hibernate-jpql-build-tools</artifactId>
     <packaging>jar</packaging>
 
-    <name>Hibernate HQL/JP-QL Walker for Lucene</name>
+    <name>Hibernate HQL/JP-QL Build Configuration</name>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.hibernate.jpql</groupId>
-            <artifactId>hibernate-jpql-parser</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-search-engine</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr-runtime</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>check-style</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>checkstyle</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>
