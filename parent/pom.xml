@@ -25,8 +25,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.hibernate.jpql</groupId>
-    <artifactId>hibernate-jpql-parent</artifactId>
+    <groupId>org.hibernate.hql</groupId>
+    <artifactId>hibernate-hql-parent</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0-SNAPSHOT</version>
 
@@ -42,9 +42,9 @@
     </issueManagement>
 
     <scm>
-        <connection>scm:git:git://github.com/hibernate/hibernate-jpql-parser.git</connection>
-        <developerConnection>scm:git:git@github.com:hibernate/hibernate-jpql-parser.git</developerConnection>
-        <url>http://github.com/hibernate/hibernate-jpql-parser</url>
+        <connection>scm:git:git://github.com/hibernate/hibernate-hql-parser.git</connection>
+        <developerConnection>scm:git:git@github.com:hibernate/hibernate-hql-parser.git</developerConnection>
+        <url>http://github.com/hibernate/hibernate-hql-parser</url>
     </scm>
 
     <organization>
@@ -178,12 +178,12 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>hibernate-jpql-parser</artifactId>
+                <artifactId>hibernate-hql-parser</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>hibernate-jpql-testing</artifactId>
+                <artifactId>hibernate-hql-testing</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -500,7 +500,7 @@
                     <dependencies>
                         <dependency>
                             <groupId>${project.groupId}</groupId>
-                            <artifactId>hibernate-jpql-build-tools</artifactId>
+                            <artifactId>hibernate-hql-build-tools</artifactId>
                             <version>${project.version}</version>
                         </dependency>
                     </dependencies>
