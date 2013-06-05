@@ -26,13 +26,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.hibernate.jpql</groupId>
-        <artifactId>hibernate-jpql-parent</artifactId>
+        <groupId>org.hibernate.hql</groupId>
+        <artifactId>hibernate-hql-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>hibernate-jpql-lucene</artifactId>
+    <artifactId>hibernate-hql-lucene</artifactId>
     <packaging>jar</packaging>
 
     <name>Hibernate HQL/JP-QL Walker for Lucene</name>
@@ -41,8 +41,8 @@
 
         <!-- Compile -->
         <dependency>
-            <groupId>org.hibernate.jpql</groupId>
-            <artifactId>hibernate-jpql-parser</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>hibernate-hql-parser</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.logging</groupId>
