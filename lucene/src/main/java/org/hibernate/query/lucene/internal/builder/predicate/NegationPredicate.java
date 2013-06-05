@@ -18,24 +18,49 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.jpql;
+package org.hibernate.query.lucene.internal.builder.predicate;
+
+import org.apache.lucene.search.Query;
+import org.hibernate.query.lucene.internal.logging.Log;
+import org.hibernate.query.lucene.internal.logging.LoggerFactory;
+import org.hibernate.search.query.dsl.QueryBuilder;
 
 /**
- * Raised in case an error ocurred when parsing a JPQL query or walking the resulting parse tree.
+ * A logical {@code NOT} predicate.
  *
  * @author Gunnar Morling
  */
-public class ParsingException extends RuntimeException {
+public class NegationPredicate extends ParentPredicate {
 
-	public ParsingException(String message) {
-		super( message );
+	private static Log log = LoggerFactory.make();
+
+	private final QueryBuilder builder;
+
+	public NegationPredicate(QueryBuilder builder) {
+		super( Type.NEGATION );
+		this.builder = builder;
 	}
 
-	public ParsingException(Throwable cause) {
-		super( cause );
+	@Override
+	public void add(Predicate predicate) {
+		if ( !children.isEmpty() ) {
+			throw log.getNotMoreThanOnePredicateInNegationAllowedException( predicate );
+		}
+
+		super.add( predicate );
 	}
 
-	public ParsingException(String message, Throwable cause) {
-		super( message, cause );
+	@Override
+	public Query getQuery() {
+		return builder.bool().must( getChild().getQuery() ).not().createQuery();
+	}
+
+	public Predicate getChild() {
+		return children.isEmpty() ? null : children.iterator().next();
+	}
+
+	@Override
+	public String toString() {
+		return "( NOT " + getChild() + " )";
 	}
 }

@@ -38,11 +38,17 @@
     <name>Hibernate HQL/JP-QL Parser</name>
 
     <dependencies>
+        <!-- Compile -->
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr-runtime</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+        </dependency>
 
+        <!-- Test -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -58,6 +64,19 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>process</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr3-maven-plugin</artifactId>
                 <configuration>
@@ -70,6 +89,8 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>generate-antlr-sources</id>
+                        <phase>generate-sources</phase>
                         <goals>
                             <goal>antlr</goal>
                         </goals>

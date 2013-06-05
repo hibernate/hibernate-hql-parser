@@ -2,7 +2,7 @@
  * Hibernate, Relational Persistence for Idiomatic Java
  *
  * JBoss, Home of Professional Open Source
- * Copyright 2012 Red Hat Inc. and/or its affiliates and other contributors
+ * Copyright 2013 Red Hat Inc. and/or its affiliates and other contributors
  * as indicated by the @authors tag. All rights reserved.
  * See the copyright.txt in the distribution for a
  * full listing of individual contributors.
@@ -18,11 +18,27 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.jpql.lucene.test.model;
+package org.hibernate.query.lucene.internal.logging;
+
+import org.jboss.logging.Logger;
 
 /**
- * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
+ * Factory for obtaining {@link Logger} instances.
+ *
+ * @author Gunnar Morling
  */
-public class IndexedEntity {
+public final class LoggerFactory {
 
+	private static CallerProvider callerProvider = new CallerProvider();
+
+	public static Log make() {
+		return Logger.getMessageLogger( Log.class, callerProvider.getCallerClass().getCanonicalName() );
+	}
+
+	private static class CallerProvider extends SecurityManager {
+
+		public Class<?> getCallerClass() {
+			return getClassContext()[2];
+		}
+	}
 }

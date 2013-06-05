@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.jpql;
+package org.hibernate.query;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -30,6 +30,8 @@ import org.hibernate.query.ast.origin.hql.parse.HQLLexer;
 import org.hibernate.query.ast.origin.hql.parse.HQLParser;
 import org.hibernate.query.ast.origin.hql.resolve.GeneratedHQLResolver;
 import org.hibernate.query.ast.spi.QueryParserDelegate;
+import org.hibernate.query.logging.Log;
+import org.hibernate.query.logging.LoggerFactory;
 
 /**
  * A parser for JPQL queries. Parsing comprises these steps:
@@ -44,6 +46,8 @@ import org.hibernate.query.ast.spi.QueryParserDelegate;
  * @author Gunnar Morling
  */
 public class QueryParser {
+
+	private static Log log = LoggerFactory.make();
 
 	/**
 	 * Parses the given query string.
@@ -61,7 +65,17 @@ public class QueryParser {
 		try {
 			// parser#statement() is the entry point for evaluation of any kind of statement
 			HQLParser.statement_return r = parser.statement();
+
+			if ( parser.hasErrors() ) {
+				throw log.getInvalidQuerySyntaxException( queryString, parser.getErrorMessages() );
+			}
+
 			CommonTree tree = (CommonTree) r.getTree();
+
+			if ( log.isDebugEnabled() ) {
+				log.debug( "Parse tree: " + tree.toStringTree() );
+			}
+
 			// To walk the resulting tree we need a treenode stream:
 			CommonTreeNodeStream treeStream = new CommonTreeNodeStream( tree );
 			// AST nodes have payloads referring to the tokens from the Lexer:
@@ -73,7 +87,7 @@ public class QueryParser {
 			return delegate.getResult();
 		}
 		catch (RecognitionException e) {
-			throw new ParsingException( "Invalid query syntax", e );
+			throw log.getInvalidQuerySyntaxException( queryString, e );
 		}
 	}
 }

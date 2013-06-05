@@ -18,28 +18,21 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.jpql.lucene;
+package org.hibernate.query.lucene;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 
 import org.antlr.runtime.tree.Tree;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.BooleanClause.Occur;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TermRangeQuery;
 import org.hibernate.query.ast.common.JoinType;
 import org.hibernate.query.ast.origin.hql.resolve.path.PathedPropertyReference;
 import org.hibernate.query.ast.origin.hql.resolve.path.PathedPropertyReferenceSource;
 import org.hibernate.query.ast.spi.EntityNamesResolver;
 import org.hibernate.query.ast.spi.QueryParserDelegate;
-import org.hibernate.search.engine.spi.SearchFactoryImplementor;
-import org.hibernate.search.query.dsl.impl.ConnectedQueryContextBuilder;
+import org.hibernate.query.lucene.internal.builder.LuceneQueryBuilder;
+import org.hibernate.query.lucene.internal.builder.PropertyHelper;
+import org.hibernate.search.spi.SearchFactoryIntegrator;
 
 /**
  * This extends the ANTLR generated AST walker to transform a parsed tree
@@ -58,7 +51,7 @@ import org.hibernate.search.query.dsl.impl.ConnectedQueryContextBuilder;
  *
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2011 Red Hat Inc.
  */
-public class LuceneQueryBuilder implements QueryParserDelegate<LuceneQueryParsingResult> {
+public class LuceneQueryParserDelegate implements QueryParserDelegate<LuceneQueryParsingResult> {
 
 	/**
 	 * Persister space: keep track of aliases and entity names.
@@ -66,50 +59,27 @@ public class LuceneQueryBuilder implements QueryParserDelegate<LuceneQueryParsin
 	private final Map<String, String> aliasToEntityType = new HashMap<String, String>();
 
 	/**
-	 * Set to true when we are walking in the tree area defining a SELECT type/options
-	 */
-	private boolean definingSelectStrategy;
-
-	/**
-	 * We refer to a SearchFactor to build queries
-	 */
-	private final SearchFactoryImplementor searchFactory;
-
-	/**
-	 * Map predicate and searchConditions to the root query context
-	 */
-	private final ConnectedQueryContextBuilder queryBuildContext;
-
-	/**
 	 * How to resolve entity names to class instances
 	 */
 	private final EntityNamesResolver entityNames;
 
-	//	private QueryBuilder queryBuilder = null;
 	private Class<?> targetType = null;
-
-	private BooleanQuery booleanQuery;
-	private final Stack<BooleanQuery> booleanQueryStack = new Stack<BooleanQuery>();
-	private final Stack<Occur> booleanQueryModeStack = new Stack<Occur>();
-
-	private Occur booleanMode;
 
 	private String propertyName;
 
-	private Query rootQuery = new MatchAllDocsQuery();
-
 	private final Map<String, Object> namedParameters;
 
-	public LuceneQueryBuilder(SearchFactoryImplementor searchFactory, EntityNamesResolver entityNames) {
+	private final LuceneQueryBuilder builder;
+
+	public LuceneQueryParserDelegate(SearchFactoryIntegrator searchFactory, EntityNamesResolver entityNames) {
 		this( searchFactory, entityNames, Collections.<String, Object>emptyMap() );
 	}
 
-	public LuceneQueryBuilder(SearchFactoryImplementor searchFactory,
+	public LuceneQueryParserDelegate(SearchFactoryIntegrator searchFactory,
 			EntityNamesResolver entityNames, Map<String,Object> namedParameters) {
-		this.searchFactory = searchFactory;
 		this.entityNames = entityNames;
 		this.namedParameters = namedParameters;
-		this.queryBuildContext = new ConnectedQueryContextBuilder( searchFactory );
+		this.builder = new LuceneQueryBuilder(searchFactory.buildQueryBuilder(), new PropertyHelper( searchFactory ) );
 	}
 
 	/**
@@ -131,7 +101,7 @@ public class LuceneQueryBuilder implements QueryParserDelegate<LuceneQueryParsin
 			throw new IllegalStateException( "Can't target multiple types: " + targetType + " already selected before " + targetedType );
 		}
 		targetType = targetedType;
-		//		queryBuilder = queryBuildContext.forEntity( targetedType ).get();
+		builder.setEntityType( targetedType );
 	}
 
 	@Override
@@ -206,33 +176,25 @@ public class LuceneQueryBuilder implements QueryParserDelegate<LuceneQueryParsin
 
 	@Override
 	public void pushSelectStrategy() {
-		definingSelectStrategy = true;
 	}
 
 	@Override
 	public void popStrategy() {
-		definingSelectStrategy = false;
 	}
 
 	@Override
 	public void activateOR() {
-		activateBoolean();
-		booleanQuery = new BooleanQuery();
-		booleanMode = Occur.SHOULD;
+		builder.pushOrPredicate();
 	}
 
 	@Override
 	public void activateAND() {
-		activateBoolean();
-		booleanQuery = new BooleanQuery();
-		booleanMode = Occur.MUST;
+		builder.pushAndPredicate();
 	}
 
 	@Override
 	public void activateNOT() {
-		activateBoolean();
-		booleanQuery = new BooleanQuery();
-		booleanMode = Occur.MUST_NOT;
+		builder.pushNotPredicate();
 	}
 
 	/**
@@ -244,32 +206,16 @@ public class LuceneQueryBuilder implements QueryParserDelegate<LuceneQueryParsin
 	 */
 	@Override
 	public void predicateEquals(final String comparativePredicate) {
-		String comparisonValue = valueToString( fromNamedQuery( comparativePredicate ) );
-
-		TermQuery predicate = new TermQuery( new Term( propertyName, comparisonValue ) );
-		setOrAppendQuery( predicate );
+		Object comparisonValue = fromNamedQuery( comparativePredicate );
+		builder.addEqualsPredicate( propertyName, comparisonValue );
 	}
 
 	@Override
 	public void predicateBetween(String lower, String upper) {
-		String lowerComparisonValue = valueToString( fromNamedQuery( lower ) );
-		String upperComparisonValue = valueToString( fromNamedQuery( upper ) );
+		Object lowerComparisonValue = fromNamedQuery( lower );
+		Object upperComparisonValue = fromNamedQuery( upper );
 
-		TermRangeQuery predicate = new TermRangeQuery( propertyName, lowerComparisonValue, upperComparisonValue, true, true );
-		setOrAppendQuery( predicate );
-	}
-
-	private void setOrAppendQuery(Query predicate) {
-		if ( booleanQuery != null ) {
-			booleanQuery.add( predicate, booleanMode );
-		}
-		else {
-			rootQuery = predicate;
-		}
-	}
-
-	private String valueToString(Object comparison) {
-		return comparison.toString();
+		builder.addRangePredicate( propertyName, lowerComparisonValue, upperComparisonValue );
 	}
 
 	private Object fromNamedQuery(String comparativePredicate) {
@@ -281,31 +227,13 @@ public class LuceneQueryBuilder implements QueryParserDelegate<LuceneQueryParsin
 		}
 	}
 
-	private void activateBoolean() {
-		booleanQueryStack.push( booleanQuery );
-		booleanQueryModeStack.push( booleanMode );
-	}
-
 	@Override
 	public void deactivateBoolean() {
-		BooleanQuery currentBoolean = booleanQuery;
-		booleanQuery = booleanQueryStack.pop();
-		booleanMode = booleanQueryModeStack.pop();
-		if ( booleanQuery == null ) {
-			this.rootQuery = currentBoolean;
-		}
-		else {
-			booleanQuery.add( currentBoolean, booleanMode );
-		}
-	}
-
-	@Override
-	public String toString() {
-		return rootQuery.toString();
+		builder.popBooleanPredicate();
 	}
 
 	@Override
 	public LuceneQueryParsingResult getResult() {
-		return new LuceneQueryParsingResult( rootQuery, targetType );
+		return new LuceneQueryParsingResult( builder.build(), targetType );
 	}
 }
