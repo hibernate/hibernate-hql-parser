@@ -125,7 +125,7 @@
         <antlr4Version>4.0</antlr4Version>
         <luceneVersion>3.6.1</luceneVersion>
         <hibernateVersion>4.1.4.Final</hibernateVersion>
-        <hibernateSearchVersion>4.2.0.Beta1</hibernateSearchVersion>
+        <hibernateSearchVersion>4.3.0.CR1</hibernateSearchVersion>
         <hibernateCommonsAnnotationVersion>4.0.1.Final</hibernateCommonsAnnotationVersion>
         <jbossLoggingVersion>3.1.1.GA</jbossLoggingVersion>
         <jbossLoggingProcessorVersion>1.0.3.Final</jbossLoggingProcessorVersion>
