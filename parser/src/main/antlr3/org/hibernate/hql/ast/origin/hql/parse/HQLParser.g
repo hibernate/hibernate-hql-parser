@@ -208,7 +208,11 @@ import org.hibernate.hql.ast.tree.EntityNameTree;
 		return result;
 	}
 
-	private Tree generateSelecFromTree(Object selectClause, Object fromClause, List aliasList){
+	/**
+	 * Provides a tree representing the SELECT clause. Will be the given SELECT clause if it is not {@code null},
+	 * otherwise a clause will be derived from the given FROM clause and aliases.
+	 */
+	private Tree generateSelectFromTree(Object selectClause, Object fromClause, List aliasList){
 		Tree result = new CommonTree( new CommonToken( SELECT_FROM, "SELECT_FROM" ) );
 		Tree selectTree = null;
 		result.addChild( (Tree) fromClause );
@@ -341,7 +345,7 @@ whereClause
 
 selectFrom
 	:	sc=selectClause? fc=fromClause
-		-> { generateSelecFromTree($sc.tree, $fc.tree, $fc.aliasList)}
+		-> { generateSelectFromTree($sc.tree, $fc.tree, $fc.aliasList)}
 	;
 
 subQuery
