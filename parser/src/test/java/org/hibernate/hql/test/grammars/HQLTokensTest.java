@@ -18,18 +18,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.hql.grammars;
+package org.hibernate.hql.test.grammars;
 
 import org.hibernate.hql.testing.ForGrammar;
 import org.hibernate.hql.testing.junit.GrammarTestRunner;
 import org.junit.runner.RunWith;
 
-
 /**
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
  */
 @RunWith(GrammarTestRunner.class)
-@ForGrammar("/org/hibernate/hql/ast/origin/hql/parse/gUnitGeneratedAST.testsuite")
-public class GeneratedASTTest {
+@ForGrammar("/org/hibernate/hql/ast/origin/hql/parse/gUnitHQLTokens.testsuite")
+public class HQLTokensTest {
 
 }
