@@ -2,7 +2,7 @@
  * Hibernate, Relational Persistence for Idiomatic Java
  *
  * JBoss, Home of Professional Open Source
- * Copyright 2013 Red Hat Inc. and/or its affiliates and other contributors
+ * Copyright 2012 Red Hat Inc. and/or its affiliates and other contributors
  * as indicated by the @authors tag. All rights reserved.
  * See the copyright.txt in the distribution for a
  * full listing of individual contributors.
@@ -18,51 +18,18 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.hql.testing;
+package org.hibernate.hql.test.grammars;
 
-import static org.fest.assertions.Assertions.assertThat;
-
-import java.util.HashSet;
-import java.util.Set;
-
+import org.hibernate.hql.testing.ForGrammar;
 import org.hibernate.hql.testing.junit.GrammarTestRunner;
-import org.junit.AfterClass;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 
+
 /**
- * Integration test for {@link GrammarTestRunner}.
- *
- * @author Gunnar Morling
+ * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
  */
 @RunWith(GrammarTestRunner.class)
-@ForGrammar("exprSubGroups.testsuite")
-public class GrammarTestRunnerSubGroupsTest {
+@ForGrammar("/org/hibernate/hql/ast/origin/hql/parse/gUnitGeneratedAST.testsuite")
+public class GeneratedASTTest {
 
-	private static Set<String> testedMethods = new HashSet<String>();
-
-	@Rule
-	public TestRule watcher = new TestWatcher() {
-
-		@Override
-		protected void finished(Description description) {
-			testedMethods.add( description.getMethodName() );
-		}
-	};
-
-	@AfterClass
-	public static void assertExpressionsUnderTest() {
-		assertThat( testedMethods ).containsOnly(
-				"line 8: a - OK",
-				"line 9: b - OK",
-				"line 11: c - OK",
-				"line 12: d - OK",
-				"line 14: _ - FAIL",
-				"line 18: a = 1 + 1 - OK",
-				"line 20: b = 2 * 2 - OK"
-		);
-	}
 }

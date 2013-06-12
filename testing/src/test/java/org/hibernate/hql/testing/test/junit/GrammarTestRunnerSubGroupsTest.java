@@ -18,13 +18,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.hql.testing;
+package org.hibernate.hql.testing.test.junit;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import org.hibernate.hql.testing.ForGrammar;
 import org.hibernate.hql.testing.junit.GrammarTestRunner;
 import org.junit.AfterClass;
 import org.junit.Rule;
@@ -39,8 +40,8 @@ import org.junit.runner.RunWith;
  * @author Gunnar Morling
  */
 @RunWith(GrammarTestRunner.class)
-@ForGrammar("exprAst.testsuite")
-public class GrammarTestRunnerAstTest {
+@ForGrammar("../exprSubGroups.testsuite")
+public class GrammarTestRunnerSubGroupsTest {
 
 	private static Set<String> testedMethods = new HashSet<String>();
 
@@ -56,8 +57,13 @@ public class GrammarTestRunnerAstTest {
 	@AfterClass
 	public static void assertExpressionsUnderTest() {
 		assertThat( testedMethods ).containsOnly(
-				"line 8: 2 * 3 + 4 -> (+ (* 2 3) 4)",
-				"line 11: 2 * 3 -> (* 2 3)"
+				"line 8: a - OK",
+				"line 9: b - OK",
+				"line 11: c - OK",
+				"line 12: d - OK",
+				"line 14: _ - FAIL",
+				"line 18: a = 1 + 1 - OK",
+				"line 20: b = 2 * 2 - OK"
 		);
 	}
 }

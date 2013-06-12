@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.hql.testing.internal.parser;
+package org.hibernate.hql.testing.test.internal.parser;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -26,6 +26,7 @@ import org.hibernate.hql.testing.internal.model.GrammarRuleTestDescriptor;
 import org.hibernate.hql.testing.internal.model.GrammarRuleTestGroupDescriptor;
 import org.hibernate.hql.testing.internal.model.GrammarTestDescriptor;
 import org.hibernate.hql.testing.internal.model.ParsingResult;
+import org.hibernate.hql.testing.internal.parser.GrammarTestParser;
 import org.junit.Before;
 import org.junit.Test;
 
