@@ -31,7 +31,10 @@ import org.hibernate.hql.ast.spi.EntityNamesResolver;
 import org.hibernate.hql.ast.spi.QueryResolverDelegate;
 import org.hibernate.hql.lucene.internal.ast.HSearchIndexedEntityTypeDescriptor;
 import org.hibernate.hql.lucene.internal.ast.HSearchPropertyTypeDescriptor;
+import org.hibernate.hql.lucene.internal.ast.HSearchTypeDescriptor;
 import org.hibernate.hql.lucene.internal.builder.PropertyHelper;
+import org.hibernate.hql.lucene.internal.logging.Log;
+import org.hibernate.hql.lucene.internal.logging.LoggerFactory;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
 
 /**
@@ -50,8 +53,12 @@ import org.hibernate.search.spi.SearchFactoryIntegrator;
  *   <li>Support positional parameters (currently only consumed named parameters)<li>
  *
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2011 Red Hat Inc.
+ * @author Gunnar Morling
+ *
  */
 public class LuceneQueryResolverDelegate implements QueryResolverDelegate {
+
+	private static final Log log = LoggerFactory.make();
 
 	/**
 	 * Persister space: keep track of aliases and entity names.
@@ -101,10 +108,12 @@ public class LuceneQueryResolverDelegate implements QueryResolverDelegate {
 
 	@Override
 	public PathedPropertyReferenceSource normalizeUnqualifiedPropertyReference(Tree property) {
-		return new PathedPropertyReference(
-				property.getText(),
-				new HSearchPropertyTypeDescriptor(),
-				false
+		if ( aliasToEntityType.containsKey( property.getText() ) ) {
+			return normalizeQualifiedRoot( property );
+		}
+
+		return normalizeProperty(
+				new HSearchIndexedEntityTypeDescriptor( targetType, propertyHelper ), property.getText()
 		);
 	}
 
@@ -124,12 +133,17 @@ public class LuceneQueryResolverDelegate implements QueryResolverDelegate {
 	}
 
 	@Override
-	public PathedPropertyReferenceSource normalizeQualifiedRoot(Tree identifier381) {
-		String entityNameForAlias = aliasToEntityType.get( identifier381.getText() );
+	public PathedPropertyReferenceSource normalizeQualifiedRoot(Tree root) {
+		String entityNameForAlias = aliasToEntityType.get( root.getText() );
+
+		if ( entityNameForAlias == null ) {
+			throw log.getUnknownAliasException( root.getText() );
+		}
+
 		Class<?> entityType = entityNames.getClassFromName( entityNameForAlias );
 
 		return new PathedPropertyReference(
-				identifier381.getText(),
+				root.getText(),
 				new HSearchIndexedEntityTypeDescriptor( entityType, propertyHelper ),
 				true
 		);
@@ -161,9 +175,21 @@ public class LuceneQueryResolverDelegate implements QueryResolverDelegate {
 	@Override
 	public PathedPropertyReferenceSource normalizePropertyPathTerminus(PathedPropertyReferenceSource source, Tree propertyNameNode) {
 		// receives the property name on a specific entity reference _source_
+		return normalizeProperty( (HSearchTypeDescriptor) source.getType(), propertyNameNode.getText() );
+	}
+
+	private PathedPropertyReferenceSource normalizeProperty(HSearchTypeDescriptor type, String propertyName) {
+		if ( !type.hasProperty( propertyName ) ) {
+			throw log.getNoSuchPropertyException( type.toString(), propertyName );
+		}
+
+		Class<?> indexedEntityType = type.getIndexedEntityType();
+		if (propertyHelper.isAnalyzed( indexedEntityType, propertyName ) ) {
+			throw log.getQueryOnAnalyzedPropertyNotSupportedException( indexedEntityType.getCanonicalName(), propertyName );
+		}
 
 		return new PathedPropertyReference(
-				propertyNameNode.getText(),
+				propertyName,
 				new HSearchPropertyTypeDescriptor(),
 				false
 		);

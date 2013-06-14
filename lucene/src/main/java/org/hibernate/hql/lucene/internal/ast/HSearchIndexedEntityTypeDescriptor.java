@@ -44,6 +44,11 @@ public class HSearchIndexedEntityTypeDescriptor implements HSearchTypeDescriptor
 	}
 
 	@Override
+	public Class<?> getIndexedEntityType() {
+		return indexedEntityType;
+	}
+
+	@Override
 	public String toString() {
 		return indexedEntityType.getCanonicalName();
 	}

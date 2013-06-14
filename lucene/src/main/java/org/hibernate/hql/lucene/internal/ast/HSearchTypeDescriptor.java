@@ -28,4 +28,11 @@ import org.hibernate.hql.ast.TypeDescriptor;
  * @author Gunnar Morling
  */
 public interface HSearchTypeDescriptor extends TypeDescriptor {
+
+	/**
+	 * Returns the Java type of the represented indexed entity.
+	 *
+	 * @return the Java type of the represented indexed entity
+	 */
+	Class<?> getIndexedEntityType();
 }

@@ -25,6 +25,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.hibernate.hql.ParsingException;
 import org.hibernate.hql.QueryParser;
 import org.hibernate.hql.ast.spi.EntityNamesResolver;
 import org.hibernate.hql.lucene.LuceneProcessingChain;
@@ -38,6 +39,7 @@ import org.hibernate.search.test.programmaticmapping.TestingSearchFactoryHolder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 /**
  * Integration test for {@link LuceneQueryResolverDelegate} and {@link LuceneQueryRendererDelegate}.
@@ -51,6 +53,9 @@ public class LuceneQueryParsingTest {
 
 	@Rule
 	public TestingSearchFactoryHolder factoryHolder = new TestingSearchFactoryHolder( IndexedEntity.class );
+
+	@Rule
+	public ExpectedException expectedException = ExpectedException.none();
 
 	private QueryParser queryParser;
 
@@ -81,6 +86,37 @@ public class LuceneQueryParsingTest {
 	}
 
 	@Test
+	public void shouldRaiseExceptionDueToUnknownAlias() {
+		expectedException.expect( ParsingException.class );
+		expectedException.expectMessage( "HQLLUCN000007" );
+
+		parseQuery( "from IndexedEntity e where a.name = 'same'" );
+	}
+
+	@Test
+	public void shouldRaiseExceptionDueToUnknownQualifiedProperty() {
+		expectedException.expect( ParsingException.class );
+		expectedException.expectMessage( "HQLLUCN000002" );
+
+		parseQuery( "from IndexedEntity e where e.foobar = 'same'" );
+	}
+
+	@Test
+	public void shouldRaiseExceptionDueToUnknownUnqualifiedProperty() {
+		expectedException.expect( ParsingException.class );
+		expectedException.expectMessage( "HQLLUCN000002" );
+
+		parseQuery( "from IndexedEntity e where foobar = 'same'" );
+	}
+
+	@Test
+	public void shouldRaiseExceptionDueToAnalyzedPropertyInFromClause() {
+		expectedException.expect( ParsingException.class );
+		expectedException.expectMessage( "HQLLUCN000006" );
+
+		parseQuery( "from IndexedEntity e where e.size = 10" );
+	}
+
 	public void shouldCreateQueryWithNamedParameter() {
 		Map<String, Object> namedParameters = new HashMap<String, Object>();
 		namedParameters.put( "nameParameter", "Bob" );
@@ -157,11 +193,7 @@ public class LuceneQueryParsingTest {
 	}
 
 	private void assertLuceneQuery(String queryString, Map<String, Object> namedParameters, String expectedLuceneQuery) {
-		if ( USE_STDOUT ) {
-			System.out.println( queryString );
-		}
-
-		LuceneQueryParsingResult parsingResult = queryParser.parseQuery( queryString, setUpLuceneProcessingChain( namedParameters ) );
+		LuceneQueryParsingResult parsingResult = parseQuery( queryString, namedParameters );
 
 		assertThat( parsingResult.getTargetEntity() ).isSameAs( IndexedEntity.class );
 		assertThat( parsingResult.getQuery().toString() ).isEqualTo( expectedLuceneQuery );
@@ -170,6 +202,21 @@ public class LuceneQueryParsingTest {
 			System.out.println( expectedLuceneQuery );
 			System.out.println();
 		}
+	}
+
+	private LuceneQueryParsingResult parseQuery(String queryString) {
+		return parseQuery( queryString, null );
+	}
+
+	private LuceneQueryParsingResult parseQuery(String queryString, Map<String, Object> namedParameters) {
+		if ( USE_STDOUT ) {
+			System.out.println( queryString );
+		}
+
+		return queryParser.parseQuery(
+				queryString,
+				setUpLuceneProcessingChain( namedParameters )
+		);
 	}
 
 	private LuceneProcessingChain setUpLuceneProcessingChain(Map<String, Object> namedParameters) {

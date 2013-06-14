@@ -131,14 +131,6 @@ public class LuceneQueryBuilderTest {
 		assertThat( query.toString() ).isEqualTo( "date:[20120925 TO 20121125]" );
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void shouldFailQueryOnAnalyzedField() {
-		queryBuilder
-				.setEntityType( IndexedEntity.class )
-				.addEqualsPredicate( "description", "foo" )
-				.build();
-	}
-
 	@Test
 	public void shouldBuildRangeQuery() {
 		Query query = queryBuilder

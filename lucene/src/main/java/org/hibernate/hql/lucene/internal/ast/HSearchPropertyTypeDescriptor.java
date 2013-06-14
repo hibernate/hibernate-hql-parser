@@ -36,4 +36,9 @@ public class HSearchPropertyTypeDescriptor implements HSearchTypeDescriptor {
 	public boolean hasProperty(String propertyName) {
 		return false;
 	}
+
+	@Override
+	public Class<?> getIndexedEntityType() {
+		return null;
+	}
 }

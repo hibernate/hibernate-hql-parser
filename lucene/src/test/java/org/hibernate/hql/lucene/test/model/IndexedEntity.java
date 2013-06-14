@@ -36,6 +36,7 @@ public class IndexedEntity {
 	private String id;
 	private String name;
 	private long position;
+	private int size;
 
 	@Id
 	public String getId() {
@@ -63,5 +64,15 @@ public class IndexedEntity {
 
 	public void setPosition(long position) {
 		this.position = position;
+	}
+
+	@Field(analyze = Analyze.YES)
+	@NumericField
+	public int getSize() {
+		return size;
+	}
+
+	public void setSize(int size) {
+		this.size = size;
 	}
 }

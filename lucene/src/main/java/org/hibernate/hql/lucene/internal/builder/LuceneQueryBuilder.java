@@ -31,8 +31,6 @@ import org.hibernate.hql.lucene.internal.builder.predicate.ParentPredicate;
 import org.hibernate.hql.lucene.internal.builder.predicate.Predicate;
 import org.hibernate.hql.lucene.internal.builder.predicate.RangePredicate;
 import org.hibernate.hql.lucene.internal.builder.predicate.RootPredicate;
-import org.hibernate.hql.lucene.internal.logging.Log;
-import org.hibernate.hql.lucene.internal.logging.LoggerFactory;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import org.hibernate.search.query.dsl.QueryContextBuilder;
 
@@ -45,8 +43,6 @@ import org.hibernate.search.query.dsl.QueryContextBuilder;
  * @author Gunnar Morling
  */
 public class LuceneQueryBuilder {
-
-	private static Log log = LoggerFactory.make();
 
 	private final QueryContextBuilder queryContextBuilder;
 	private final PropertyHelper propertyHelper;
@@ -88,8 +84,6 @@ public class LuceneQueryBuilder {
 	}
 
 	public LuceneQueryBuilder addEqualsPredicate(String propertyName, Object value) {
-		assertPropertyIsNotAnalyzed( propertyName );
-
 		Object typedValue = propertyHelper.convertToPropertyType( value, entityType, propertyName );
 		pushPredicate( new EqualsPredicate( queryBuilder, propertyName, typedValue ) );
 
@@ -97,19 +91,11 @@ public class LuceneQueryBuilder {
 	}
 
 	public LuceneQueryBuilder addRangePredicate(String propertyName, Object lower, Object upper) {
-		assertPropertyIsNotAnalyzed( propertyName );
-
 		Object lowerValue = propertyHelper.convertToPropertyType( lower, entityType, propertyName );
 		Object upperValue = propertyHelper.convertToPropertyType( upper, entityType, propertyName );
 		pushPredicate( new RangePredicate( queryBuilder, propertyName, lowerValue, upperValue ) );
 
 		return this;
-	}
-
-	private void assertPropertyIsNotAnalyzed(String propertyName) {
-		if ( propertyHelper.isAnalyzed( entityType, propertyName ) ) {
-			throw log.getQueryOnAnalyzedPropertyNotSupportedException( entityType.getCanonicalName(), propertyName );
-		}
 	}
 
 	public LuceneQueryBuilder pushAndPredicate() {

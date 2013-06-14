@@ -20,6 +20,7 @@
  */
 package org.hibernate.hql.lucene.internal.logging;
 
+import org.hibernate.hql.ParsingException;
 import org.hibernate.hql.lucene.internal.builder.predicate.Predicate;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Message;
@@ -37,7 +38,7 @@ public interface Log extends BasicLogger {
 	IllegalArgumentException getNoIndexedEntityException(String typeName);
 
 	@Message(id = 2, value = "The type %s has no indexed property named %s.")
-	IllegalArgumentException getNoSuchPropertyException(String typeName, String propertyName);
+	ParsingException getNoSuchPropertyException(String typeName, String propertyName);
 
 	@Message(id = 3, value = "The predicate %s is not of type %s.")
 	IllegalArgumentException getUnsupportedPredicateTypeException(Object predicate, String targetTypeName);
@@ -49,5 +50,8 @@ public interface Log extends BasicLogger {
 	IllegalStateException getNotMoreThanOnePredicateInNegationAllowedException(Predicate predicate);
 
 	@Message(id = 6, value = "No queries can be applied to property %2$s in type %1$s since the property is analyzed.")
-	IllegalArgumentException getQueryOnAnalyzedPropertyNotSupportedException(String typeName, String propertyName);
+	ParsingException getQueryOnAnalyzedPropertyNotSupportedException(String typeName, String propertyName);
+
+	@Message(id = 7, value = "Unknown alias: %s.")
+	ParsingException getUnknownAliasException(String unknownAlias);
 }
