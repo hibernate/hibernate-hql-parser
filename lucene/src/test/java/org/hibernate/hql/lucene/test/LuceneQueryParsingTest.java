@@ -117,6 +117,31 @@ public class LuceneQueryParsingTest {
 		parseQuery( "from IndexedEntity e where e.size = 10" );
 	}
 
+	@Test
+	public void shouldCreateNegatedQuery() {
+		assertLuceneQuery(
+				"from IndexedEntity e where NOT e.name = 'same'" ,
+				"-name:same *:*" );
+
+		//JPQL syntax
+		assertLuceneQuery(
+				"from IndexedEntity e where e.name <> 'same'" ,
+				"-name:same *:*" );
+
+		//HQL syntax
+		assertLuceneQuery(
+				"from IndexedEntity e where e.name != 'same'" ,
+				"-name:same *:*" );
+	}
+
+	@Test
+	public void shouldCreateNegatedRangeQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name = 'Bob' and not e.position between 1 and 3" ,
+				"+name:Bob -position:[1 TO 3]");
+	}
+
+	@Test
 	public void shouldCreateQueryWithNamedParameter() {
 		Map<String, Object> namedParameters = new HashMap<String, Object>();
 		namedParameters.put( "nameParameter", "Bob" );
@@ -175,17 +200,6 @@ public class LuceneQueryParsingTest {
 				"select e from IndexedEntity e where e.position between :lower and :upper" ,
 				namedParameters,
 				"position:[10 TO 20]");
-	}
-
-	@Test
-	public void walkTest5() {
-		//TODO, we have several options:
-		// - Add explicit support for NOT_EQUAL like we did for EQUALS
-		// - Have the AST rewrite such cases into a unique form: [a != b] --> [NOT a = b]
-		// - Have ANTLR generate the Walker embedding Lucene Queries as return types for each predicate
-		//		transformationAssert(
-		//				"select e from IndexedEntity e where e.name = 'same' and e.id != 5" ,
-		//				"+name:'same' +(-id:5)" );
 	}
 
 	private void assertLuceneQuery(String queryString, String expectedLuceneQuery) {
