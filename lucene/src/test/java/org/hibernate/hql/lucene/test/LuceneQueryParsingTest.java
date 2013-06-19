@@ -79,6 +79,22 @@ public class LuceneQueryParsingTest {
 	}
 
 	@Test
+	public void shouldCreateProjectionQuery() {
+		LuceneQueryParsingResult parsingResult = parseQuery( "select e.id, e.name from IndexedEntity e" );
+
+		assertThat( parsingResult.getQuery().toString() ).isEqualTo( "*:*" );
+		assertThat( parsingResult.getProjections() ).containsExactly( "id", "name" );
+	}
+
+	@Test
+	public void shouldCreateProjectionForPropertyWithMultipleFields() {
+		LuceneQueryParsingResult parsingResult = parseQuery( "select e.titleAnalyzed from IndexedEntity e where e.title = 'foo'" );
+
+		assertThat( parsingResult.getQuery().toString() ).isEqualTo( "title:foo" );
+		assertThat( parsingResult.getProjections() ).containsExactly( "titleAnalyzed" );
+	}
+
+	@Test
 	public void shouldCreateQueryWithUnqualifiedPropertyReferences() {
 		assertLuceneQuery(
 				"from IndexedEntity e where name = 'same' and not id = 5" ,
@@ -115,6 +131,14 @@ public class LuceneQueryParsingTest {
 		expectedException.expectMessage( "HQLLUCN000006" );
 
 		parseQuery( "from IndexedEntity e where e.size = 10" );
+	}
+
+	@Test
+	public void shouldRaiseExceptionDueToUnknownPropertyInSelectClause() {
+		expectedException.expect( ParsingException.class );
+		expectedException.expectMessage( "HQLLUCN000002" );
+
+		parseQuery( "select e.foobar from IndexedEntity e" );
 	}
 
 	@Test

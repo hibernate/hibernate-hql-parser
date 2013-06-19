@@ -20,8 +20,11 @@
  */
 package org.hibernate.hql.ast.origin.hql.resolve.path;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.hibernate.hql.internal.util.Strings;
 
 /**
  * Reprents a path of properties represented by {@link PathedPropertyReferenceSource}s used in a SELECT or WHERE clause,
@@ -48,5 +51,25 @@ public class PropertyPath {
 	@Override
 	public String toString() {
 		return "PropertyPath [path=" + path + "]";
+	}
+
+	public String asStringPathWithoutAlias() {
+		if ( path.isEmpty() ) {
+			return null;
+		}
+
+		return Strings.join( getNodeNamesWithoutAlias(), "." );
+	}
+
+	private List<String> getNodeNamesWithoutAlias() {
+		List<String> nodeNames = new ArrayList<String>();
+
+		for ( PathedPropertyReferenceSource node : path ) {
+			if ( !node.isAlias() ) {
+				nodeNames.add( node.getName() );
+			}
+		}
+
+		return nodeNames;
 	}
 }

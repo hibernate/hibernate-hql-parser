@@ -20,7 +20,9 @@
  */
 package org.hibernate.hql.lucene.internal;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.antlr.runtime.tree.Tree;
@@ -31,6 +33,7 @@ import org.hibernate.hql.ast.spi.QueryRendererDelegate;
 import org.hibernate.hql.lucene.LuceneQueryParsingResult;
 import org.hibernate.hql.lucene.internal.builder.LuceneQueryBuilder;
 import org.hibernate.hql.lucene.internal.builder.PropertyHelper;
+import org.hibernate.search.ProjectionConstants;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
 
 /**
@@ -54,9 +57,23 @@ import org.hibernate.search.spi.SearchFactoryIntegrator;
 public class LuceneQueryRendererDelegate implements QueryRendererDelegate<LuceneQueryParsingResult> {
 
 	/**
+	 * States which this object can have during tree walking
+	 *
+	 * @author Gunnar Morling
+	 */
+	private enum Status {
+		DEFINING_SELECT, DEFINING_FROM;
+	}
+
+	/**
 	 * Persister space: keep track of aliases and entity names.
 	 */
 	private final Map<String, String> aliasToEntityType = new HashMap<String, String>();
+
+	/**
+	 * The current status
+	 */
+	private Status status;
 
 	/**
 	 * How to resolve entity names to class instances
@@ -70,6 +87,8 @@ public class LuceneQueryRendererDelegate implements QueryRendererDelegate<Lucene
 	private final LuceneQueryBuilder builder;
 
 	private PropertyPath propertyPath;
+
+	private final List<String> projections = new ArrayList<String>();
 
 	public LuceneQueryRendererDelegate(SearchFactoryIntegrator searchFactory,
 			EntityNamesResolver entityNames, Map<String,Object> namedParameters) {
@@ -126,10 +145,12 @@ public class LuceneQueryRendererDelegate implements QueryRendererDelegate<Lucene
 
 	@Override
 	public void pushSelectStrategy() {
+		status = Status.DEFINING_SELECT;
 	}
 
 	@Override
 	public void popStrategy() {
+		status = null;
 	}
 
 	@Override
@@ -184,11 +205,21 @@ public class LuceneQueryRendererDelegate implements QueryRendererDelegate<Lucene
 
 	@Override
 	public LuceneQueryParsingResult getResult() {
-		return new LuceneQueryParsingResult( builder.build(), targetType );
+		return new LuceneQueryParsingResult( builder.build(), targetType, projections  );
 	}
 
 	@Override
 	public void setPropertyPath(PropertyPath propertyPath) {
-		this.propertyPath = propertyPath;
+		if ( status == Status.DEFINING_SELECT ) {
+			if ( propertyPath.getNodes().size() == 1 && propertyPath.getNodes().get( 0 ).isAlias() ) {
+				projections.add( ProjectionConstants.THIS );
+			}
+			else {
+				projections.add( propertyPath.asStringPathWithoutAlias() );
+			}
+		}
+		else {
+			this.propertyPath = propertyPath;
+		}
 	}
 }

@@ -24,6 +24,7 @@ import javax.persistence.Id;
 
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.NumericField;
 
@@ -37,6 +38,7 @@ public class IndexedEntity {
 	private String name;
 	private long position;
 	private int size;
+	private String title;
 
 	@Id
 	public String getId() {
@@ -74,5 +76,17 @@ public class IndexedEntity {
 
 	public void setSize(int size) {
 		this.size = size;
+	}
+
+	@Fields({
+		@Field(name = "titleAnalyzed", analyze = Analyze.YES),
+		@Field(name = "title", analyze = Analyze.NO)
+	})
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 }

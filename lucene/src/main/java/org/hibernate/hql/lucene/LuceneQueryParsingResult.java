@@ -20,6 +20,9 @@
  */
 package org.hibernate.hql.lucene;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.lucene.search.Query;
 import org.hibernate.hql.lucene.internal.LuceneQueryResolverDelegate;
 
@@ -32,10 +35,12 @@ public class LuceneQueryParsingResult {
 
 	private final Query query;
 	private final Class<?> targetEntity;
+	private final List<String> projections;
 
-	public LuceneQueryParsingResult(Query query, Class<?> targetEntity) {
+	public LuceneQueryParsingResult(Query query, Class<?> targetEntity, List<String> projections) {
 		this.query = query;
 		this.targetEntity = targetEntity;
+		this.projections = projections != null ? projections : Collections.<String>emptyList();
 	}
 
 	/**
@@ -56,8 +61,19 @@ public class LuceneQueryParsingResult {
 		return targetEntity;
 	}
 
+	/**
+	 * Returns the projections of the parsed query, represented as dot paths in case of references to fields of embedded
+	 * entities, e.g. {@code ["foo", "bar.qaz"]}.
+	 *
+	 * @return a list with the projections of the parsed query; an empty list will be returned if no the query has no
+	 * projections
+	 */
+	public List<String> getProjections() {
+		return projections;
+	}
+
 	@Override
 	public String toString() {
-		return "LuceneQueryParsingResult [query=" + query + ", targetEntity=" + targetEntity + "]";
+		return "LuceneQueryParsingResult [query=" + query + ", targetEntity=" + targetEntity + ", projections=" + projections + "]";
 	}
 }
