@@ -2,7 +2,7 @@
  * Hibernate, Relational Persistence for Idiomatic Java
  *
  * JBoss, Home of Professional Open Source
- * Copyright 2012 Red Hat Inc. and/or its affiliates and other contributors
+ * Copyright 2013 Red Hat Inc. and/or its affiliates and other contributors
  * as indicated by the @authors tag. All rights reserved.
  * See the copyright.txt in the distribution for a
  * full listing of individual contributors.
@@ -20,13 +20,33 @@
  */
 package org.hibernate.hql.ast.origin.hql.resolve.path;
 
-import org.hibernate.hql.ast.TypeDescriptor;
+import java.util.LinkedList;
+import java.util.List;
 
-public interface PathedPropertyReferenceSource {
+/**
+ * Reprents a path of properties represented by {@link PathedPropertyReferenceSource}s used in a SELECT or WHERE clause,
+ * e.g. {@code foo.bar.baz}.
+ *
+ * @author Gunnar Morling
+ */
+public class PropertyPath {
 
-	String getName();
+	LinkedList<PathedPropertyReferenceSource> path = new LinkedList<PathedPropertyReferenceSource>();
 
-	TypeDescriptor getType();
+	public void appendNode(PathedPropertyReferenceSource property) {
+		path.add( property );
+	}
 
-	boolean isAlias();
+	public PathedPropertyReferenceSource getLastNode() {
+		return path.getLast();
+	}
+
+	public List<PathedPropertyReferenceSource> getNodes() {
+		return path;
+	}
+
+	@Override
+	public String toString() {
+		return "PropertyPath [path=" + path + "]";
+	}
 }

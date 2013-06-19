@@ -24,4 +24,6 @@ package org.hibernate.hql.ast;
  * @author Steve Ebersole
  */
 public interface TypeDescriptor {
+
+	boolean hasProperty(String propertyName);
 }

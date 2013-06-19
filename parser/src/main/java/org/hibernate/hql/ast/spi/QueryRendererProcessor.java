@@ -18,46 +18,36 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.hql.lucene;
+package org.hibernate.hql.ast.spi;
 
-import org.apache.lucene.search.Query;
-import org.hibernate.hql.lucene.internal.LuceneQueryResolverDelegate;
+import org.antlr.runtime.RecognitionException;
+import org.antlr.runtime.TokenStream;
+import org.antlr.runtime.tree.CommonTree;
+import org.antlr.runtime.tree.CommonTreeNodeStream;
+import org.hibernate.hql.ast.render.QueryRenderer;
 
 /**
- * The result of walking a query parse tree using a {@link LuceneQueryResolverDelegate}.
+ * An {@link AstProcessor} which "renders" a given source query into an output query, by invoking
+ * {@link QueryRendererDelegate} while traversing the given query tree.
+ * </p>
+ * Input: Normalized parse tree as created by {@link QueryResolverProcessor}</br>
+ * Output: Query object
  *
  * @author Gunnar Morling
  */
-public class LuceneQueryParsingResult {
+public class QueryRendererProcessor implements AstProcessor {
 
-	private final Query query;
-	private final Class<?> targetEntity;
+	private final QueryRendererDelegate<?> delegate;
 
-	public LuceneQueryParsingResult(Query query, Class<?> targetEntity) {
-		this.query = query;
-		this.targetEntity = targetEntity;
-	}
-
-	/**
-	 * Returns the Lucene create created while walking the parse tree.
-	 *
-	 * @return the Lucene create created while walking the parse tree
-	 */
-	public Query getQuery() {
-		return query;
-	}
-
-	/**
-	 * Returns the entity type of the parsed query.
-	 *
-	 * @return the entity type of the parsed query
-	 */
-	public Class<?> getTargetEntity() {
-		return targetEntity;
+	public QueryRendererProcessor(QueryRendererDelegate<?> delegate) {
+		this.delegate = delegate;
 	}
 
 	@Override
-	public String toString() {
-		return "LuceneQueryParsingResult [query=" + query + ", targetEntity=" + targetEntity + "]";
+	public CommonTree process(TokenStream tokens, CommonTree tree) throws RecognitionException {
+		CommonTreeNodeStream treeNodeStream = new CommonTreeNodeStream( tree );
+		treeNodeStream.setTokenStream( tokens );
+
+		return (CommonTree) new QueryRenderer( treeNodeStream, delegate ).statement().getTree();
 	}
 }

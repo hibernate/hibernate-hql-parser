@@ -27,9 +27,10 @@ import java.util.Map;
 
 import org.hibernate.hql.QueryParser;
 import org.hibernate.hql.ast.spi.EntityNamesResolver;
-import org.hibernate.hql.ast.spi.QueryParserDelegate;
-import org.hibernate.hql.lucene.LuceneQueryParserDelegate;
+import org.hibernate.hql.lucene.LuceneProcessingChain;
 import org.hibernate.hql.lucene.LuceneQueryParsingResult;
+import org.hibernate.hql.lucene.internal.LuceneQueryRendererDelegate;
+import org.hibernate.hql.lucene.internal.LuceneQueryResolverDelegate;
 import org.hibernate.hql.lucene.test.model.IndexedEntity;
 import org.hibernate.hql.lucene.testutil.MapBasedEntityNamesResolver;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
@@ -39,12 +40,12 @@ import org.junit.Rule;
 import org.junit.Test;
 
 /**
- * Integration test for {@link LuceneQueryParserDelegate}.
+ * Integration test for {@link LuceneQueryResolverDelegate} and {@link LuceneQueryRendererDelegate}.
  *
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
  * @author Gunnar Morling
  */
-public class LuceneQueryParserDelegateTest {
+public class LuceneQueryParsingTest {
 
 	private static boolean USE_STDOUT = true;
 
@@ -69,6 +70,13 @@ public class LuceneQueryParserDelegateTest {
 	public void shouldCreateRestrictedQueryUsingSelect() {
 		assertLuceneQuery(
 				"select e from IndexedEntity e where e.name = 'same' and not e.id = 5" ,
+				"+name:same -id:5" );
+	}
+
+	@Test
+	public void shouldCreateQueryWithUnqualifiedPropertyReferences() {
+		assertLuceneQuery(
+				"from IndexedEntity e where name = 'same' and not id = 5" ,
 				"+name:same -id:5" );
 	}
 
@@ -153,7 +161,7 @@ public class LuceneQueryParserDelegateTest {
 			System.out.println( queryString );
 		}
 
-		LuceneQueryParsingResult parsingResult = queryParser.parseQuery( queryString, setUpLuceneQueryBuilder( namedParameters ) );
+		LuceneQueryParsingResult parsingResult = queryParser.parseQuery( queryString, setUpLuceneProcessingChain( namedParameters ) );
 
 		assertThat( parsingResult.getTargetEntity() ).isSameAs( IndexedEntity.class );
 		assertThat( parsingResult.getQuery().toString() ).isEqualTo( expectedLuceneQuery );
@@ -164,15 +172,14 @@ public class LuceneQueryParserDelegateTest {
 		}
 	}
 
-	private QueryParserDelegate<LuceneQueryParsingResult> setUpLuceneQueryBuilder(Map<String, Object> namedParameters) {
+	private LuceneProcessingChain setUpLuceneProcessingChain(Map<String, Object> namedParameters) {
+		SearchFactoryIntegrator searchFactory = factoryHolder.getSearchFactory();
+
 		Map<String, Class<?>> entityNames = new HashMap<String, Class<?>>();
 		entityNames.put( "com.acme.IndexedEntity", IndexedEntity.class );
 		entityNames.put( "IndexedEntity", IndexedEntity.class );
-
-		SearchFactoryIntegrator searchFactory = factoryHolder.getSearchFactory();
 		EntityNamesResolver nameResolver = new MapBasedEntityNamesResolver( entityNames );
-		QueryParserDelegate<LuceneQueryParsingResult> luceneQueryBuilder = new LuceneQueryParserDelegate( searchFactory, nameResolver, namedParameters );
 
-		return luceneQueryBuilder;
+		return new LuceneProcessingChain( searchFactory, nameResolver, namedParameters );
 	}
 }

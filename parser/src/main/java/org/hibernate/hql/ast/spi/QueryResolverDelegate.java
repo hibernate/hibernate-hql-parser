@@ -29,7 +29,7 @@ import org.hibernate.hql.ast.origin.hql.resolve.path.PathedPropertyReferenceSour
  *
  * @author Gunnar Morling
  */
-public interface QueryParserDelegate<T> {
+public interface QueryResolverDelegate {
 
 	void registerPersisterSpace(Tree entityName, Tree alias);
 
@@ -52,30 +52,11 @@ public interface QueryParserDelegate<T> {
 
 	PathedPropertyReferenceSource normalizeUnqualifiedPropertyReferenceSource(Tree identifier394);
 
-	Tree normalizePropertyPathTerminus(PathedPropertyReferenceSource source, Tree propertyNameNode);
+	PathedPropertyReferenceSource normalizePropertyPathTerminus(PathedPropertyReferenceSource source, Tree propertyNameNode);
 
 	void pushFromStrategy(JoinType joinType, Tree assosiationFetchTree, Tree propertyFetchTree, Tree alias);
 
 	void pushSelectStrategy();
 
 	void popStrategy();
-
-	void activateOR();
-
-	void activateAND();
-
-	void activateNOT();
-
-	void deactivateBoolean();
-
-	void predicateEquals(String comparativePredicate);
-
-	void predicateBetween(String lower, String upper);
-
-	/**
-	 * Returns the result created by this delegate after the tree processing has been finished.
-	 *
-	 * @return the result created by this delegate after the tree processing has been finished
-	 */
-	T getResult();
 }

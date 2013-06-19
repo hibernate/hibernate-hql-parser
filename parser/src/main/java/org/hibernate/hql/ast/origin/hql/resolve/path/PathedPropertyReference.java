@@ -20,18 +20,40 @@
  */
 package org.hibernate.hql.ast.origin.hql.resolve.path;
 
-import java.util.Map;
-
+import org.hibernate.hql.ast.TypeDescriptor;
 
 /**
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2011 Red Hat Inc.
  */
 public final class PathedPropertyReference implements PathedPropertyReferenceSource {
 
-	private final String propertyName;
+	private final String name;
+	private final TypeDescriptor type;
+	private final boolean alias;
 
-	public PathedPropertyReference(String string, Map<String, String> aliasToEntityType) {
-		this.propertyName = string;
+	public PathedPropertyReference(String name, TypeDescriptor type, boolean alias) {
+		this.name = name;
+		this.type = type;
+		this.alias = alias;
 	}
 
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public TypeDescriptor getType() {
+		return type;
+	}
+
+	@Override
+	public boolean isAlias() {
+		return alias;
+	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
 }

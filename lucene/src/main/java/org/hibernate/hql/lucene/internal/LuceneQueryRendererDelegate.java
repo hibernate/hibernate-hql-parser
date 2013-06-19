@@ -18,18 +18,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.hql.lucene;
+package org.hibernate.hql.lucene.internal;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.antlr.runtime.tree.Tree;
 import org.hibernate.hql.ast.common.JoinType;
-import org.hibernate.hql.ast.origin.hql.resolve.path.PathedPropertyReference;
-import org.hibernate.hql.ast.origin.hql.resolve.path.PathedPropertyReferenceSource;
+import org.hibernate.hql.ast.origin.hql.resolve.path.PropertyPath;
 import org.hibernate.hql.ast.spi.EntityNamesResolver;
-import org.hibernate.hql.ast.spi.QueryParserDelegate;
+import org.hibernate.hql.ast.spi.QueryRendererDelegate;
+import org.hibernate.hql.lucene.LuceneQueryParsingResult;
 import org.hibernate.hql.lucene.internal.builder.LuceneQueryBuilder;
 import org.hibernate.hql.lucene.internal.builder.PropertyHelper;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
@@ -50,8 +49,9 @@ import org.hibernate.search.spi.SearchFactoryIntegrator;
  *   <li>Support positional parameters (currently only consumed named parameters)<li>
  *
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2011 Red Hat Inc.
+ * @author Gunnar Morling
  */
-public class LuceneQueryParserDelegate implements QueryParserDelegate<LuceneQueryParsingResult> {
+public class LuceneQueryRendererDelegate implements QueryRendererDelegate<LuceneQueryParsingResult> {
 
 	/**
 	 * Persister space: keep track of aliases and entity names.
@@ -65,17 +65,13 @@ public class LuceneQueryParserDelegate implements QueryParserDelegate<LuceneQuer
 
 	private Class<?> targetType = null;
 
-	private String propertyName;
-
 	private final Map<String, Object> namedParameters;
 
 	private final LuceneQueryBuilder builder;
 
-	public LuceneQueryParserDelegate(SearchFactoryIntegrator searchFactory, EntityNamesResolver entityNames) {
-		this( searchFactory, entityNames, Collections.<String, Object>emptyMap() );
-	}
+	private PropertyPath propertyPath;
 
-	public LuceneQueryParserDelegate(SearchFactoryIntegrator searchFactory,
+	public LuceneQueryRendererDelegate(SearchFactoryIntegrator searchFactory,
 			EntityNamesResolver entityNames, Map<String,Object> namedParameters) {
 		this.entityNames = entityNames;
 		this.namedParameters = namedParameters;
@@ -110,12 +106,6 @@ public class LuceneQueryParserDelegate implements QueryParserDelegate<LuceneQuer
 	}
 
 	@Override
-	public PathedPropertyReferenceSource normalizeUnqualifiedPropertyReference(Tree property) {
-		this.propertyName = property.getText();
-		return null;// return value is ignored anyway
-	}
-
-	@Override
 	public boolean isPersisterReferenceAlias() {
 		if ( aliasToEntityType.size() == 1 ) {
 			return true; // should be safe
@@ -123,46 +113,6 @@ public class LuceneQueryParserDelegate implements QueryParserDelegate<LuceneQuer
 		else {
 			throw new UnsupportedOperationException( "Unexpected use case: not implemented yet?" );
 		}
-	}
-
-	@Override
-	public PathedPropertyReferenceSource normalizeUnqualifiedRoot(Tree identifier382) {
-		throw new UnsupportedOperationException( "Not yet implemented" );
-	}
-
-	@Override
-	public PathedPropertyReferenceSource normalizeQualifiedRoot(Tree identifier381) {
-		return new PathedPropertyReference( identifier381.getText(), aliasToEntityType );
-	}
-
-	@Override
-	public PathedPropertyReferenceSource normalizePropertyPathIntermediary(
-			PathedPropertyReferenceSource source, Tree propertyName) {
-		throw new UnsupportedOperationException( "Not yet implemented" );
-	}
-
-	@Override
-	public PathedPropertyReferenceSource normalizeIntermediateIndexOperation(
-			PathedPropertyReferenceSource propertyReferenceSource, Tree collectionProperty, Tree selector) {
-		throw new UnsupportedOperationException( "Not yet implemented" );
-	}
-
-	@Override
-	public void normalizeTerminalIndexOperation(
-			PathedPropertyReferenceSource propertyReferenceSource, Tree collectionProperty, Tree selector) {
-		throw new UnsupportedOperationException( "Not yet implemented" );
-	}
-
-	@Override
-	public PathedPropertyReferenceSource normalizeUnqualifiedPropertyReferenceSource(Tree identifier394) {
-		throw new UnsupportedOperationException( "Not yet implemented" );
-	}
-
-	@Override
-	public Tree normalizePropertyPathTerminus(PathedPropertyReferenceSource source, Tree propertyNameNode) {
-		// receives the property name on a specific entity reference _source_
-		this.propertyName = propertyNameNode.toString();
-		return null;
 	}
 
 	@Override
@@ -207,7 +157,7 @@ public class LuceneQueryParserDelegate implements QueryParserDelegate<LuceneQuer
 	@Override
 	public void predicateEquals(final String comparativePredicate) {
 		Object comparisonValue = fromNamedQuery( comparativePredicate );
-		builder.addEqualsPredicate( propertyName, comparisonValue );
+		builder.addEqualsPredicate( propertyPath.getLastNode().getName(), comparisonValue );
 	}
 
 	@Override
@@ -215,7 +165,7 @@ public class LuceneQueryParserDelegate implements QueryParserDelegate<LuceneQuer
 		Object lowerComparisonValue = fromNamedQuery( lower );
 		Object upperComparisonValue = fromNamedQuery( upper );
 
-		builder.addRangePredicate( propertyName, lowerComparisonValue, upperComparisonValue );
+		builder.addRangePredicate( propertyPath.getLastNode().getName(), lowerComparisonValue, upperComparisonValue );
 	}
 
 	private Object fromNamedQuery(String comparativePredicate) {
@@ -235,5 +185,10 @@ public class LuceneQueryParserDelegate implements QueryParserDelegate<LuceneQuer
 	@Override
 	public LuceneQueryParsingResult getResult() {
 		return new LuceneQueryParsingResult( builder.build(), targetType );
+	}
+
+	@Override
+	public void setPropertyPath(PropertyPath propertyPath) {
+		this.propertyPath = propertyPath;
 	}
 }

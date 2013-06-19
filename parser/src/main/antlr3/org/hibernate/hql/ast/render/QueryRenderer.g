@@ -1,4 +1,4 @@
-tree grammar GeneratedHQLResolver;
+tree grammar QueryRenderer;
 
 options{
 	output=AST;
@@ -38,20 +38,19 @@ options{
  * with or without modification, you must preserve this copyright notice in its
  * entirety.
  */
-package org.hibernate.hql.ast.origin.hql.resolve;
+package org.hibernate.hql.ast.render;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.hibernate.hql.ast.common.JoinType;
 import org.hibernate.hql.ast.origin.hql.resolve.path.PathedPropertyReferenceSource;
-import org.hibernate.hql.ast.origin.hql.resolve.path.PropertyPath;
-import org.hibernate.hql.ast.spi.QueryResolverDelegate;
+import org.hibernate.hql.ast.spi.QueryRendererDelegate;
 import org.hibernate.hql.ast.tree.PropertyPathTree;
 }
 
 @members {
-  private QueryResolverDelegate delegate;
+  private QueryRendererDelegate delegate;
 
-  public GeneratedHQLResolver(TreeNodeStream input, QueryResolverDelegate delegate) {
+  public QueryRenderer(TreeNodeStream input, QueryRendererDelegate delegate) {
     this(input, new RecognizerSharedState());
     this.delegate = delegate;
   }
@@ -202,14 +201,14 @@ sortSpecification
 	;
 
 searchCondition
-	:	^( OR searchCondition searchCondition )
-	|	^( AND searchCondition searchCondition )
-	|	^( NOT searchCondition )
+	:	{ delegate.activateOR(); } ^( OR searchCondition searchCondition ) { delegate.deactivateBoolean(); }
+	|	{ delegate.activateAND(); } ^( AND searchCondition searchCondition ) { delegate.deactivateBoolean(); }
+	|	{ delegate.activateNOT(); } ^( NOT searchCondition ) { delegate.deactivateBoolean(); }
 	|	predicate
 	;
 
 predicate
-	:	^( EQUALS rowValueConstructor comparativePredicateValue )
+	:	^( EQUALS rowValueConstructor comparativePredicateValue ) { delegate.predicateEquals( $comparativePredicateValue.text); }//{ predicateEquals( $rowValueConstructor, $comparativePredicateValue ); }
 	|	^( NOT_EQUAL rowValueConstructor comparativePredicateValue )
 	|	^( LESS rowValueConstructor comparativePredicateValue )
 	|	^( LESS_EQUAL rowValueConstructor comparativePredicateValue )
@@ -231,7 +230,7 @@ predicate
 	;
 
 betweenList
-	:	^( BETWEEN_LIST lower=rowValueConstructor upper=rowValueConstructor )
+	:	^( BETWEEN_LIST lower=rowValueConstructor upper=rowValueConstructor ) { delegate.predicateBetween( $lower.text, $upper.text ); }
 	;	
 
 comparativePredicateValue
@@ -290,7 +289,7 @@ valueExpressionPrimary
 	|	ALIAS_REF //ID COLUMN, full property column list 
 	|	^(DOT_CLASS path) // crazy
 	|	^(JAVA_CONSTANT path) //It will generate at SQL a parameter element (?) -> 'cos we do not need to care about char escaping
-	|	^(PATH ret=propertyReferencePath) -> ^(PATH<node=PropertyPathTree>[$PATH, $ret.retPath] propertyReferencePath)
+	|	^(PATH propertyReferencePath) { delegate.setPropertyPath( ( (PropertyPathTree)$PATH ).getPropertyPath() ); }
 	;
 
 caseExpression
@@ -521,62 +520,42 @@ propertyReference
 	:	^(PROPERTY_REFERENCE propertyReferencePath)
 	;
 
-propertyReferencePath returns [PropertyPath retPath]
-	scope {
-		PropertyPath path;
-	}
-	@init {
-		$propertyReferencePath::path = new PropertyPath();
-	}
-	@after { $retPath = $propertyReferencePath::path; }
+propertyReferencePath
 	: 	{delegate.isUnqualifiedPropertyReference()}? unqualifiedPropertyReference
 	|	pathedPropertyReference
 	|	terminalIndexOperation
 	;
 
-unqualifiedPropertyReference returns [PathedPropertyReferenceSource propertyReferenceSource]
-	@after { $propertyReferencePath::path.appendNode( $propertyReferenceSource ); }
+unqualifiedPropertyReference
 	:	IDENTIFIER
-	{	$propertyReferenceSource = delegate.normalizeUnqualifiedPropertyReference( $IDENTIFIER ); }
 	;
 
 pathedPropertyReference
 	:	^(DOT pathedPropertyReferenceSource IDENTIFIER)
-	{
-		$propertyReferencePath::path.appendNode( delegate.normalizePropertyPathTerminus( $pathedPropertyReferenceSource.propertyReferenceSource, $IDENTIFIER ) );
-	}
 	;
 
-pathedPropertyReferenceSource returns [PathedPropertyReferenceSource propertyReferenceSource]
-	@after { $propertyReferencePath::path.appendNode( $propertyReferenceSource ); }
-	:	{(delegate.isPersisterReferenceAlias())}?=> IDENTIFIER { $propertyReferenceSource = delegate.normalizeQualifiedRoot( $IDENTIFIER ); }
-	|	{(delegate.isUnqualifiedPropertyReference())}?=> IDENTIFIER { $propertyReferenceSource = delegate.normalizeUnqualifiedRoot( $IDENTIFIER ); }
-	|	intermediatePathedPropertyReference { $propertyReferenceSource = $intermediatePathedPropertyReference.propertyReferenceSource; }
-	|	intermediateIndexOperation { $propertyReferenceSource = $intermediateIndexOperation.propertyReferenceSource; }
+pathedPropertyReferenceSource
+	:	{(delegate.isPersisterReferenceAlias())}?=> IDENTIFIER
+	|	{(delegate.isUnqualifiedPropertyReference())}?=> IDENTIFIER
+	|	intermediatePathedPropertyReference
+	|	intermediateIndexOperation
 	;
 
-intermediatePathedPropertyReference returns [PathedPropertyReferenceSource propertyReferenceSource]
+intermediatePathedPropertyReference
 	:	^(DOT source=pathedPropertyReferenceSource IDENTIFIER )
-	{	$propertyReferenceSource = delegate.normalizePropertyPathIntermediary( $pathedPropertyReferenceSource.propertyReferenceSource, $IDENTIFIER );	}
 	;
 
-intermediateIndexOperation returns [PathedPropertyReferenceSource propertyReferenceSource]
+intermediateIndexOperation
 	:	^( LEFT_SQUARE indexOperationSource indexSelector ) 
-	{	$propertyReferenceSource = delegate.normalizeIntermediateIndexOperation( $indexOperationSource.propertyReferenceSource, $indexOperationSource.collectionProperty, $indexSelector.tree );	}
 	;
 
 terminalIndexOperation
 	:	^( LEFT_SQUARE indexOperationSource indexSelector ) 
-	{	delegate.normalizeTerminalIndexOperation( $indexOperationSource.propertyReferenceSource, $indexOperationSource.collectionProperty, $indexSelector.tree );	}
 	;
 
-indexOperationSource returns [PathedPropertyReferenceSource propertyReferenceSource, Tree collectionProperty]
+indexOperationSource
 	:	^(DOT pathedPropertyReferenceSource IDENTIFIER )
-	{	$propertyReferenceSource = $pathedPropertyReferenceSource.propertyReferenceSource;
-		$collectionProperty = $IDENTIFIER;	}
-		|	{(delegate.isUnqualifiedPropertyReference())}?=> IDENTIFIER
-		{	$propertyReferenceSource = delegate.normalizeUnqualifiedPropertyReferenceSource( $IDENTIFIER );
-			$collectionProperty = $IDENTIFIER;	}
+	|	{(delegate.isUnqualifiedPropertyReference())}?=> IDENTIFIER
 	;
 
 indexSelector

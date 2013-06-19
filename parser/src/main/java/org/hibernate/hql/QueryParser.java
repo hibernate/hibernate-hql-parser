@@ -25,23 +25,20 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.TokenStream;
 import org.antlr.runtime.tree.CommonTree;
-import org.antlr.runtime.tree.CommonTreeNodeStream;
 import org.hibernate.hql.ast.origin.hql.parse.HQLLexer;
 import org.hibernate.hql.ast.origin.hql.parse.HQLParser;
-import org.hibernate.hql.ast.origin.hql.resolve.GeneratedHQLResolver;
-import org.hibernate.hql.ast.spi.QueryParserDelegate;
+import org.hibernate.hql.ast.spi.AstProcessingChain;
+import org.hibernate.hql.ast.spi.AstProcessor;
 import org.hibernate.hql.internal.logging.Log;
 import org.hibernate.hql.internal.logging.LoggerFactory;
 
 /**
- * A parser for JPQL queries. Parsing comprises these steps:
+ * A parser for HQL/JPQL queries. Parsing comprises these steps:
  * <ul>
  * <li>lexing the query</li>
  * <li>parsing the query, building up an AST while doing so</li>
- * <li>parsing the resulting parse tree, applying logic defined by a {@link QueryParserDelegate}
+ * <li>transforming the resulting parse tree using an {@link AstProcessingChain}</li>
  * </ul>
- * The given query parser delegate can be used to implement custom logic based on the parsed tree such
- * as building up an object model representing the parsed query.
  *
  * @author Gunnar Morling
  */
@@ -53,11 +50,13 @@ public class QueryParser {
 	 * Parses the given query string.
 	 *
 	 * @param queryString the query string to parse
-	 * @param delegate the delegate to be invoked during parsing the query AST
-	 * @return the result of this parsing as created by the given delegate
+	 * @param processingChain one or more {@link AstProcessor}s which traverse the query parse tree in order to
+	 * normalize/validate
+	 * it and create the parsing result
+	 * @return the result of this parsing as created by the given processing chain
 	 * @throws ParsingException in case any exception occurs during parsing
 	 */
-	public <T> T parseQuery(String queryString, QueryParserDelegate<T> delegate) throws ParsingException {
+	public <T> T parseQuery(String queryString, AstProcessingChain<T> processingChain) throws ParsingException {
 		HQLLexer lexer = new HQLLexer( new ANTLRStringStream( queryString ) );
 		TokenStream tokens = new CommonTokenStream( lexer );
 		HQLParser parser = new HQLParser( tokens );
@@ -72,19 +71,15 @@ public class QueryParser {
 
 			CommonTree tree = (CommonTree) r.getTree();
 
-			if ( log.isDebugEnabled() ) {
-				log.debug( "Parse tree: " + tree.toStringTree() );
+			for ( AstProcessor processor : processingChain ) {
+				tree = processor.process( tokens, tree );
+
+				if ( log.isDebugEnabled() ) {
+					log.debug( "Processed tree: " + tree.toStringTree() );
+				}
 			}
 
-			// To walk the resulting tree we need a treenode stream:
-			CommonTreeNodeStream treeStream = new CommonTreeNodeStream( tree );
-			// AST nodes have payloads referring to the tokens from the Lexer:
-			treeStream.setTokenStream( tokens );
-
-			GeneratedHQLResolver walker = new GeneratedHQLResolver( treeStream, delegate );
-			walker.statement();
-
-			return delegate.getResult();
+			return processingChain.getResult();
 		}
 		catch (RecognitionException e) {
 			throw log.getInvalidQuerySyntaxException( queryString, e );

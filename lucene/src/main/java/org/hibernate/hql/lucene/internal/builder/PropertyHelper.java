@@ -112,6 +112,26 @@ public class PropertyHelper {
 		}
 	}
 
+	public boolean exists(Class<?> type, String propertyName) {
+		EntityIndexBinder entityIndexBinding = searchFactory.getIndexBindingForEntity( type );
+		if ( entityIndexBinding == null ) {
+			throw log.getNoIndexedEntityException( type.getCanonicalName() );
+		}
+
+		if ( propertyName.equals( entityIndexBinding.getDocumentBuilder().getIdentifierName() ) ) {
+			return true;
+		}
+		else {
+			AbstractDocumentBuilder.PropertiesMetadata metadata = entityIndexBinding.getDocumentBuilder().getMetadata();
+			if ( metadata.fieldNames.indexOf( propertyName ) != -1 ) {
+				return true;
+			}
+			else {
+				return metadata.embeddedFieldNames.indexOf( propertyName )  != -1;
+			}
+		}
+	}
+
 	public boolean isAnalyzed(Class<?> type, String propertyName) {
 		EntityIndexBinder entityIndexBinding = searchFactory.getIndexBindingForEntity( type );
 		if ( entityIndexBinding == null ) {
