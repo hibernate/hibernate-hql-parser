@@ -18,32 +18,66 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.hql.lucene.internal.ast;
+package org.hibernate.hql.lucene.test.model;
 
-import org.hibernate.hql.ast.TypeDescriptor;
+import java.util.Set;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+
+import org.hibernate.search.annotations.ContainedIn;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Store;
 
 /**
- * A {@link TypeDescriptor} representing a property of a Hibernate Search indexed entity.
- *
  * @author Gunnar Morling
  */
-public class HSearchPropertyTypeDescriptor implements HSearchTypeDescriptor {
+@Entity
+public class Address {
 
-	public HSearchPropertyTypeDescriptor() {
+	@Id
+	private Long id;
+
+	@Field(store = Store.YES)
+	private String street;
+
+	@Field
+	private String city;
+
+	@ContainedIn
+	@OneToMany(mappedBy = "address")
+	private Set<Author> authors;
+
+	public Long getId() {
+		return id;
 	}
 
-	@Override
-	public boolean hasProperty(String propertyName) {
-		return false;
+	public void setId(Long id) {
+		this.id = id;
 	}
 
-	@Override
-	public Class<?> getIndexedEntityType() {
-		return null;
+	public String getStreet() {
+		return street;
 	}
 
-	@Override
-	public boolean isAnalyzed(String propertyName) {
-		return false;
+	public void setStreet(String street) {
+		this.street = street;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public Set<Author> getAuthors() {
+		return authors;
+	}
+
+	public void setAuthors(Set<Author> authors) {
+		this.authors = authors;
 	}
 }

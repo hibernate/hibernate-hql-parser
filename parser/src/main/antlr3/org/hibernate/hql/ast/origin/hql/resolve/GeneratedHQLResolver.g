@@ -557,7 +557,7 @@ pathedPropertyReferenceSource returns [PathedPropertyReferenceSource propertyRef
 
 intermediatePathedPropertyReference returns [PathedPropertyReferenceSource propertyReferenceSource]
 	:	^(DOT source=pathedPropertyReferenceSource IDENTIFIER )
-	{	$propertyReferenceSource = delegate.normalizePropertyPathIntermediary( $pathedPropertyReferenceSource.propertyReferenceSource, $IDENTIFIER );	}
+	{	$propertyReferenceSource = delegate.normalizePropertyPathIntermediary( $propertyReferencePath::path, $IDENTIFIER );	}
 	;
 
 intermediateIndexOperation returns [PathedPropertyReferenceSource propertyReferenceSource]

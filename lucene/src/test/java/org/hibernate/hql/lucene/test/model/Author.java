@@ -2,7 +2,7 @@
  * Hibernate, Relational Persistence for Idiomatic Java
  *
  * JBoss, Home of Professional Open Source
- * Copyright 2012 Red Hat Inc. and/or its affiliates and other contributors
+ * Copyright 2013 Red Hat Inc. and/or its affiliates and other contributors
  * as indicated by the @authors tag. All rights reserved.
  * See the copyright.txt in the distribution for a
  * full listing of individual contributors.
@@ -20,40 +20,48 @@
  */
 package org.hibernate.hql.lucene.test.model;
 
+import java.util.Set;
+
 import javax.persistence.CascadeType;
+import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Fields;
-import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
-import org.hibernate.search.annotations.NumericField;
+import org.hibernate.search.annotations.Store;
 
 /**
- * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
+ * @author Gunnar Morling
  */
-@Indexed
-public class IndexedEntity {
-
-	private String id;
-	private String name;
-	private long position;
-	private int size;
-	private String title;
-	private Author author;
+@Entity
+public class Author {
 
 	@Id
-	public String getId() {
+	private Long id;
+
+	@Field(store = Store.YES, analyze = Analyze.NO)
+	private String name;
+
+	@ContainedIn
+	@OneToMany(mappedBy = "author")
+	private Set<IndexedEntity> indexedEntities;
+
+	@OneToOne(cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
+	@IndexedEmbedded
+	private Address address;
+
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
-	@Field(analyze = Analyze.NO)
 	public String getName() {
 		return name;
 	}
@@ -62,45 +70,19 @@ public class IndexedEntity {
 		this.name = name;
 	}
 
-	@Field(analyze = Analyze.NO)
-	@NumericField
-	public long getPosition() {
-		return position;
+	public Set<IndexedEntity> getIndexedEntities() {
+		return indexedEntities;
 	}
 
-	public void setPosition(long position) {
-		this.position = position;
+	public void setIndexedEntities(Set<IndexedEntity> indexedEntities) {
+		this.indexedEntities = indexedEntities;
 	}
 
-	@Field(analyze = Analyze.YES)
-	@NumericField
-	public int getSize() {
-		return size;
+	public Address getAddress() {
+		return address;
 	}
 
-	public void setSize(int size) {
-		this.size = size;
-	}
-
-	@Fields({
-		@Field(name = "titleAnalyzed", analyze = Analyze.YES),
-		@Field(name = "title", analyze = Analyze.NO)
-	})
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	@OneToOne(cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
-	@IndexedEmbedded
-	public Author getAuthor() {
-		return author;
-	}
-
-	public void setAuthor(Author author) {
-		this.author = author;
+	public void setAddress(Address address) {
+		this.address = address;
 	}
 }

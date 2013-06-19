@@ -95,6 +95,22 @@ public class LuceneQueryParsingTest {
 	}
 
 	@Test
+	public void shouldCreateEmbeddedProjectionQuery() {
+		LuceneQueryParsingResult parsingResult = parseQuery( "select e.author.name from IndexedEntity e" );
+
+		assertThat( parsingResult.getQuery().toString() ).isEqualTo( "*:*" );
+		assertThat( parsingResult.getProjections() ).containsExactly( "author.name" );
+	}
+
+	@Test
+	public void shouldCreateNestedEmbeddedProjectionQuery() {
+		LuceneQueryParsingResult parsingResult = parseQuery( "select e.author.address.street from IndexedEntity e" );
+
+		assertThat( parsingResult.getQuery().toString() ).isEqualTo( "*:*" );
+		assertThat( parsingResult.getProjections() ).containsExactly( "author.address.street" );
+	}
+
+	@Test
 	public void shouldCreateQueryWithUnqualifiedPropertyReferences() {
 		assertLuceneQuery(
 				"from IndexedEntity e where name = 'same' and not id = 5" ,
@@ -139,6 +155,14 @@ public class LuceneQueryParsingTest {
 		expectedException.expectMessage( "HQLLUCN000002" );
 
 		parseQuery( "select e.foobar from IndexedEntity e" );
+	}
+
+	@Test
+	public void shouldRaiseExceptionDueToUnknownPropertyInEmbeddedSelectClause() {
+		expectedException.expect( ParsingException.class );
+		expectedException.expectMessage( "HQLLUCN000002" );
+
+		parseQuery( "select e.author.foo from IndexedEntity e" );
 	}
 
 	@Test
@@ -224,6 +248,13 @@ public class LuceneQueryParsingTest {
 				"select e from IndexedEntity e where e.position between :lower and :upper" ,
 				namedParameters,
 				"position:[10 TO 20]");
+	}
+
+	@Test
+	public void shouldCreateQueryWithEmbeddedPropertyInFromClause() {
+		assertLuceneQuery(
+				"from IndexedEntity e where e.author.name = 'Bob'" ,
+				"author.name:Bob" );
 	}
 
 	private void assertLuceneQuery(String queryString, String expectedLuceneQuery) {

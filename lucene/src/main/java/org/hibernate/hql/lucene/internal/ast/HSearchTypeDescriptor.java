@@ -35,4 +35,12 @@ public interface HSearchTypeDescriptor extends TypeDescriptor {
 	 * @return the Java type of the represented indexed entity
 	 */
 	Class<?> getIndexedEntityType();
+
+	/**
+	 * Whether the given property of this indexed entity is analyzed or not.
+	 *
+	 * @param propertyName the name of the property
+	 * @return {@code true} if the given property is analyed, {@code false} otherwise.
+	 */
+	boolean isAnalyzed(String propertyName);
 }

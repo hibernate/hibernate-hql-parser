@@ -23,6 +23,7 @@ package org.hibernate.hql.ast.spi;
 import org.antlr.runtime.tree.Tree;
 import org.hibernate.hql.ast.common.JoinType;
 import org.hibernate.hql.ast.origin.hql.resolve.path.PathedPropertyReferenceSource;
+import org.hibernate.hql.ast.origin.hql.resolve.path.PropertyPath;
 
 /**
  * Defines hooks for implementing custom logic when walking the parse tree of a JPQL query.
@@ -43,7 +44,7 @@ public interface QueryResolverDelegate {
 
 	PathedPropertyReferenceSource normalizeQualifiedRoot(Tree identifier381);
 
-	PathedPropertyReferenceSource normalizePropertyPathIntermediary(PathedPropertyReferenceSource source, Tree propertyName);
+	PathedPropertyReferenceSource normalizePropertyPathIntermediary(PropertyPath path, Tree propertyName);
 
 	PathedPropertyReferenceSource normalizeIntermediateIndexOperation(PathedPropertyReferenceSource propertyReferenceSource, Tree collectionProperty,
 			Tree selector);

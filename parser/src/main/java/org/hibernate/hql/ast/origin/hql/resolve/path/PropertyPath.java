@@ -34,7 +34,15 @@ import org.hibernate.hql.internal.util.Strings;
  */
 public class PropertyPath {
 
-	LinkedList<PathedPropertyReferenceSource> path = new LinkedList<PathedPropertyReferenceSource>();
+	private final LinkedList<PathedPropertyReferenceSource> path;
+
+	public PropertyPath() {
+		path = new LinkedList<PathedPropertyReferenceSource>();
+	}
+
+	public PropertyPath(PropertyPath path) {
+		this.path = path.path;
+	}
 
 	public void appendNode(PathedPropertyReferenceSource property) {
 		path.add( property );
@@ -45,12 +53,7 @@ public class PropertyPath {
 	}
 
 	public List<PathedPropertyReferenceSource> getNodes() {
-		return path;
-	}
-
-	@Override
-	public String toString() {
-		return "PropertyPath [path=" + path + "]";
+		return new LinkedList<PathedPropertyReferenceSource>( path );
 	}
 
 	public String asStringPathWithoutAlias() {
@@ -61,7 +64,7 @@ public class PropertyPath {
 		return Strings.join( getNodeNamesWithoutAlias(), "." );
 	}
 
-	private List<String> getNodeNamesWithoutAlias() {
+	public List<String> getNodeNamesWithoutAlias() {
 		List<String> nodeNames = new ArrayList<String>();
 
 		for ( PathedPropertyReferenceSource node : path ) {
@@ -71,5 +74,10 @@ public class PropertyPath {
 		}
 
 		return nodeNames;
+	}
+
+	@Override
+	public String toString() {
+		return "PropertyPath [path=" + path + "]";
 	}
 }

@@ -178,7 +178,7 @@ public class LuceneQueryRendererDelegate implements QueryRendererDelegate<Lucene
 	@Override
 	public void predicateEquals(final String comparativePredicate) {
 		Object comparisonValue = fromNamedQuery( comparativePredicate );
-		builder.addEqualsPredicate( propertyPath.getLastNode().getName(), comparisonValue );
+		builder.addEqualsPredicate( propertyPath.getNodeNamesWithoutAlias(), comparisonValue );
 	}
 
 	@Override
@@ -186,7 +186,7 @@ public class LuceneQueryRendererDelegate implements QueryRendererDelegate<Lucene
 		Object lowerComparisonValue = fromNamedQuery( lower );
 		Object upperComparisonValue = fromNamedQuery( upper );
 
-		builder.addRangePredicate( propertyPath.getLastNode().getName(), lowerComparisonValue, upperComparisonValue );
+		builder.addRangePredicate( propertyPath.getNodeNamesWithoutAlias(), lowerComparisonValue, upperComparisonValue );
 	}
 
 	private Object fromNamedQuery(String comparativePredicate) {

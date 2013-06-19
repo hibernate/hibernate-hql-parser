@@ -21,14 +21,18 @@
 package org.hibernate.hql.lucene.internal;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.antlr.runtime.tree.Tree;
 import org.hibernate.hql.ast.common.JoinType;
 import org.hibernate.hql.ast.origin.hql.resolve.path.PathedPropertyReference;
 import org.hibernate.hql.ast.origin.hql.resolve.path.PathedPropertyReferenceSource;
+import org.hibernate.hql.ast.origin.hql.resolve.path.PropertyPath;
 import org.hibernate.hql.ast.spi.EntityNamesResolver;
 import org.hibernate.hql.ast.spi.QueryResolverDelegate;
+import org.hibernate.hql.lucene.internal.ast.HSearchEmbeddedEntityTypeDescriptor;
 import org.hibernate.hql.lucene.internal.ast.HSearchIndexedEntityTypeDescriptor;
 import org.hibernate.hql.lucene.internal.ast.HSearchPropertyTypeDescriptor;
 import org.hibernate.hql.lucene.internal.ast.HSearchTypeDescriptor;
@@ -58,12 +62,17 @@ import org.hibernate.search.spi.SearchFactoryIntegrator;
  */
 public class LuceneQueryResolverDelegate implements QueryResolverDelegate {
 
-	private static final Log log = LoggerFactory.make();
+	private enum Status {
+		DEFINING_SELECT, DEFINING_FROM;
+	}
 
+	private static final Log log = LoggerFactory.make();
 	/**
 	 * Persister space: keep track of aliases and entity names.
 	 */
 	private final Map<String, String> aliasToEntityType = new HashMap<String, String>();
+
+	private Status status;
 
 	/**
 	 * How to resolve entity names to class instances
@@ -151,8 +160,28 @@ public class LuceneQueryResolverDelegate implements QueryResolverDelegate {
 
 	@Override
 	public PathedPropertyReferenceSource normalizePropertyPathIntermediary(
-			PathedPropertyReferenceSource source, Tree propertyName) {
-		throw new UnsupportedOperationException( "Not yet implemented" );
+			PropertyPath path, Tree propertyName) {
+
+		HSearchTypeDescriptor sourceType = (HSearchTypeDescriptor) path.getLastNode().getType();
+
+		if ( !sourceType.hasProperty( propertyName.getText() ) ) {
+			throw log.getNoSuchPropertyException( sourceType.toString(), propertyName.getText() );
+		}
+
+		List<String> newPath = new LinkedList<String>( path.getNodeNamesWithoutAlias() );
+		newPath.add( propertyName.getText() );
+
+		PathedPropertyReference property = new PathedPropertyReference(
+				propertyName.getText(),
+				new HSearchEmbeddedEntityTypeDescriptor(
+						sourceType.getIndexedEntityType(),
+						newPath,
+						propertyHelper
+				),
+				false
+		);
+
+		return property;
 	}
 
 	@Override
@@ -183,9 +212,8 @@ public class LuceneQueryResolverDelegate implements QueryResolverDelegate {
 			throw log.getNoSuchPropertyException( type.toString(), propertyName );
 		}
 
-		Class<?> indexedEntityType = type.getIndexedEntityType();
-		if (propertyHelper.isAnalyzed( indexedEntityType, propertyName ) ) {
-			throw log.getQueryOnAnalyzedPropertyNotSupportedException( indexedEntityType.getCanonicalName(), propertyName );
+		if ( status != Status.DEFINING_SELECT && type.isAnalyzed( propertyName ) ) {
+			throw log.getQueryOnAnalyzedPropertyNotSupportedException( type.getIndexedEntityType().getCanonicalName(), propertyName );
 		}
 
 		return new PathedPropertyReference(
@@ -206,9 +234,11 @@ public class LuceneQueryResolverDelegate implements QueryResolverDelegate {
 
 	@Override
 	public void pushSelectStrategy() {
+		status = Status.DEFINING_SELECT;
 	}
 
 	@Override
 	public void popStrategy() {
+		status = null;
 	}
 }

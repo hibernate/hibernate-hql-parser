@@ -20,27 +20,48 @@
  */
 package org.hibernate.hql.lucene.internal.ast;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.hibernate.hql.ast.TypeDescriptor;
 import org.hibernate.hql.lucene.internal.builder.PropertyHelper;
 
 /**
- * A {@link TypeDescriptor} representing a Hibernate Search indexed entity.
+ * A {@link TypeDescriptor} representing an embedded entity of a Hibernate Search indexed entity.
  *
  * @author Gunnar Morling
  */
-public class HSearchIndexedEntityTypeDescriptor implements HSearchTypeDescriptor {
+public class HSearchEmbeddedEntityTypeDescriptor implements HSearchTypeDescriptor {
 
 	private final Class<?> indexedEntityType;
+	private final List<String> propertyPath;
 	private final PropertyHelper propertyHelper;
 
-	public HSearchIndexedEntityTypeDescriptor(Class<?> indexedEntityType, PropertyHelper propertyHelper) {
+	/**
+	 * Creates a new {@link HSearchEmbeddedEntityTypeDescriptor}.
+	 *
+	 * @param indexedEntityType the indexed entity into which this entity is embedded
+	 * @param path the property path from the embedding indexed entity to this entity
+	 * @param propertyHelper a helper for dealing with properties
+	 */
+	public HSearchEmbeddedEntityTypeDescriptor(Class<?> indexedEntityType, List<String> path, PropertyHelper propertyHelper) {
 		this.indexedEntityType = indexedEntityType;
+		this.propertyPath = path;
 		this.propertyHelper = propertyHelper;
 	}
 
 	@Override
 	public boolean hasProperty(String propertyName) {
-		return propertyHelper.exists( indexedEntityType, propertyName );
+		List<String> newPath = new LinkedList<String>( propertyPath );
+		newPath.add( propertyName );
+		return propertyHelper.exists( indexedEntityType, newPath );
+	}
+
+	@Override
+	public boolean isAnalyzed(String propertyName) {
+		List<String> newPath = new LinkedList<String>( propertyPath );
+		newPath.add( propertyName );
+		return propertyHelper.isAnalyzed( indexedEntityType, newPath );
 	}
 
 	@Override
@@ -49,12 +70,7 @@ public class HSearchIndexedEntityTypeDescriptor implements HSearchTypeDescriptor
 	}
 
 	@Override
-	public boolean isAnalyzed(String propertyName) {
-		return propertyHelper.isAnalyzed( indexedEntityType, propertyName );
-	}
-
-	@Override
 	public String toString() {
-		return indexedEntityType.getCanonicalName();
+		return propertyPath.toString();
 	}
 }
