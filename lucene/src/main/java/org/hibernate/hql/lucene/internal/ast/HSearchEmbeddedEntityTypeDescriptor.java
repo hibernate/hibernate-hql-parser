@@ -65,6 +65,13 @@ public class HSearchEmbeddedEntityTypeDescriptor implements HSearchTypeDescripto
 	}
 
 	@Override
+	public boolean isEmbedded(String propertyName) {
+		List<String> newPath = new LinkedList<String>( propertyPath );
+		newPath.add( propertyName );
+		return propertyHelper.isEmbedded( indexedEntityType, newPath );
+	}
+
+	@Override
 	public Class<?> getIndexedEntityType() {
 		return indexedEntityType;
 	}

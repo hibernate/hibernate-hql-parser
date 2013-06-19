@@ -20,6 +20,7 @@
  */
 package org.hibernate.hql.lucene.internal;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -122,7 +123,9 @@ public class LuceneQueryResolverDelegate implements QueryResolverDelegate {
 		}
 
 		return normalizeProperty(
-				new HSearchIndexedEntityTypeDescriptor( targetType, propertyHelper ), property.getText()
+				new HSearchIndexedEntityTypeDescriptor( targetType, propertyHelper ),
+				Collections.<String>emptyList(),
+				property.getText()
 		);
 	}
 
@@ -202,12 +205,13 @@ public class LuceneQueryResolverDelegate implements QueryResolverDelegate {
 	}
 
 	@Override
-	public PathedPropertyReferenceSource normalizePropertyPathTerminus(PathedPropertyReferenceSource source, Tree propertyNameNode) {
+	public PathedPropertyReferenceSource normalizePropertyPathTerminus(PropertyPath path, Tree propertyNameNode) {
 		// receives the property name on a specific entity reference _source_
-		return normalizeProperty( (HSearchTypeDescriptor) source.getType(), propertyNameNode.getText() );
+		return normalizeProperty( (HSearchTypeDescriptor) path.getLastNode().getType(), path.getNodeNamesWithoutAlias(), propertyNameNode.getText() );
 	}
 
-	private PathedPropertyReferenceSource normalizeProperty(HSearchTypeDescriptor type, String propertyName) {
+	private PathedPropertyReferenceSource normalizeProperty(HSearchTypeDescriptor type, List<String> path, String propertyName) {
+
 		if ( !type.hasProperty( propertyName ) ) {
 			throw log.getNoSuchPropertyException( type.toString(), propertyName );
 		}
@@ -216,11 +220,22 @@ public class LuceneQueryResolverDelegate implements QueryResolverDelegate {
 			throw log.getQueryOnAnalyzedPropertyNotSupportedException( type.getIndexedEntityType().getCanonicalName(), propertyName );
 		}
 
-		return new PathedPropertyReference(
-				propertyName,
-				new HSearchPropertyTypeDescriptor(),
-				false
-		);
+		if ( type.isEmbedded( propertyName ) ) {
+			List<String> newPath = new LinkedList<String>( path );
+			newPath.add( propertyName );
+			return new PathedPropertyReference(
+					propertyName,
+					new HSearchEmbeddedEntityTypeDescriptor( type.getIndexedEntityType(), newPath, propertyHelper ),
+					false)
+			;
+		}
+		else {
+			return new PathedPropertyReference(
+					propertyName,
+					new HSearchPropertyTypeDescriptor(),
+					false
+			);
+		}
 	}
 
 	@Override
@@ -240,5 +255,17 @@ public class LuceneQueryResolverDelegate implements QueryResolverDelegate {
 	@Override
 	public void popStrategy() {
 		status = null;
+	}
+
+	@Override
+	public void propertyPathCompleted(PropertyPath path) {
+		if ( status == Status.DEFINING_SELECT && path.getLastNode().getType() instanceof HSearchEmbeddedEntityTypeDescriptor ) {
+			HSearchEmbeddedEntityTypeDescriptor type = (HSearchEmbeddedEntityTypeDescriptor) path.getLastNode().getType();
+
+			throw log.getProjectionOfCompleteEmbeddedEntitiesNotSupportedException(
+					type.getIndexedEntityType().getCanonicalName(),
+					path.asStringPathWithoutAlias()
+			);
+		}
 	}
 }

@@ -43,4 +43,12 @@ public interface HSearchTypeDescriptor extends TypeDescriptor {
 	 * @return {@code true} if the given property is analyed, {@code false} otherwise.
 	 */
 	boolean isAnalyzed(String propertyName);
+
+	/**
+	 * Whether the given property denotes an embedded entity or not.
+	 *
+	 * @param propertyName the name of the property
+	 * @return {@code true} if the given property denotes an entity embedded into this one, {@code false} otherwise.
+	 */
+	boolean isEmbedded(String propertyName);
 }

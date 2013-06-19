@@ -528,7 +528,7 @@ propertyReferencePath returns [PropertyPath retPath]
 	@init {
 		$propertyReferencePath::path = new PropertyPath();
 	}
-	@after { $retPath = $propertyReferencePath::path; }
+	@after { $retPath = $propertyReferencePath::path; delegate.propertyPathCompleted( $propertyReferencePath::path ); }
 	: 	{delegate.isUnqualifiedPropertyReference()}? unqualifiedPropertyReference
 	|	pathedPropertyReference
 	|	terminalIndexOperation
@@ -543,7 +543,7 @@ unqualifiedPropertyReference returns [PathedPropertyReferenceSource propertyRefe
 pathedPropertyReference
 	:	^(DOT pathedPropertyReferenceSource IDENTIFIER)
 	{
-		$propertyReferencePath::path.appendNode( delegate.normalizePropertyPathTerminus( $pathedPropertyReferenceSource.propertyReferenceSource, $IDENTIFIER ) );
+		$propertyReferencePath::path.appendNode( delegate.normalizePropertyPathTerminus( $propertyReferencePath::path, $IDENTIFIER ) );
 	}
 	;
 

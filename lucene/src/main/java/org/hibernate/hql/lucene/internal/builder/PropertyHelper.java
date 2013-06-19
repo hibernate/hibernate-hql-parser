@@ -161,6 +161,46 @@ public class PropertyHelper {
 		return EnumSet.of( Field.Index.ANALYZED, Field.Index.ANALYZED_NO_NORMS ).contains( index );
 	}
 
+	public boolean isEmbedded(Class<?> type, List<String> propertyPath) {
+		return isEmbedded( type, propertyPath.toArray( new String[propertyPath.size()] ) );
+	}
+
+	/**
+	 * Determines whether the given property path denotes an embedded entity (not a property of such entity).
+	 *
+	 * @param type the indexed type
+	 * @param propertyPath the path of interest
+	 * @return {@code true} if the given path denotes an embedded entity of the given indexed type, {@code false}
+	 * otherwise.
+	 */
+	public boolean isEmbedded(Class<?> type, String... propertyPath) {
+		EntityIndexBinder entityIndexBinding = getIndexBinding( type );
+
+		if ( isIdentifierProperty( entityIndexBinding, propertyPath ) ) {
+			return false;
+		}
+
+		String fullPropertyName = Strings.join( propertyPath, "." );
+
+		PropertiesMetadata metadata = entityIndexBinding.getDocumentBuilder().getMetadata();
+
+		for ( String property : propertyPath ) {
+			if ( metadata.embeddedFieldNames.contains( fullPropertyName ) ) {
+				return true;
+			}
+
+			int embeddedPropertyIndex = metadata.embeddedFieldNames.indexOf( property );
+			if ( embeddedPropertyIndex == -1 ) {
+				break;
+			}
+			else {
+				metadata = metadata.embeddedPropertiesMetadata.get( embeddedPropertyIndex );
+			}
+		}
+
+		return false;
+	}
+
 	private PropertiesMetadata getPropertyMetadata(EntityIndexBinder entityIndexBinding, String... propertyPath) {
 		PropertiesMetadata metadata = entityIndexBinding.getDocumentBuilder().getMetadata();
 

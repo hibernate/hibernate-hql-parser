@@ -166,6 +166,22 @@ public class LuceneQueryParsingTest {
 	}
 
 	@Test
+	public void shouldRaiseExceptionDueToSelectionOfCompleteEmbeddedEntity() {
+		expectedException.expect( ParsingException.class );
+		expectedException.expectMessage( "HQLLUCN000008" );
+
+		parseQuery( "select e.author from IndexedEntity e" );
+	}
+
+	@Test
+	public void shouldRaiseExceptionDueToUnqualifiedSelectionOfCompleteEmbeddedEntity() {
+		expectedException.expect( ParsingException.class );
+		expectedException.expectMessage( "HQLLUCN000008" );
+
+		parseQuery( "select author from IndexedEntity e" );
+	}
+
+	@Test
 	public void shouldCreateNegatedQuery() {
 		assertLuceneQuery(
 				"from IndexedEntity e where NOT e.name = 'same'" ,

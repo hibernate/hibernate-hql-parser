@@ -54,4 +54,7 @@ public interface Log extends BasicLogger {
 
 	@Message(id = 7, value = "Unknown alias: %s.")
 	ParsingException getUnknownAliasException(String unknownAlias);
+
+	@Message(id = 8, value = "Property %2$s can not be selected from type %1$s since it is an embedded entity.")
+	ParsingException getProjectionOfCompleteEmbeddedEntitiesNotSupportedException(String typeName, String propertyPath);
 }

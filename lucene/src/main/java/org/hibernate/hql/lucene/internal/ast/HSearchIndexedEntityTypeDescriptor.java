@@ -54,6 +54,11 @@ public class HSearchIndexedEntityTypeDescriptor implements HSearchTypeDescriptor
 	}
 
 	@Override
+	public boolean isEmbedded(String propertyName) {
+		return propertyHelper.isEmbedded( indexedEntityType, propertyName );
+	}
+
+	@Override
 	public String toString() {
 		return indexedEntityType.getCanonicalName();
 	}

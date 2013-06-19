@@ -53,11 +53,18 @@ public interface QueryResolverDelegate {
 
 	PathedPropertyReferenceSource normalizeUnqualifiedPropertyReferenceSource(Tree identifier394);
 
-	PathedPropertyReferenceSource normalizePropertyPathTerminus(PathedPropertyReferenceSource source, Tree propertyNameNode);
+	PathedPropertyReferenceSource normalizePropertyPathTerminus(PropertyPath path, Tree propertyNameNode);
 
 	void pushFromStrategy(JoinType joinType, Tree assosiationFetchTree, Tree propertyFetchTree, Tree alias);
 
 	void pushSelectStrategy();
 
 	void popStrategy();
+
+	/**
+	 * Notifies this delegate when parsing of a property path in the SELECT or WHERE is completed.
+	 *
+	 * @param path the completely parsed property path
+	 */
+	void propertyPathCompleted(PropertyPath path);
 }

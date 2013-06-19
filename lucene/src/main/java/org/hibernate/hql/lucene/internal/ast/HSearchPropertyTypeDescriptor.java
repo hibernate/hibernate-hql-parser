@@ -46,4 +46,9 @@ public class HSearchPropertyTypeDescriptor implements HSearchTypeDescriptor {
 	public boolean isAnalyzed(String propertyName) {
 		return false;
 	}
+
+	@Override
+	public boolean isEmbedded(String propertyName) {
+		return false;
+	}
 }
