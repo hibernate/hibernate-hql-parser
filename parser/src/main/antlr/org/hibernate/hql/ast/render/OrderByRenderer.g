@@ -322,4 +322,3 @@ numeric_literal
 	|	DECIMAL_LITERAL -> {%{$DECIMAL_LITERAL.text}}
 	|	FLOATING_POINT_LITERAL -> {%{$FLOATING_POINT_LITERAL.text}}
 	;
-

@@ -63,7 +63,7 @@ import org.hibernate.hql.ast.TemplateConstants;
      */
     protected boolean isFunctionName(String text) {
         // by default, assume it is not
-    	return false;
+	return false;
     }
 
     /**
@@ -75,7 +75,7 @@ import org.hibernate.hql.ast.TemplateConstants;
      */
     protected boolean isPropertyName(String text) {
         // by default, assume it is not
-    	return false;
+	return false;
     }
 
     /**
@@ -99,9 +99,9 @@ import org.hibernate.hql.ast.TemplateConstants;
 	}
 
 	private String retrieveLT(int offset) {
-      	if (null == input) {
-      		return null;
-      	}
+	if (null == input) {
+		return null;
+	}
 		Token token = input.LT(offset);
 		return token == null ? null : token.getText();
 	}
@@ -607,4 +607,3 @@ year_keyword
 	:	{(validateSoftKeyword("year"))}?=>  id=IDENTIFIER
 		->	YEAR[$id]
 	;
-

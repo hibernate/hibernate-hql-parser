@@ -259,7 +259,7 @@ UNICODE_ESCAPE
 
 TRUE
 	:	'true'
-	;	
+	;
 
 FALSE
 	:	'false'
@@ -344,7 +344,7 @@ RIGHT_SQUARE
 
 COMMA	:	','
 	;
-	
+
 DOT	:	'.'
 	;
 

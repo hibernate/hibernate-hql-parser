@@ -57,7 +57,7 @@ import org.hibernate.hql.ast.tree.PropertyPathTree;
 }
 
 filterStatement[String collectionRole]
-	:	^(QUERY ^(QUERY_SPEC FILTER 
+	:	^(QUERY ^(QUERY_SPEC FILTER
 				selectClause? whereClause? ( groupByClause havingClause?)? orderByClause?))
 	;
 
@@ -113,7 +113,7 @@ queryExpression
 	:	^(UNION ALL? queryExpression queryExpression)
 	|	^(INTERSECT ALL? queryExpression queryExpression)
 	|	^(EXCEPT ALL? queryExpression queryExpression)
-	|	querySpec	
+	|	querySpec
 	;
 
 querySpec
@@ -181,7 +181,7 @@ joinType returns [JoinType joinType]
 selectClause
 @init	{	if (state.backtracking == 0) delegate.pushSelectStrategy();	}
 @after	{	delegate.popStrategy();	}
-	:	^(SELECT DISTINCT? rootSelectExpression) 
+	:	^(SELECT DISTINCT? rootSelectExpression)
 	;
 
 rootSelectExpression
@@ -230,7 +230,7 @@ predicate
 
 betweenList
 	:	^( BETWEEN_LIST lower=rowValueConstructor upper=rowValueConstructor ) { delegate.predicateBetween( $lower.text, $upper.text ); }
-	;	
+	;
 
 comparativePredicateValue
 	:	rowValueConstructor
@@ -272,7 +272,7 @@ valueExpression
 	|	^( SOME valueExpression )
 	|	^( ALL valueExpression )
 	|	^( ANY valueExpression )
-	|	^( VECTOR_EXPR valueExpression+) // or a tuples or ^(AND or IN statement 
+	|	^( VECTOR_EXPR valueExpression+) // or a tuples or ^(AND or IN statement
 	|	valueExpressionPrimary
 	;
 
@@ -285,7 +285,7 @@ valueExpressionPrimary
 	|	parameter
 	|	propertyReference
 	|	^(SUB_QUERY queryStatementSet)
-	|	ALIAS_REF //ID COLUMN, full property column list 
+	|	ALIAS_REF //ID COLUMN, full property column list
 	|	^(DOT_CLASS path) // crazy
 	|	^(JAVA_CONSTANT path) //It will generate at SQL a parameter element (?) -> 'cos we do not need to care about char escaping
 	|	^(PATH propertyReferencePath) { delegate.setPropertyPath( ( (PropertyPathTree)$PATH ).getPropertyPath() ); }
@@ -453,7 +453,7 @@ charLengthFunction
 	;
 
 octetLengthFunction
-	:	^(OCTET_LENGTH characterValueExpression)	
+	:	^(OCTET_LENGTH characterValueExpression)
 	;
 
 bitLengthFunction
@@ -545,11 +545,11 @@ intermediatePathedPropertyReference
 	;
 
 intermediateIndexOperation
-	:	^( LEFT_SQUARE indexOperationSource indexSelector ) 
+	:	^( LEFT_SQUARE indexOperationSource indexSelector )
 	;
 
 terminalIndexOperation
-	:	^( LEFT_SQUARE indexOperationSource indexSelector ) 
+	:	^( LEFT_SQUARE indexOperationSource indexSelector )
 	;
 
 indexOperationSource

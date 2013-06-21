@@ -94,6 +94,9 @@
                         <goals>
                             <goal>antlr</goal>
                         </goals>
+                        <configuration>
+                            <sourceDirectory>src/main/antlr</sourceDirectory>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

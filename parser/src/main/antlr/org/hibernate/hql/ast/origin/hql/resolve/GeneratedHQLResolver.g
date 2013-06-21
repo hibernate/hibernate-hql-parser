@@ -58,7 +58,7 @@ import org.hibernate.hql.ast.tree.PropertyPathTree;
 }
 
 filterStatement[String collectionRole]
-	:	^(QUERY ^(QUERY_SPEC FILTER 
+	:	^(QUERY ^(QUERY_SPEC FILTER
 				selectClause? whereClause? ( groupByClause havingClause?)? orderByClause?))
 	;
 
@@ -114,7 +114,7 @@ queryExpression
 	:	^(UNION ALL? queryExpression queryExpression)
 	|	^(INTERSECT ALL? queryExpression queryExpression)
 	|	^(EXCEPT ALL? queryExpression queryExpression)
-	|	querySpec	
+	|	querySpec
 	;
 
 querySpec
@@ -182,7 +182,7 @@ joinType returns [JoinType joinType]
 selectClause
 @init	{	if (state.backtracking == 0) delegate.pushSelectStrategy();	}
 @after	{	delegate.popStrategy();	}
-	:	^(SELECT DISTINCT? rootSelectExpression) 
+	:	^(SELECT DISTINCT? rootSelectExpression)
 	;
 
 rootSelectExpression
@@ -232,7 +232,7 @@ predicate
 
 betweenList
 	:	^( BETWEEN_LIST lower=rowValueConstructor upper=rowValueConstructor )
-	;	
+	;
 
 comparativePredicateValue
 	:	rowValueConstructor
@@ -274,7 +274,7 @@ valueExpression
 	|	^( SOME valueExpression )
 	|	^( ALL valueExpression )
 	|	^( ANY valueExpression )
-	|	^( VECTOR_EXPR valueExpression+) // or a tuples or ^(AND or IN statement 
+	|	^( VECTOR_EXPR valueExpression+) // or a tuples or ^(AND or IN statement
 	|	valueExpressionPrimary
 	;
 
@@ -287,7 +287,7 @@ valueExpressionPrimary
 	|	parameter
 	|	propertyReference
 	|	^(SUB_QUERY queryStatementSet)
-	|	ALIAS_REF //ID COLUMN, full property column list 
+	|	ALIAS_REF //ID COLUMN, full property column list
 	|	^(DOT_CLASS path) // crazy
 	|	^(JAVA_CONSTANT path) //It will generate at SQL a parameter element (?) -> 'cos we do not need to care about char escaping
 	|	^(PATH ret=propertyReferencePath) -> ^(PATH<node=PropertyPathTree>[$PATH, $ret.retPath] propertyReferencePath)
@@ -455,7 +455,7 @@ charLengthFunction
 	;
 
 octetLengthFunction
-	:	^(OCTET_LENGTH characterValueExpression)	
+	:	^(OCTET_LENGTH characterValueExpression)
 	;
 
 bitLengthFunction
@@ -561,12 +561,12 @@ intermediatePathedPropertyReference returns [PathedPropertyReferenceSource prope
 	;
 
 intermediateIndexOperation returns [PathedPropertyReferenceSource propertyReferenceSource]
-	:	^( LEFT_SQUARE indexOperationSource indexSelector ) 
+	:	^( LEFT_SQUARE indexOperationSource indexSelector )
 	{	$propertyReferenceSource = delegate.normalizeIntermediateIndexOperation( $indexOperationSource.propertyReferenceSource, $indexOperationSource.collectionProperty, $indexSelector.tree );	}
 	;
 
 terminalIndexOperation
-	:	^( LEFT_SQUARE indexOperationSource indexSelector ) 
+	:	^( LEFT_SQUARE indexOperationSource indexSelector )
 	{	delegate.normalizeTerminalIndexOperation( $indexOperationSource.propertyReferenceSource, $indexOperationSource.collectionProperty, $indexSelector.tree );	}
 	;
 

@@ -16,7 +16,7 @@ HashMap memory = new HashMap();
 }
 
 prog:   stat+ ;
-                
+
 stat:   expr NEWLINE {System.out.println($expr.value);}
     |   ID '=' expr NEWLINE
         {memory.put($ID.text, new Integer($expr.value));}

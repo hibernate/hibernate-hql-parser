@@ -240,7 +240,7 @@ filterStatement[String collectionRole]
 @init	{ if (state.backtracking == 0) enableParameterUsage.push(Boolean.TRUE); }
 @after	{ enableParameterUsage.pop(); }
 	:	selectClause? from_key? whereClause? ( groupByClause havingClause?)? orderByClause?
-		-> ^(QUERY ^(QUERY_SPEC["filter-query-spec"] FILTER[$collectionRole] 
+		-> ^(QUERY ^(QUERY_SPEC["filter-query-spec"] FILTER[$collectionRole]
 				selectClause? from_key? whereClause? ( groupByClause havingClause?)? orderByClause?))
 	//TODO throw an exception here when using from
 	;
@@ -262,7 +262,7 @@ updateStatement
 scope{
 	boolean generateVersionedField;
 }	:	update_key
-		(versioned_key {$updateStatement::generateVersionedField = true;})? 
+		(versioned_key {$updateStatement::generateVersionedField = true;})?
 			from_key? entityName aliasClause[true] setClause whereClause?
 		-> {	generateUpdateStatementTree($update_key.tree, $entityName.tree, $aliasClause.tree, $setClause.tree, $whereClause.tree )	}
 	;
@@ -288,7 +288,7 @@ deleteStatement
 	;
 
 insertStatement
-	:	insert_key^ 
+	:	insert_key^
 		intoClause selectStatement
 	;
 
@@ -312,7 +312,7 @@ selectStatement
 		-> ^(QUERY queryExpression orderByClause?)
 	;
 
-//Think about the exception generation where Polimorfic queries are used inside a Mix of results (union, intersect and except) 
+//Think about the exception generation where Polimorfic queries are used inside a Mix of results (union, intersect and except)
 queryExpression
 	:	querySpec ( ( union_key^ | intersect_key^ | except_key^ ) all_key? querySpec )*
 	;
@@ -361,7 +361,7 @@ scope{
 }
 @init	{	$fromClause::aliases = new ArrayList();	}
 @after	{	$aliasList = $fromClause::aliases;	}
-	:	from_key^ 
+	:	from_key^
 			persisterSpaces
 	;
 
@@ -376,17 +376,17 @@ persisterSpace
 
 crossJoin
 	:	cross_key join_key mainEntityPersisterReference
-		-> ^(PERSISTER_JOIN[$join_key.start,"persister-join"] cross_key mainEntityPersisterReference) 
+		-> ^(PERSISTER_JOIN[$join_key.start,"persister-join"] cross_key mainEntityPersisterReference)
 	;
 
 qualifiedJoin
 @init	{ boolean isEntityReference = false; boolean hasFetch = false; List entityNames = null; }
 @after	{ if (!hasFetch) $fromClause::aliases.add(((Tree)$ac.tree).getText()); }
 	:	nonCrossJoinType join_key (fetch_key {hasFetch = true;})? path ac=aliasClause[true]
-	(	on_key 
+	(	on_key
 	{	isEntityReference = true;
-		entityNames = extractEntityNames($path.text);	} 
-		logicalExpression 
+		entityNames = extractEntityNames($path.text);	}
+		logicalExpression
 	|	propertyFetch? withClause?
 	)
 	-> {isEntityReference}? ^(PERSISTER_JOIN[$join_key.start,"persister-join"] nonCrossJoinType ^(ENTITY_PERSISTER_REF ENTITY_NAME<EntityNameTree>[$path.start, $path.text, entityNames] aliasClause?) ^(on_key logicalExpression))
@@ -432,7 +432,7 @@ hibernateLegacySyntax returns [boolean isPropertyJoin]
 @init {$isPropertyJoin = false;}
 @after	{ $fromClause::aliases.add(((Tree)$ad.tree).getText()); }
 	:	ad=aliasDeclaration in_key
-	(	class_key entityName -> ^(ENTITY_PERSISTER_REF entityName aliasDeclaration) 
+	(	class_key entityName -> ^(ENTITY_PERSISTER_REF entityName aliasDeclaration)
 	|	collectionExpression {$isPropertyJoin = true;} -> ^(PROPERTY_JOIN INNER[$in_key.start, "inner legacy"] aliasDeclaration collectionExpression)
 	)
 	;
@@ -440,11 +440,11 @@ hibernateLegacySyntax returns [boolean isPropertyJoin]
 jpaCollectionReference
 @after	{ $fromClause::aliases.add(((Tree)$ac.tree).getText()); }
 	:	in_key LEFT_PAREN propertyReference RIGHT_PAREN ac=aliasClause[true]
-		-> ^(PROPERTY_JOIN INNER[$in_key.start, "inner"] aliasClause? propertyReference) 
+		-> ^(PROPERTY_JOIN INNER[$in_key.start, "inner"] aliasClause? propertyReference)
 	;
 
 selectClause
-	:	select_key^ distinct_key? rootSelectExpression 
+	:	select_key^ distinct_key? rootSelectExpression
 	;
 
 rootSelectExpression
@@ -484,7 +484,7 @@ aliasDeclaration
 	;
 
 aliasReference
-	:	IDENTIFIER -> ALIAS_REF[$IDENTIFIER] 
+	:	IDENTIFIER -> ALIAS_REF[$IDENTIFIER]
 	;
 
 rootDynamicInstantiation
@@ -507,7 +507,7 @@ dynamicInstantiationArg
 
 jpaSelectObjectSyntax
 	:	object_key LEFT_PAREN aliasReference RIGHT_PAREN
-		-> ^(SELECT_ITEM aliasReference) 
+		-> ^(SELECT_ITEM aliasReference)
 	;
 
 orderByClause
@@ -565,7 +565,7 @@ negatedExpression
 
 equalityExpression
 @init{ boolean isNull = false; boolean isNegated = false;}
-	:	(relationalExpression -> relationalExpression) 
+	:	(relationalExpression -> relationalExpression)
 	(	is_key (not_key {isNegated = true;})? (NULL {isNull = true;}|empty_key)
 		-> {isNull && isNegated}? ^(IS_NOT_NULL[$not_key.start, "is not null"] $equalityExpression)
 		-> {isNull && !isNegated}? ^(IS_NULL[$NULL, "is null"] $equalityExpression)
@@ -577,21 +577,21 @@ equalityExpression
 	;
 
 relationalExpression
-@init {boolean isNegated = false;} 
+@init {boolean isNegated = false;}
 	:	(concatenation -> concatenation)
-	( 
+	(
 	(	( op=LESS | op=GREATER | op=LESS_EQUAL | op=GREATER_EQUAL ) additiveExpression
-			-> ^($op $relationalExpression additiveExpression) 
+			-> ^($op $relationalExpression additiveExpression)
 		)+
 	|  (not_key {isNegated = true;} )?
 		(	in_key inList
 			-> {isNegated}? ^(NOT_IN[$not_key.start, "not in"] $relationalExpression inList)
-			-> ^(in_key $relationalExpression inList) 
+			-> ^(in_key $relationalExpression inList)
 		|	between_key betweenList
 			-> {isNegated}? ^(NOT_BETWEEN[$not_key.start, "not between"] $relationalExpression betweenList)
 			-> ^(between_key $relationalExpression betweenList)
 		|	like_key concatenation likeEscape?
-			-> {isNegated}? ^(NOT_LIKE[$not_key.start, "not like"] $relationalExpression concatenation likeEscape?) 
+			-> {isNegated}? ^(NOT_LIKE[$not_key.start, "not like"] $relationalExpression concatenation likeEscape?)
 			-> ^(like_key $relationalExpression concatenation likeEscape?)
 		|	member_of_key path
 			-> {isNegated}? ^(NOT_MEMBER_OF[$not_key.start, "not member of"] $relationalExpression ^(PATH path))
@@ -682,7 +682,7 @@ searchedWhenClause
 	;
 
 quantifiedExpression
-	:	( some_key^ | exists_key^ | all_key^ | any_key^ ) 
+	:	( some_key^ | exists_key^ | all_key^ | any_key^ )
 	(	collectionExpression
 	|	aliasReference
 	|	LEFT_PAREN! subQuery RIGHT_PAREN!
@@ -873,7 +873,7 @@ atom
 	:	identPrimary
 	    //TODO  if ends with:
 	    //  .class -> class type
-	    //  if contains "()" it is a function call 
+	    //  if contains "()" it is a function call
 	    //  if it is constantReference (using context)
 	    //  otherwise it will be a generic element to be resolved on the next phase (1st tree walker)
 	    -> {type == 0}? ^(DOT_CLASS identPrimary)
@@ -882,7 +882,7 @@ atom
 	    -> ^(PATH identPrimary)
 	|	constant
 	|	parameterSpecification { if (enableParameterUsage.peek().equals(Boolean.FALSE)) throw new RecognitionException( ); }
-	//validate using Scopes if it is enabled or not to use parameterSpecification.. if not generate an exception 
+	//validate using Scopes if it is enabled or not to use parameterSpecification.. if not generate an exception
 	|	LEFT_PAREN! ({((validateSoftKeyword("select")|validateSoftKeyword("from")))}?=> subQuery|expressionOrVector) RIGHT_PAREN!
 	;
 
@@ -891,13 +891,13 @@ parameterSpecification
 	:	COLON IDENTIFIER -> NAMED_PARAM[$IDENTIFIER]
 	|	PARAM (INTEGER_LITERAL {isJpaParam = true;})?
 		-> {isJpaParam}? JPA_PARAM[$INTEGER_LITERAL]
-		-> PARAM	
+		-> PARAM
 	;
 
 expressionOrVector
 @init {boolean isVectorExp = false;}
 	:	expression (vectorExpr {isVectorExp = true;})?
-		-> {isVectorExp}? ^(VECTOR_EXPR expression vectorExpr) 
+		-> {isVectorExp}? ^(VECTOR_EXPR expression vectorExpr)
 		-> expression
 	;
 
@@ -948,7 +948,7 @@ entityName
 	:	dotIdentifierPath
 	{	entityNames = extractEntityNames($dotIdentifierPath.text);	}
 	//here the polimorfic entities should be resolved... to:
-	   // 1. to place inside the ENTITY_NAME Token all its possible values, otherwise it would be much difficult to return to the place that should explit the sentence 
+	   // 1. to place inside the ENTITY_NAME Token all its possible values, otherwise it would be much difficult to return to the place that should explit the sentence
 	   // 2. enable exception geration when not supported (union, insert)
 		-> ENTITY_NAME<EntityNameTree>[$dotIdentifierPath.start, $dotIdentifierPath.text, entityNames]
 	;
@@ -963,12 +963,12 @@ dataType
 	;
 
 dotIdentifierPath
-	:	IDENTIFIER 
+	:	IDENTIFIER
 		(	DOT^ IDENTIFIER		)*
 	;
 
 path
-	:	IDENTIFIER 
+	:	IDENTIFIER
 		(	DOT^ IDENTIFIER
 		|	LEFT_SQUARE^ expression RIGHT_SQUARE!
 		|	LEFT_SQUARE^ RIGHT_SQUARE!
@@ -1187,7 +1187,7 @@ trim_key
 	:	{(validateSoftKeyword("trim"))}?=>  id=IDENTIFIER
 		->	TRIM[$id]
 	;
-	
+
 substring_key
 	:	{(validateSoftKeyword("substring"))}?=>  id=IDENTIFIER
 		->	SUBSTRING[$id]

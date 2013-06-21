@@ -83,7 +83,7 @@
                             <goal>antlr</goal>
                         </goals>
                         <configuration>
-                            <sourceDirectory>src/test/antlr3</sourceDirectory>
+                            <sourceDirectory>src/test/antlr</sourceDirectory>
                             <outputDirectory>${project.build.directory}/generated-test-sources/antlr3</outputDirectory>
                         </configuration>
                     </execution>
