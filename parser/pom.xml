@@ -26,23 +26,29 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.hibernate.jpql</groupId>
-        <artifactId>hibernate-jpql-parent</artifactId>
+        <groupId>org.hibernate.hql</groupId>
+        <artifactId>hibernate-hql-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>hibernate-jpql-parser</artifactId>
+    <artifactId>hibernate-hql-parser</artifactId>
     <packaging>jar</packaging>
 
     <name>Hibernate HQL/JP-QL Parser</name>
 
     <dependencies>
+        <!-- Compile -->
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr-runtime</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+        </dependency>
 
+        <!-- Test -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -50,13 +56,26 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-             <artifactId>hibernate-jpql-testing</artifactId>
-             <scope>test</scope>
+            <artifactId>hibernate-hql-testing</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>process</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr3-maven-plugin</artifactId>
@@ -70,6 +89,8 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>generate-antlr-sources</id>
+                        <phase>generate-sources</phase>
                         <goals>
                             <goal>antlr</goal>
                         </goals>
