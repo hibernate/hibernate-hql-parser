@@ -20,27 +20,21 @@
  */
 package org.hibernate.query.lucene.test;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.Assert;
-
-import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.CommonTokenStream;
-import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.tree.CommonTree;
-import org.antlr.runtime.tree.CommonTreeNodeStream;
-import org.hibernate.query.ast.common.ParserContext;
-import org.hibernate.query.ast.origin.hql.parse.HQLLexer;
-import org.hibernate.query.ast.origin.hql.parse.HQLParser;
-import org.hibernate.query.ast.origin.hql.resolve.GeneratedHQLResolver;
+import org.hibernate.query.QueryParser;
 import org.hibernate.query.ast.spi.EntityNamesResolver;
+import org.hibernate.query.ast.spi.QueryParserDelegate;
 import org.hibernate.query.lucene.LuceneQueryParserDelegate;
 import org.hibernate.query.lucene.LuceneQueryParsingResult;
 import org.hibernate.query.lucene.test.model.IndexedEntity;
 import org.hibernate.query.lucene.testutil.MapBasedEntityNamesResolver;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
 import org.hibernate.search.test.programmaticmapping.TestingSearchFactoryHolder;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -57,16 +51,23 @@ public class LuceneQueryParserDelegateTest {
 	@Rule
 	public TestingSearchFactoryHolder factoryHolder = new TestingSearchFactoryHolder( IndexedEntity.class );
 
+	private QueryParser queryParser;
+
+	@Before
+	public void setupParser() {
+		queryParser = new QueryParser();
+	}
+
 	@Test
 	public void shouldCreateUnrestrictedQuery() {
-		transformationAssert(
+		assertLuceneQuery(
 				"from IndexedEntity" ,
 				"*:*" );
 	}
 
 	@Test
 	public void shouldCreateRestrictedQueryUsingSelect() {
-		transformationAssert(
+		assertLuceneQuery(
 				"select e from IndexedEntity e where e.name = 'same' and not e.id = 5" ,
 				"+name:same -id:5" );
 	}
@@ -76,36 +77,36 @@ public class LuceneQueryParserDelegateTest {
 		Map<String, Object> namedParameters = new HashMap<String, Object>();
 		namedParameters.put( "nameParameter", "Bob" );
 
-		transformationAssert(
+		assertLuceneQuery(
 				"from IndexedEntity e where e.name = :nameParameter" ,
-				"name:Bob",
-				namedParameters);
+				namedParameters,
+				"name:Bob");
 	}
 
 	@Test
 	public void shouldCreateBooleanQuery() {
-		transformationAssert(
+		assertLuceneQuery(
 				"from IndexedEntity e where e.name = 'same' or ( e.id = 4 and e.name = 'booh')" ,
 				"name:same (+id:4 +name:booh)" );
 	}
 
 	@Test
 	public void shouldCreateBooleanQueryUsingSelect() {
-		transformationAssert(
+		assertLuceneQuery(
 				"select e from IndexedEntity e where e.name = 'same' or ( e.id = 4 and e.name = 'booh')" ,
 				"name:same (+id:4 +name:booh)" );
 	}
 
 	@Test
 	public void shouldCreateBetweenQuery() {
-		transformationAssert(
+		assertLuceneQuery(
 				"select e from IndexedEntity e where e.name between 'aaa' and 'zzz'" ,
 				"name:[aaa TO zzz]" );
 	}
 
 	@Test
 	public void shouldCreateBetweenQueryForCharacterLiterals() {
-		transformationAssert( "select e from IndexedEntity e where e.name between 'a' and 'z'", "name:[a TO z]" );
+		assertLuceneQuery( "select e from IndexedEntity e where e.name between 'a' and 'z'", "name:[a TO z]" );
 	}
 
 	@Test
@@ -114,10 +115,10 @@ public class LuceneQueryParserDelegateTest {
 		namedParameters.put( "lower", "aaa" );
 		namedParameters.put( "upper", "zzz" );
 
-		transformationAssert(
+		assertLuceneQuery(
 				"select e from IndexedEntity e where e.name between :lower and :upper" ,
-				"name:[aaa TO zzz]",
-				namedParameters);
+				namedParameters,
+				"name:[aaa TO zzz]");
 	}
 
 	@Test
@@ -131,73 +132,35 @@ public class LuceneQueryParserDelegateTest {
 		//				"+name:'same' +(-id:5)" );
 	}
 
-	private void transformationAssert(String jpaql, String expectedLuceneQuery) {
-		transformationAssert( jpaql, expectedLuceneQuery, null );
+	private void assertLuceneQuery(String queryString, String expectedLuceneQuery) {
+		assertLuceneQuery( queryString, null, expectedLuceneQuery );
 	}
 
-	private void transformationAssert(String jpaql, String expectedLuceneQuery, Map<String, Object> namedParameters) {
+	private void assertLuceneQuery(String queryString, Map<String, Object> namedParameters, String expectedLuceneQuery) {
 		if ( USE_STDOUT ) {
-			System.out.println( jpaql );
+			System.out.println( queryString );
 		}
 
-		SearchFactoryIntegrator searchFactory = factoryHolder.getSearchFactory();
+		LuceneQueryParsingResult parsingResult = queryParser.parseQuery( queryString, setUpLuceneQueryBuilder( namedParameters ) );
 
-		Map<String, Class<?>> entityNames = new HashMap<String, Class<?>>();
-		entityNames.put( "com.acme.IndexedEntity", IndexedEntity.class );
-		entityNames.put( "IndexedEntity", IndexedEntity.class );
-		//generated alias:
-		LuceneQueryParsingResult parsingResult = assertTreeParsed( null, jpaql, searchFactory, entityNames, namedParameters );
-		Assert.assertTrue( IndexedEntity.class.equals( parsingResult.getTargetEntity() ) );
-		Assert.assertEquals( expectedLuceneQuery, parsingResult.getQuery().toString() );
+		assertThat( parsingResult.getTargetEntity() ).isSameAs( IndexedEntity.class );
+		assertThat( parsingResult.getQuery().toString() ).isEqualTo( expectedLuceneQuery );
+
 		if ( USE_STDOUT ) {
 			System.out.println( expectedLuceneQuery );
 			System.out.println();
 		}
 	}
 
-	private LuceneQueryParsingResult assertTreeParsed(ParserContext context, String input, SearchFactoryIntegrator searchFactory,
-			Map<String, Class<?>> entityNames, Map<String, Object> namedParameters) {
-		HQLLexer lexed = new HQLLexer( new ANTLRStringStream( input ) );
-		Assert.assertEquals( 0, lexed.getNumberOfSyntaxErrors() );
-		CommonTokenStream tokens = new CommonTokenStream( lexed );
+	private QueryParserDelegate<LuceneQueryParsingResult> setUpLuceneQueryBuilder(Map<String, Object> namedParameters) {
+		Map<String, Class<?>> entityNames = new HashMap<String, Class<?>>();
+		entityNames.put( "com.acme.IndexedEntity", IndexedEntity.class );
+		entityNames.put( "IndexedEntity", IndexedEntity.class );
 
-		CommonTree tree = null;
-		HQLParser parser = new HQLParser( tokens );
-		if ( context != null ) {
-			parser.setParserContext( context );
-		}
-		try {
-			HQLParser.statement_return r = parser.statement();
-			Assert.assertEquals( 0, parser.getNumberOfSyntaxErrors() );
-			tree = (CommonTree) r.getTree();
-		}
-		catch (RecognitionException e) {
-			Assert.fail( e.getMessage() );
-		}
+		SearchFactoryIntegrator searchFactory = factoryHolder.getSearchFactory();
+		EntityNamesResolver nameResolver = new MapBasedEntityNamesResolver( entityNames );
+		QueryParserDelegate<LuceneQueryParsingResult> luceneQueryBuilder = new LuceneQueryParserDelegate( searchFactory, nameResolver, namedParameters );
 
-		if ( tree != null ) {
-			if ( USE_STDOUT ) {
-				System.out.println( tree.toStringTree() );
-			}
-			// To walk the resulting tree we need a treenode stream:
-			CommonTreeNodeStream treeStream = new CommonTreeNodeStream( tree );
-
-			// AST nodes have payloads referring to the tokens from the Lexer:
-			treeStream.setTokenStream( tokens );
-
-			EntityNamesResolver nameResolver = new MapBasedEntityNamesResolver( entityNames );
-			// Finally create the treewalker:
-			LuceneQueryParserDelegate delegate = new LuceneQueryParserDelegate( searchFactory, nameResolver, namedParameters );
-			GeneratedHQLResolver walker = new GeneratedHQLResolver( treeStream, delegate );
-			try {
-				walker.statement();
-				Assert.assertEquals( 0, walker.getNumberOfSyntaxErrors() );
-				return delegate.getResult();
-			}
-			catch (RecognitionException e) {
-				Assert.fail( e.getMessage() );
-			}
-		}
-		return null; // failed
+		return luceneQueryBuilder;
 	}
 }
