@@ -126,7 +126,7 @@
         <luceneVersion>3.6.1</luceneVersion>
         <hibernateVersion>4.1.4.Final</hibernateVersion>
         <hibernateSearchVersion>4.2.0.Beta1</hibernateSearchVersion>
-        <hibernateCommonsAnnotationVersion>4.0.1.Final</hibernateCommonsAnnotationVersion>
+        <hibernateCommonsAnnotationVersion>4.0.2.Final</hibernateCommonsAnnotationVersion>
         <jbossLoggingVersion>3.1.1.GA</jbossLoggingVersion>
         <jbossLoggingProcessorVersion>1.0.3.Final</jbossLoggingProcessorVersion>
     </properties>
@@ -150,6 +150,33 @@
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-search-engine</artifactId>
+                <classifier>tests</classifier>
+                <version>${hibernateSearchVersion}</version>
+                <exclusions>
+                    <!-- Not really needed to exclude these, but we don't need them: -->
+                    <exclusion>
+                        <groupId>org.hibernate</groupId>
+                        <artifactId>hibernate-search-analyzers</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.avro</groupId>
+                        <artifactId>avro</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>javax.transaction</groupId>
+                <artifactId>jta</artifactId>
+                <version>1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate.common</groupId>
+                <artifactId>hibernate-commons-annotations</artifactId>
+                <version>${hibernateCommonsAnnotationVersion}</version>
+            </dependency>
+            <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>hibernate-jpql-parser</artifactId>
                 <version>${project.version}</version>
@@ -163,6 +190,11 @@
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-core</artifactId>
                 <version>${luceneVersion}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate.javax.persistence</groupId>
+                <artifactId>hibernate-jpa-2.0-api</artifactId>
+                <version>1.0.1.Final</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
@@ -205,7 +237,6 @@
                 <artifactId>fest-assert</artifactId>
                 <version>1.4</version>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 
