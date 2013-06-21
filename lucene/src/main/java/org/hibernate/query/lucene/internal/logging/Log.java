@@ -20,6 +20,7 @@
  */
 package org.hibernate.query.lucene.internal.logging;
 
+import org.hibernate.query.lucene.internal.builder.predicate.Predicate;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageLogger;
@@ -37,4 +38,13 @@ public interface Log extends BasicLogger {
 
 	@Message(id = 2, value = "The type %s has no indexed property named %s.")
 	IllegalArgumentException getNoSuchPropertyException(String typeName, String propertyName);
+
+	@Message(id = 3, value = "The predicate %s is not of type %s.")
+	IllegalArgumentException getUnsupportedPredicateTypeException(Object predicate, String targetTypeName);
+
+	@Message(id = 4, value = "The predicate %s can not be added since there may be only one root predicate.")
+	IllegalStateException getNotMoreThanOnePredicateInRootOfWhereClauseAllowedException(Predicate predicate);
+
+	@Message(id = 5, value = "The predicate %s can not be added since there may be only one sub-predicate in a NOT predicate.")
+	IllegalStateException getNotMoreThanOnePredicateInNegationAllowedException(Predicate predicate);
 }
