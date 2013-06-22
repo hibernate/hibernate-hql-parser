@@ -71,10 +71,11 @@ public class QueryParser {
 
 			CommonTree tree = (CommonTree) r.getTree();
 
+			final boolean debugEnabled = log.isDebugEnabled();
 			for ( AstProcessor processor : processingChain ) {
 				tree = processor.process( tokens, tree );
 
-				if ( log.isDebugEnabled() ) {
+				if ( debugEnabled ) {
 					log.debug( "Processed tree: " + tree.toStringTree() );
 				}
 			}
