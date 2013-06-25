@@ -1,0 +1,59 @@
+/*
+* Hibernate, Relational Persistence for Idiomatic Java
+*
+* Copyright (c) 2013, Red Hat Inc. or third-party contributors as
+* indicated by the @author tags or express copyright attribution
+* statements applied by the authors. All third-party contributions are
+* distributed under license by Red Hat Inc.
+*
+* This copyrighted material is made available to anyone wishing to use, modify,
+* copy, or redistribute it subject to the terms and conditions of the GNU
+* Lesser General Public License, as published by the Free Software Foundation.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+* or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+* for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License
+* along with this distribution; if not, write to:
+* Free Software Foundation, Inc.
+* 51 Franklin Street, Fifth Floor
+* Boston, MA 02110-1301 USA
+*/
+ext {
+    antlr3Version = "3.4.1-preview-jbossorg-0"
+    antlr4Version = "4.0"
+    hibernateSearchVersion = "4.3.0.Final"
+
+    libraries = [
+        //Antlr
+        antlr3_runtime: "org.antlr:antlr-runtime:${antlr3Version}",
+        antlr4_runtime: "org.antlr:antlr4-runtime:${antlr4Version}",
+        antlr4_generator: "org.antlr:antlr4:${antlr4Version}",
+
+        //Search
+        hibernate_search: "org.hibernate:hibernate-search-engine:${hibernateSearchVersion}",
+        hibernate_search_tests: "org.hibernate:hibernate-search-engine:${hibernateSearchVersion}:tests",
+
+        //JBoss logging
+        jboss_logging: "org.jboss.logging:jboss-logging:3.1.1.GA",
+        jboss_logging_processor: "org.jboss.logging:jboss-logging-processor:1.1.0.Final",
+
+        //Animal Sniffer Ant Task and Java 1.6 API signature file
+        //not using 1.9 for the time being due to MANIMALSNIFFER-34
+        animal_sniffer: 'org.codehaus.mojo:animal-sniffer-ant-tasks:1.8',
+        java16_signature: 'org.codehaus.mojo.signature:java16:1.0@signature',
+
+        //Specs
+        jpa_api: "org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.1.Final",
+        jta_api: "javax.transaction:jta:1.1",
+
+        //Testing
+        junit: "junit:junit:4.11",
+        fest_assert: "org.easytesting:fest-assert:1.4",
+
+        //Misc.
+        slf4j_api: "org.slf4j:slf4j-api:1.6.4"
+    ]
+}

@@ -1,0 +1,50 @@
+apply plugin: org.hibernate.build.gradle.api.plugins.antlr.Antlr3Plugin
+
+ext {
+    testingGrammarPackage = "org/hibernate/hql/testing/internal"
+    generatedAntlr4SourcesDir = "$buildDir/generated-src/antlr4/main"
+}
+
+configurations {
+    antlr4Generator
+}
+
+dependencies {
+    compile( libraries.junit )
+    compile( libraries.antlr3_runtime )
+    compile( libraries.antlr4_runtime )
+    antlr4Generator( libraries.antlr4_generator )
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir "${generatedAntlr4SourcesDir}"
+        }
+    }
+}
+
+task generateAntlrTypes(type: JavaExec) {
+    def sourceDir = 'src/main/antlr4-gradle'
+
+    inputs.dir file(sourceDir)
+    outputs.dir file(generatedAntlr4SourcesDir)
+
+    def grammars = fileTree(sourceDir).include('**/*.g4')
+
+    main = 'org.antlr.v4.Tool'
+    classpath = configurations.antlr4Generator
+    args = ["-o", "${generatedAntlr4SourcesDir}/${testingGrammarPackage}", grammars.files].flatten()
+}
+
+compileJava {
+    dependsOn generateAntlrTypes
+}
+
+def pomName() {
+    return "Hibernate HQL/JP-QL Parser Testing"
+}
+
+def pomDescription() {
+    return "Infrastructure for HQL/JP-QL parser tests"
+}

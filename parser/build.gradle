@@ -1,0 +1,18 @@
+apply plugin: org.hibernate.build.gradle.api.plugins.antlr.Antlr3Plugin
+
+dependencies {
+    compile( libraries.antlr3_runtime )
+    compile( libraries.jboss_logging )
+
+    testCompile project(':hibernate-hql-testing')
+}
+
+compileJava.dependsOn generateMainLoggingClasses
+
+def pomName() {
+    return "Hibernate HQL/JP-QL Parser"
+}
+
+def pomDescription() {
+    return "Extensible parser for HQL/JP-QL queries"
+}

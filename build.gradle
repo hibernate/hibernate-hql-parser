@@ -1,0 +1,292 @@
+apply from: "./libraries.gradle"
+
+ext {
+    projectVersion = '1.0.0-SNAPSHOT'
+    javaLanguageLevel = '1.6'
+
+    jbossPublicUrl = 'http://repository.jboss.org/nexus/content/groups/public/'
+    jbossSnaphotsUrl = 'https://repository.jboss.org/nexus/content/repositories/snapshots/'
+    jbossReleasesDeployUrl = 'https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/'
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+
+        mavenRepo name: 'jboss-public', url: rootProject.jbossPublicUrl
+        mavenRepo name: 'jboss-snapshots', url: rootProject.jbossSnaphotsUrl
+    }
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+
+        mavenRepo name: 'jboss-public', url: 'http://repository.jboss.org/nexus/content/groups/public/'
+        mavenRepo name: 'jboss-snapshots', url: 'https://repository.jboss.org/nexus/content/repositories/snapshots/'
+    }
+    dependencies {
+        classpath 'org.hibernate.build.gradle:gradle-maven-publish-auth:2.0.1'
+    }
+}
+
+subprojects { subProject ->
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+    apply plugin: 'checkstyle'
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven-publish-auth'
+
+    group = 'org.hibernate.hql'
+    //artifactId = project name as created in settings.gradle
+    version = rootProject.projectVersion
+
+    ext {
+        generatedLoggingSourcesDir = "${buildDir}/generated-src/logging/main"
+        generatedAntlrSourcesDir = "$buildDir/generated-src/antlr/main"
+    }
+
+    sourceCompatibility = rootProject.javaLanguageLevel
+
+    configurations {
+        jbossLoggingGenerator
+        animalSniffer
+        javaApiSignature
+
+        all {
+            resolutionStrategy {
+                failOnVersionConflict()
+
+                force libraries.antlr3_runtime
+                force libraries.jboss_logging
+                force libraries.slf4j_api
+            }
+        }
+    }
+
+    dependencies {
+        testCompile( libraries.junit )
+        testCompile( libraries.fest_assert )
+
+        jbossLoggingGenerator( libraries.jboss_logging_processor )
+
+        animalSniffer ( libraries.animal_sniffer )
+        javaApiSignature ( libraries.java16_signature )
+    }
+
+    sourceSets.main {
+        ext.originalJavaSrcDirs = java.srcDirs
+
+        java.srcDir "${generatedAntlrSourcesDir}"
+        ext.javaAndAntlrSrcDirs = java.srcDirs
+
+        java.srcDir "${generatedLoggingSourcesDir}"
+    }
+
+    compileJava.options.define(compilerArgs: ["-proc:none", "-encoding", "UTF-8"])
+    compileTestJava.options.define(compilerArgs: ["-proc:none", "-encoding", "UTF-8"])
+
+    jar.manifest.attributes(
+        "Implementation-Title": "${subProject.name}",
+        "Implementation-Version": "${subProject.version}",
+        "Implementation-Vendor": "hibernate.org",
+        "Implementation-Vendor-Id": "hibernate.org",
+        "Implementation-URL": "http://www.hibernate.org"
+    )
+
+    task generateMainLoggingClasses(type: JavaCompile) {
+        //class output dir, required by JavaCompile
+        ext.aptDumpDir = file( "${buildDir}/tmp/apt/logging" )
+        destinationDir = aptDumpDir
+
+        classpath = compileJava.classpath + configurations.jbossLoggingGenerator
+        source = sourceSets.main.javaAndAntlrSrcDirs
+        ext.sourceDestDir = file ( "$generatedLoggingSourcesDir" )
+
+        options.define(
+            compilerArgs: [
+                "-nowarn",
+                "-proc:only",
+                "-encoding", "UTF-8",
+                "-processor", "org.jboss.logging.processor.apt.LoggingToolsProcessor",
+                "-s", sourceDestDir.absolutePath,
+                "-Adebug=true",
+                "-AskipTranslations=true",
+                "-source", rootProject.javaLanguageLevel,
+                "-target", rootProject.javaLanguageLevel,
+            ]
+        );
+
+        inputs.dir source
+        outputs.dir generatedLoggingSourcesDir;
+        doFirst {
+             sourceDestDir.mkdirs()
+        }
+        doLast {
+            aptDumpDir.delete()
+        }
+    }
+
+    checkstyle {
+        sourceSets = [ subProject.sourceSets.main ]
+        configFile = rootProject.file( 'build-tools/src/main/resources/build-config/checkstyle.xml' )
+        showViolations = true
+        ignoreFailures = false
+    }
+
+    checkstyleMain.source = sourceSets.main.originalJavaSrcDirs
+
+    task copyJavaApiSignature(type: Copy) {
+        from configurations.javaApiSignature
+        into "$buildDir/javaApiSignature/"
+        rename '.*signature', 'javaApi.signature'
+    }
+
+    // checks that only types of the target Java version are used
+    task checkJavaApiSignature << {
+        ant.taskdef(name: 'animalSniffer', classname: 'org.codehaus.mojo.animal_sniffer.ant.CheckSignatureTask', classpath: configurations.animalSniffer.asPath)
+        ant.animalSniffer(signature: "$buildDir/javaApiSignature/javaApi.signature", classpath: configurations.compile.asPath) {
+            path(path: "$buildDir/classes/main")
+        }
+    }
+    checkJavaApiSignature.dependsOn compileJava
+    checkJavaApiSignature.dependsOn copyJavaApiSignature
+    check.dependsOn checkJavaApiSignature
+
+    task sourceJar(type: Jar) {
+        from sourceSets.main.allJava
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+
+                artifact sourceJar {
+                    classifier "sources"
+                }
+
+                repositories {
+                    //authentication is done via maven-publish-auth plug-in, which takes values from ~/.m2/settings.xml
+                    maven {
+                        if ( subProject.version.endsWith( 'SNAPSHOT' ) ) {
+                            name 'jboss-snapshots-repository'
+                            url rootProject.jbossSnaphotsUrl
+                        }
+                        else {
+                            name 'jboss-releases-repository'
+                            url rootProject.jbossReleasesDeployUrl
+                        }
+                    }
+                }
+
+                pom.withXml {
+                    // append additional metadata
+                    asNode().children().last() + {
+                        resolveStrategy = Closure.DELEGATE_FIRST
+
+                        name subProject.pomName()
+                        description subProject.pomDescription()
+                        url 'http://ogm.hibernate.org/'
+
+                        inceptionYear '2012'
+
+                        organization {
+                            name 'Hibernate.org'
+                            url 'http://www.hibernate.org/'
+                        }
+
+                        issueManagement {
+                            system 'jira'
+                            url 'https://hibernate.atlassian.net/browse/HQLPARSER'
+                        }
+
+                        scm {
+                            url 'http://github.com/hibernate/hibernate-jpql-parser'
+                            connection 'scm:git:http://github.com/hibernate/hibernate-jpql-parser.git'
+                            developerConnection 'scm:git:git@github.com:hibernate/hibernate-jpql-parser.git'
+                        }
+
+                        licenses {
+                            license {
+                                name 'GNU Lesser General Public License'
+                                url 'http://www.gnu.org/licenses/lgpl-2.1.html'
+                                comments 'See also http://hibernate.org/license'
+                                distribution 'repo'
+                            }
+                        }
+
+                        ciManagement {
+                            system 'jenkins'
+                            url 'http://ci.hibernate.org/'
+                        }
+
+                        developers {
+                            developer {
+                                id 'sannegrinovero'
+                                name 'Sanne Grinovero'
+                                organization 'Red Hat, Inc.'
+                                email 'sanne@hibernate.org'
+                                url 'http://in.relation.to/Bloggers/Sanne'
+                            }
+                            developer {
+                                id 'sebersole'
+                                name 'Steve Ebersole'
+                                organization 'Red Hat, Inc.'
+                                email 'steve@hibernate.org'
+                                url 'http://in.relation.to/Bloggers/Steve'
+                            }
+                            developer {
+                                id 'gunnarmorling'
+                                name 'Gunnar Morling'
+                                organization 'Red Hat, Inc.'
+                                email 'gunnar@hibernate.org'
+                                url 'http://in.relation.to/Bloggers/Gunnar'
+                            }
+                        }
+
+                        mailingLists {
+                            mailingList {
+                                name 'Hibernate Announcements'
+                                post 'hibernate-announce@lists.jboss.org'
+                                subscribe 'https://lists.jboss.org/mailman/listinfo/hibernate-announce'
+                                unsubscribe 'https://lists.jboss.org/mailman/listinfo/hibernate-announce'
+                                archive 'http://lists.jboss.org/pipermail/hibernate-dev/'
+                            }
+                            mailingList {
+                                name 'Hibernate Commit Notifications'
+                                post 'hibernate-commits@lists.jboss.org'
+                                subscribe 'https://lists.jboss.org/mailman/listinfo/hibernate-commits'
+                                unsubscribe 'https://lists.jboss.org/mailman/listinfo/hibernate-commits'
+                                archive 'http://lists.jboss.org/pipermail/hibernate-commits/'
+                            }
+                            mailingList {
+                                name 'Hibernate Developers'
+                                post 'hibernate-dev@lists.jboss.org'
+                                subscribe 'https://lists.jboss.org/mailman/listinfo/hibernate-dev'
+                                unsubscribe 'https://lists.jboss.org/mailman/listinfo/hibernate-dev'
+                                archive 'http://lists.jboss.org/pipermail/hibernate-dev/'
+                            }
+                            mailingList {
+                                name 'Hibernate Issue Notifications'
+                                post 'hibernate-issues@lists.jboss.org'
+                                subscribe 'https://lists.jboss.org/mailman/listinfo/hibernate-issues'
+                                unsubscribe 'https://lists.jboss.org/mailman/listinfo/hibernate-issues'
+                                archive 'http://lists.jboss.org/pipermail/hibernate-issues/'
+                            }
+                        }
+                    }
+
+                    // TEMPORARY : currently Gradle Publishing feature is exporting dependencies as 'runtime' scope,
+                    // rather than 'compile'; fix that.
+                    asNode().dependencies[0].dependency.each {
+                        it.scope[0].value = 'compile'
+                    }
+                }
+            }
+        }
+    }
+}
