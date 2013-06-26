@@ -32,6 +32,10 @@ buildscript {
     }
 }
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.6'
+}
+
 subprojects { subProject ->
     apply plugin: 'java'
     apply plugin: 'eclipse'

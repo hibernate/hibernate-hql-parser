@@ -64,7 +64,7 @@ public class Antlr3Plugin implements Plugin<ProjectInternal> {
 
             project.tasks.getByName(sourceSet.compileJavaTaskName).dependsOn(taskName)
 
-            Antlr3Task antlr3Task = project.tasks.add(taskName, Antlr3Task)
+            Antlr3Task antlr3Task = project.tasks.create(taskName, Antlr3Task)
             antlr3Task.outputDirectory = outputDir
             File baseSourcePath = project.file("src/${sourceSet.name}/antlr");
             antlr3Task.baseSourcePath = baseSourcePath
@@ -86,7 +86,7 @@ public class Antlr3Plugin implements Plugin<ProjectInternal> {
 
 
     protected Configuration createConfigurations() {
-        return project.configurations.add(CONFIGURATION_NAME).with {
+        return project.configurations.create(CONFIGURATION_NAME).with {
             visible = false
             transitive = true
             description = "The ${CONFIGURATION_NAME} libraries to be used for this project."
