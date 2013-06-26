@@ -44,6 +44,9 @@ subprojects { subProject ->
     //artifactId = project name as created in settings.gradle
     version = rootProject.projectVersion
 
+    //following convention from ORM
+    buildDir = "target"
+
     ext {
         generatedLoggingSourcesDir = "${buildDir}/generated-src/logging/main"
         generatedAntlrSourcesDir = "$buildDir/generated-src/antlr/main"
@@ -132,7 +135,7 @@ subprojects { subProject ->
 
     checkstyle {
         sourceSets = [ subProject.sourceSets.main ]
-        configFile = rootProject.file( 'build-tools/src/main/resources/build-config/checkstyle.xml' )
+        configFile = rootProject.file( 'shared/config/checkstyle/checkstyle.xml' )
         showViolations = true
         ignoreFailures = false
     }
