@@ -1,0 +1,20 @@
+dependencies {
+    compile( libraries.hibernate_search )
+    compile( libraries.jpa_api )
+    compile project(':hibernate-hql-parser')
+    compile( libraries.jboss_logging )
+
+    testCompile( libraries.hibernate_search_tests )
+
+    testRuntime( libraries.jta_api )
+}
+
+compileJava.dependsOn generateMainLoggingClasses
+
+def pomName() {
+    return "Hibernate HQL/JP-QL Walker for Lucene"
+}
+
+def pomDescription() {
+    return "Creates Lucene query objects from HQL/JP-QL queries"
+}

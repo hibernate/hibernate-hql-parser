@@ -6,8 +6,9 @@
 buildSrc/.gradle
 
 # Build output directies
-target
-build
+/*/target
+/*/build
+
 bin
 test-output
 antlr-generated

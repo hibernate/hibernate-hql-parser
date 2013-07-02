@@ -1,0 +1,2 @@
+include 'testing', 'parser', 'lucene'
+rootProject.children.each { it.name = "hibernate-hql-" + it.name }
