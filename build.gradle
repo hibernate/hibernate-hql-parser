@@ -212,9 +212,9 @@ subprojects { subProject ->
                         }
 
                         scm {
-                            url 'http://github.com/hibernate/hibernate-jpql-parser'
-                            connection 'scm:git:http://github.com/hibernate/hibernate-jpql-parser.git'
-                            developerConnection 'scm:git:git@github.com:hibernate/hibernate-jpql-parser.git'
+                            url 'http://github.com/hibernate/hibernate-hql-parser'
+                            connection 'scm:git:http://github.com/hibernate/hibernate-hql-parser.git'
+                            developerConnection 'scm:git:git@github.com:hibernate/hibernate-hql-parser.git'
                         }
 
                         licenses {
