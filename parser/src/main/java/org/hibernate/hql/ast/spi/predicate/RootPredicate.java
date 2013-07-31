@@ -18,12 +18,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.hql.lucene.internal.builder.predicate;
+package org.hibernate.hql.ast.spi.predicate;
 
-import org.apache.lucene.search.Query;
-import org.hibernate.hql.lucene.internal.logging.Log;
-import org.hibernate.hql.lucene.internal.logging.LoggerFactory;
-import org.hibernate.search.query.dsl.QueryBuilder;
+import org.hibernate.hql.internal.logging.Log;
+import org.hibernate.hql.internal.logging.LoggerFactory;
 
 /**
  * The root predicate of the {@code WHERE} clause of a query. Allows for a uniform handling of clauses containing only a
@@ -31,30 +29,23 @@ import org.hibernate.search.query.dsl.QueryBuilder;
  *
  * @author Gunnar Morling
  */
-public class RootPredicate extends AbstractPredicate implements ParentPredicate {
+public abstract class RootPredicate<Q> extends AbstractPredicate<Q> implements ParentPredicate<Q> {
 
 	private static final Log log = LoggerFactory.make();
 
-	private final QueryBuilder builder;
-	private Predicate child;
+	protected Predicate<Q> child;
 
-	public RootPredicate(QueryBuilder builder) {
+	public RootPredicate() {
 		super( Type.ROOT );
-		this.builder = builder;
 	}
 
 	@Override
-	public void add(Predicate predicate) {
+	public void add(Predicate<Q> predicate) {
 		if ( child != null ) {
 			throw log.getNotMoreThanOnePredicateInRootOfWhereClauseAllowedException( predicate );
 		}
 
 		child = predicate;
-	}
-
-	@Override
-	public Query getQuery() {
-		return child == null ? builder.all().createQuery() : child.getQuery();
 	}
 
 	@Override

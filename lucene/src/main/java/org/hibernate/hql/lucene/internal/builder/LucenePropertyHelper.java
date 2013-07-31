@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
+import org.hibernate.hql.ast.spi.PropertyHelper;
 import org.hibernate.hql.internal.util.Strings;
 import org.hibernate.hql.lucene.internal.logging.Log;
 import org.hibernate.hql.lucene.internal.logging.LoggerFactory;
@@ -43,17 +44,22 @@ import org.hibernate.search.spi.SearchFactoryIntegrator;
  *
  * @author Gunnar Morling
  */
-public class PropertyHelper {
+public class LucenePropertyHelper implements PropertyHelper {
 
 	private static final Log log = LoggerFactory.make();
 
 	private final SearchFactoryIntegrator searchFactory;
 
-	public PropertyHelper(SearchFactoryIntegrator searchFactory) {
+	public LucenePropertyHelper(SearchFactoryIntegrator searchFactory) {
 		this.searchFactory = searchFactory;
 	}
 
-	public Object convertToPropertyType(Object value, Class<?> entityType, List<String> propertyPath) {
+	@Override
+	public Object convertToPropertyType(Class<?> entityType, List<String> propertyPath, String value) {
+		return convertToPropertyType( value, entityType, propertyPath );
+	}
+
+	public Object convertToPropertyType(String value, Class<?> entityType, List<String> propertyPath) {
 		return convertToPropertyType( value, entityType, propertyPath.toArray( new String[propertyPath.size()] ) );
 	}
 
@@ -66,31 +72,23 @@ public class PropertyHelper {
 	 * @param propertyPath the name of the property
 	 * @return the given value converted into the type of the given property
 	 */
-	public Object convertToPropertyType(Object value, Class<?> entityType, String... propertyPath) {
+	public Object convertToPropertyType(String value, Class<?> entityType, String... propertyPath) {
 		FieldBridge bridge = getFieldBridge( entityType, propertyPath );
 
-		// For non-string fields we're assuming they have the correct type already; If that's not
-		// the case, the Lucene query creation will fail later on
-		if ( !( value instanceof String ) ) {
-			return value;
-		}
-
-		String stringValue = (String) value;
-
 		if ( bridge instanceof TwoWayString2FieldBridgeAdaptor ) {
-			return ( (TwoWayString2FieldBridgeAdaptor) bridge ).unwrap().stringToObject( stringValue );
+			return ( (TwoWayString2FieldBridgeAdaptor) bridge ).unwrap().stringToObject( value );
 		}
 		else if ( bridge instanceof IntegerNumericFieldBridge ) {
-			return Integer.parseInt( stringValue );
+			return Integer.parseInt( value );
 		}
 		else if ( bridge instanceof LongNumericFieldBridge ) {
-			return Long.parseLong( stringValue );
+			return Long.parseLong( value );
 		}
 		else if ( bridge instanceof FloatNumericFieldBridge ) {
-			return Float.parseFloat( stringValue );
+			return Float.parseFloat( value );
 		}
 		else if ( bridge instanceof DoubleNumericFieldBridge ) {
-			return Double.parseDouble( stringValue );
+			return Double.parseDouble( value );
 		}
 		else {
 			return value;

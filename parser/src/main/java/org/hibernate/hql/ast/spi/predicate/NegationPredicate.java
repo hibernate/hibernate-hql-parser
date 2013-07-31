@@ -18,48 +18,41 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.hql.lucene.internal.ast;
+package org.hibernate.hql.ast.spi.predicate;
 
-import org.hibernate.hql.ast.TypeDescriptor;
-import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
+import org.hibernate.hql.internal.logging.Log;
+import org.hibernate.hql.internal.logging.LoggerFactory;
 
 /**
- * A {@link TypeDescriptor} representing a Hibernate Search indexed entity.
+ * A logical {@code NOT} predicate.
  *
  * @author Gunnar Morling
  */
-public class HSearchIndexedEntityTypeDescriptor implements HSearchTypeDescriptor {
+public abstract class NegationPredicate<Q> extends AbstractPredicate<Q> implements ParentPredicate<Q> {
 
-	private final Class<?> indexedEntityType;
-	private final LucenePropertyHelper propertyHelper;
+	private static final Log log = LoggerFactory.make();
 
-	public HSearchIndexedEntityTypeDescriptor(Class<?> indexedEntityType, LucenePropertyHelper propertyHelper) {
-		this.indexedEntityType = indexedEntityType;
-		this.propertyHelper = propertyHelper;
+	private Predicate<Q> child;
+
+	public NegationPredicate() {
+		super( Type.NEGATION );
 	}
 
 	@Override
-	public boolean hasProperty(String propertyName) {
-		return propertyHelper.exists( indexedEntityType, propertyName );
+	public void add(Predicate<Q> predicate) {
+		if ( child != null ) {
+			throw log.getNotMoreThanOnePredicateInNegationAllowedException( predicate );
+		}
+
+		this.child = predicate;
 	}
 
-	@Override
-	public Class<?> getIndexedEntityType() {
-		return indexedEntityType;
-	}
-
-	@Override
-	public boolean isAnalyzed(String propertyName) {
-		return propertyHelper.isAnalyzed( indexedEntityType, propertyName );
-	}
-
-	@Override
-	public boolean isEmbedded(String propertyName) {
-		return propertyHelper.isEmbedded( indexedEntityType, propertyName );
+	public Predicate<Q> getChild() {
+		return child;
 	}
 
 	@Override
 	public String toString() {
-		return indexedEntityType.getCanonicalName();
+		return "( NOT " + getChild() + " )";
 	}
 }

@@ -37,7 +37,7 @@ import org.hibernate.hql.lucene.internal.ast.HSearchEmbeddedEntityTypeDescriptor
 import org.hibernate.hql.lucene.internal.ast.HSearchIndexedEntityTypeDescriptor;
 import org.hibernate.hql.lucene.internal.ast.HSearchPropertyTypeDescriptor;
 import org.hibernate.hql.lucene.internal.ast.HSearchTypeDescriptor;
-import org.hibernate.hql.lucene.internal.builder.PropertyHelper;
+import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
 import org.hibernate.hql.lucene.internal.logging.Log;
 import org.hibernate.hql.lucene.internal.logging.LoggerFactory;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
@@ -80,14 +80,14 @@ public class LuceneQueryResolverDelegate implements QueryResolverDelegate {
 	 */
 	private final EntityNamesResolver entityNames;
 
-	private final PropertyHelper propertyHelper;
+	private final LucenePropertyHelper propertyHelper;
 
 	private Class<?> targetType = null;
 
 	public LuceneQueryResolverDelegate(SearchFactoryIntegrator searchFactory,
 			EntityNamesResolver entityNames, Map<String,Object> namedParameters) {
 		this.entityNames = entityNames;
-		this.propertyHelper = new PropertyHelper( searchFactory );
+		this.propertyHelper = new LucenePropertyHelper( searchFactory );
 	}
 
 	/**

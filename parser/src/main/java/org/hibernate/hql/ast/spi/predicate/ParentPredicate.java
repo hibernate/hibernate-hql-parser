@@ -18,50 +18,19 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.hql.lucene.internal.builder.predicate;
-
-import org.apache.lucene.search.Query;
-import org.hibernate.hql.lucene.internal.logging.Log;
-import org.hibernate.hql.lucene.internal.logging.LoggerFactory;
-import org.hibernate.search.query.dsl.QueryBuilder;
+package org.hibernate.hql.ast.spi.predicate;
 
 /**
- * A logical {@code NOT} predicate.
+ * A predicate which can have one or more sub-predicates.
  *
  * @author Gunnar Morling
  */
-public class NegationPredicate extends AbstractPredicate implements ParentPredicate {
+public interface ParentPredicate<Q> extends Predicate<Q> {
 
-	private static final Log log = LoggerFactory.make();
-
-	private final QueryBuilder builder;
-	private Predicate child;
-
-	public NegationPredicate(QueryBuilder builder) {
-		super( Type.NEGATION );
-		this.builder = builder;
-	}
-
-	@Override
-	public Query getQuery() {
-		return builder.bool().must( getChild().getQuery() ).not().createQuery();
-	}
-
-	@Override
-	public void add(Predicate predicate) {
-		if ( child != null ) {
-			throw log.getNotMoreThanOnePredicateInNegationAllowedException( predicate );
-		}
-
-		this.child = predicate;
-	}
-
-	public Predicate getChild() {
-		return child;
-	}
-
-	@Override
-	public String toString() {
-		return "( NOT " + getChild() + " )";
-	}
+	/**
+	 * Adds the given predicate to this parent predicate.
+	 *
+	 * @param predicate the predicate to add
+	 */
+	void add(Predicate<Q> predicate);
 }

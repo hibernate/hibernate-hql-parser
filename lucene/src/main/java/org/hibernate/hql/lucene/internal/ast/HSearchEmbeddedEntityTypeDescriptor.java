@@ -24,7 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.hibernate.hql.ast.TypeDescriptor;
-import org.hibernate.hql.lucene.internal.builder.PropertyHelper;
+import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
 
 /**
  * A {@link TypeDescriptor} representing an embedded entity of a Hibernate Search indexed entity.
@@ -35,7 +35,7 @@ public class HSearchEmbeddedEntityTypeDescriptor implements HSearchTypeDescripto
 
 	private final Class<?> indexedEntityType;
 	private final List<String> propertyPath;
-	private final PropertyHelper propertyHelper;
+	private final LucenePropertyHelper propertyHelper;
 
 	/**
 	 * Creates a new {@link HSearchEmbeddedEntityTypeDescriptor}.
@@ -44,7 +44,7 @@ public class HSearchEmbeddedEntityTypeDescriptor implements HSearchTypeDescripto
 	 * @param path the property path from the embedding indexed entity to this entity
 	 * @param propertyHelper a helper for dealing with properties
 	 */
-	public HSearchEmbeddedEntityTypeDescriptor(Class<?> indexedEntityType, List<String> path, PropertyHelper propertyHelper) {
+	public HSearchEmbeddedEntityTypeDescriptor(Class<?> indexedEntityType, List<String> path, LucenePropertyHelper propertyHelper) {
 		this.indexedEntityType = indexedEntityType;
 		this.propertyPath = path;
 		this.propertyHelper = propertyHelper;

@@ -120,7 +120,7 @@ public class LuceneQueryParsingTest {
 	@Test
 	public void shouldRaiseExceptionDueToUnknownAlias() {
 		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000007" );
+		expectedException.expectMessage( "HQLLUCN000004" );
 
 		parseQuery( "from IndexedEntity e where a.name = 'same'" );
 	}
@@ -144,7 +144,7 @@ public class LuceneQueryParsingTest {
 	@Test
 	public void shouldRaiseExceptionDueToAnalyzedPropertyInFromClause() {
 		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000006" );
+		expectedException.expectMessage( "HQLLUCN000003" );
 
 		parseQuery( "from IndexedEntity e where e.size = 10" );
 	}
@@ -168,7 +168,7 @@ public class LuceneQueryParsingTest {
 	@Test
 	public void shouldRaiseExceptionDueToSelectionOfCompleteEmbeddedEntity() {
 		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000008" );
+		expectedException.expectMessage( "HQLLUCN000005" );
 
 		parseQuery( "select e.author from IndexedEntity e" );
 	}
@@ -176,7 +176,7 @@ public class LuceneQueryParsingTest {
 	@Test
 	public void shouldRaiseExceptionDueToUnqualifiedSelectionOfCompleteEmbeddedEntity() {
 		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000008" );
+		expectedException.expectMessage( "HQLLUCN000005" );
 
 		parseQuery( "select author from IndexedEntity e" );
 	}

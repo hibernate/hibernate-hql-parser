@@ -27,8 +27,9 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.apache.lucene.search.Query;
-import org.hibernate.hql.lucene.internal.builder.LuceneQueryBuilder;
-import org.hibernate.hql.lucene.internal.builder.PropertyHelper;
+import org.hibernate.hql.ast.spi.SingleEntityQueryBuilder;
+import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
+import org.hibernate.hql.lucene.internal.builder.predicate.LucenePredicateFactory;
 import org.hibernate.hql.lucene.test.internal.builder.model.IndexedEntity;
 import org.hibernate.search.query.dsl.QueryContextBuilder;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
@@ -38,7 +39,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 /**
- * Test for {@link LuceneQueryBuilder}.
+ * Test for {@link SingleEntityQueryBuilder}.
  *
  * @author Gunnar Morling
  */
@@ -47,15 +48,17 @@ public class LuceneQueryBuilderTest {
 	@Rule
 	public TestingSearchFactoryHolder factoryHolder = new TestingSearchFactoryHolder( IndexedEntity.class );
 
-	private LuceneQueryBuilder queryBuilder;
+	private SingleEntityQueryBuilder<Query> queryBuilder;
 
 	@Before
 	public void setupQueryBuilder() {
 		SearchFactoryIntegrator searchFactory = factoryHolder.getSearchFactory();
-		PropertyHelper propertyTypeHelper = new PropertyHelper( searchFactory );
 		QueryContextBuilder queryContextBuilder = searchFactory.buildQueryBuilder();
 
-		queryBuilder = new LuceneQueryBuilder( queryContextBuilder, propertyTypeHelper );
+		queryBuilder = SingleEntityQueryBuilder.getInstance(
+				new LucenePredicateFactory( queryContextBuilder ),
+				new LucenePropertyHelper(searchFactory)
+		);
 	}
 
 	@Test

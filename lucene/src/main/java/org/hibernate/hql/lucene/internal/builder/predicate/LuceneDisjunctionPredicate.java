@@ -20,25 +20,22 @@
  */
 package org.hibernate.hql.lucene.internal.builder.predicate;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.lucene.search.Query;
+import org.hibernate.hql.ast.spi.predicate.DisjunctionPredicate;
+import org.hibernate.hql.ast.spi.predicate.Predicate;
 import org.hibernate.search.query.dsl.BooleanJunction;
 import org.hibernate.search.query.dsl.QueryBuilder;
 
 /**
- * A logical {@code OR} predicate.
+ * Lucene-based {@code OR} predicate.
  *
  * @author Gunnar Morling
  */
-public class DisjunctionPredicate extends AbstractPredicate implements ParentPredicate {
+public class LuceneDisjunctionPredicate extends DisjunctionPredicate<Query> {
 
 	private final QueryBuilder builder;
-	private final List<Predicate> children = new ArrayList<Predicate>();
 
-	public DisjunctionPredicate(QueryBuilder builder) {
-		super( Type.DISJUNCTION );
+	public LuceneDisjunctionPredicate(QueryBuilder builder) {
 		this.builder = builder;
 	}
 
@@ -47,28 +44,10 @@ public class DisjunctionPredicate extends AbstractPredicate implements ParentPre
 		@SuppressWarnings("rawtypes")
 		BooleanJunction<BooleanJunction> booleanJunction = builder.bool();
 
-		for ( Predicate predicate : children ) {
+		for ( Predicate<Query> predicate : children ) {
 			booleanJunction.should( predicate.getQuery() );
 		}
 
 		return booleanJunction.createQuery();
-	}
-
-	@Override
-	public void add(Predicate predicate) {
-		children.add( predicate );
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder( "( OR " );
-
-		for ( Predicate child : children ) {
-			sb.append( child.toString() ).append( " " );
-		}
-
-		sb.append( " )" );
-
-		return sb.toString();
 	}
 }

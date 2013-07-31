@@ -21,35 +21,40 @@
 package org.hibernate.hql.lucene.internal.builder.predicate;
 
 import org.apache.lucene.search.Query;
+import org.hibernate.hql.ast.spi.predicate.ConjunctionPredicate;
+import org.hibernate.hql.ast.spi.predicate.Predicate;
+import org.hibernate.search.query.dsl.BooleanJunction;
 import org.hibernate.search.query.dsl.QueryBuilder;
 
 /**
- * A {@code BETWEEN} predicate.
+ * Lucene-based {@code AND} predicate.
  *
  * @author Gunnar Morling
  */
-public class RangePredicate extends AbstractPredicate {
+public class LuceneConjunctionPredicate extends ConjunctionPredicate<Query> {
 
 	private final QueryBuilder builder;
-	private final String propertyName;
-	private final Object lower;
-	private final Object upper;
 
-	public RangePredicate(QueryBuilder builder, String propertyName, Object lower, Object upper) {
-		super( Type.RANGE );
+	public LuceneConjunctionPredicate(QueryBuilder builder) {
 		this.builder = builder;
-		this.propertyName = propertyName;
-		this.lower = lower;
-		this.upper = upper;
 	}
 
 	@Override
 	public Query getQuery() {
-		return builder.range().onField( propertyName ).from( lower ).to( upper ).createQuery();
-	}
+		@SuppressWarnings("rawtypes")
+		BooleanJunction<BooleanJunction> booleanJunction = builder.bool();
 
-	@Override
-	public String toString() {
-		return "( BETWEEN " + propertyName + " " + lower + " " + upper + " )";
+		for ( Predicate<Query> predicate : children ) {
+			// minor optimization: unwrap negated predicates and add child directly to this
+			// predicate
+			if ( predicate.getType() == Type.NEGATION ) {
+				booleanJunction.must( predicate.as( LuceneNegationPredicate.class ).getChild().getQuery() ).not();
+			}
+			else {
+				booleanJunction.must( predicate.getQuery() );
+			}
+		}
+
+		return booleanJunction.createQuery();
 	}
 }
