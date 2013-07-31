@@ -41,8 +41,16 @@ public class LuceneComparisonPredicate extends ComparisonPredicate<Query> {
 	@Override
 	public Query getQuery() {
 		switch ( type ) {
+			case LESS:
+				return builder.range().onField( propertyName ).below( value ).excludeLimit().createQuery();
+			case LESS_OR_EQUAL:
+				return builder.range().onField( propertyName ).below( value ).createQuery();
 			case EQUALS:
 				return builder.keyword().onField( propertyName ).matching( value ).createQuery();
+			case GREATER_OR_EQUAL:
+				return builder.range().onField( propertyName ).above( value ).createQuery();
+			case GREATER:
+				return builder.range().onField( propertyName ).above( value ).excludeLimit().createQuery();
 			default:
 				throw new UnsupportedOperationException( "Unsupported comparison type: " + type );
 		}

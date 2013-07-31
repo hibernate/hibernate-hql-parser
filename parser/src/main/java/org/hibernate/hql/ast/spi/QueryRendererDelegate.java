@@ -51,7 +51,15 @@ public interface QueryRendererDelegate<T> {
 
 	void deactivateBoolean();
 
+	void predicateLess(String comparativePredicate);
+
+	void predicateLessOrEqual(String comparativePredicate);
+
 	void predicateEquals(String comparativePredicate);
+
+	void predicateGreaterOrEqual(String comparativePredicate);
+
+	void predicateGreater(String comparativePredicate);
 
 	void predicateBetween(String lower, String upper);
 

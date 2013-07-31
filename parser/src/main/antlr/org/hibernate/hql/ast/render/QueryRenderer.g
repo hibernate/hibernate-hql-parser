@@ -209,10 +209,10 @@ searchCondition
 
 predicate
 	:	^( EQUALS rowValueConstructor comparativePredicateValue ) { delegate.predicateEquals( $comparativePredicateValue.text); }//{ predicateEquals( $rowValueConstructor, $comparativePredicateValue ); }
-	|	^( LESS rowValueConstructor comparativePredicateValue )
-	|	^( LESS_EQUAL rowValueConstructor comparativePredicateValue )
-	|	^( GREATER rowValueConstructor comparativePredicateValue )
-	|	^( GREATER_EQUAL rowValueConstructor comparativePredicateValue )
+	|	^( LESS rowValueConstructor comparativePredicateValue ) { delegate.predicateLess( $comparativePredicateValue.text); }
+	|	^( LESS_EQUAL rowValueConstructor comparativePredicateValue ) { delegate.predicateLessOrEqual( $comparativePredicateValue.text); }
+	|	^( GREATER rowValueConstructor comparativePredicateValue ) { delegate.predicateGreater( $comparativePredicateValue.text); }
+	|	^( GREATER_EQUAL rowValueConstructor comparativePredicateValue ) { delegate.predicateGreaterOrEqual( $comparativePredicateValue.text); }
 	|	^( IS_NULL rowValueConstructor )
 	|	^( IS_NOT_NULL rowValueConstructor )
 	|	^( LIKE valueExpression valueExpression escapeSpecification? )

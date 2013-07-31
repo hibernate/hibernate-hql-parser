@@ -161,6 +161,16 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 		builder.pushNotPredicate();
 	}
 
+	@Override
+	public void predicateLess(String comparativePredicate) {
+		addComparisonPredicate( comparativePredicate, Type.LESS );
+	}
+
+	@Override
+	public void predicateLessOrEqual(String comparativePredicate) {
+		addComparisonPredicate( comparativePredicate, Type.LESS_OR_EQUAL );
+	}
+
 	/**
 	 * This implements the equality predicate; the comparison
 	 * predicate could be a constant, a subfunction or
@@ -170,8 +180,22 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 	 */
 	@Override
 	public void predicateEquals(final String comparativePredicate) {
+		addComparisonPredicate( comparativePredicate, Type.EQUALS );
+	}
+
+	@Override
+	public void predicateGreaterOrEqual(String comparativePredicate) {
+		addComparisonPredicate( comparativePredicate, Type.GREATER_OR_EQUAL );
+	}
+
+	@Override
+	public void predicateGreater(String comparativePredicate) {
+		addComparisonPredicate( comparativePredicate, Type.GREATER );
+	}
+
+	private void addComparisonPredicate(String comparativePredicate, Type comparisonType) {
 		Object comparisonValue = fromNamedQuery( comparativePredicate );
-		builder.addComparisonPredicate( propertyPath.getNodeNamesWithoutAlias(), Type.EQUALS, comparisonValue );
+		builder.addComparisonPredicate( propertyPath.getNodeNamesWithoutAlias(), comparisonType, comparisonValue );
 	}
 
 	@Override

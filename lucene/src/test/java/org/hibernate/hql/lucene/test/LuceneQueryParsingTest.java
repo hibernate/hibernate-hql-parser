@@ -37,6 +37,7 @@ import org.hibernate.hql.lucene.testutil.MapBasedEntityNamesResolver;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
 import org.hibernate.search.test.programmaticmapping.TestingSearchFactoryHolder;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -271,6 +272,36 @@ public class LuceneQueryParsingTest {
 		assertLuceneQuery(
 				"from IndexedEntity e where e.author.name = 'Bob'",
 				"author.name:Bob" );
+	}
+
+	@Test
+	@Ignore("Requires HSEARCH 4.4 (see HSEARCH-1378)")
+	public void shouldCreateLessThanQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.position < 100",
+				"position:[* TO 100}" );
+	}
+
+	@Test
+	public void shouldCreateLessThanOrEqualsToQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.position <= 100",
+				"position:[* TO 100]" );
+	}
+
+	@Test
+	public void shouldCreateGreaterThanOrEqualsToQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.position >= 100",
+				"position:[100 TO *]" );
+	}
+
+	@Test
+	@Ignore("Requires HSEARCH 4.4 (see HSEARCH-1378)")
+	public void shouldCreateGreaterThanQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.position > 100",
+				"position:{100 TO *]" );
 	}
 
 	private void assertLuceneQuery(String queryString, String expectedLuceneQuery) {

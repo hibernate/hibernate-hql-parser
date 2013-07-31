@@ -21,14 +21,18 @@
 package org.hibernate.hql.ast.spi.predicate;
 
 /**
- * An comparison predicate such as {@code EQUALS}.
+ * An comparison predicate such as {@code EQUALS} or {@code LESS}.
  *
  * @author Gunnar Morling
  */
 public abstract class ComparisonPredicate<Q> extends AbstractPredicate<Q> {
 
 	public enum Type {
-		EQUALS
+		LESS,
+		LESS_OR_EQUAL,
+		EQUALS,
+		GREATER_OR_EQUAL,
+		GREATER
 	}
 
 	protected final String propertyName;
