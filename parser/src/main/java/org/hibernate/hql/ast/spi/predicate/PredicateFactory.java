@@ -22,6 +22,8 @@ package org.hibernate.hql.ast.spi.predicate;
 
 import java.util.List;
 
+import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
+
 /**
  * Factory for creating predicate instances. Used by the query builder to create a stack of predicates representing
  * the processed query.
@@ -32,7 +34,7 @@ public interface PredicateFactory<Q> {
 
 	RootPredicate<Q> getRootPredicate(Class<?> entityType);
 
-	EqualsPredicate<Q> getEqualsPredicate(Class<?> entityType, List<String> propertyPath, Object value);
+	ComparisonPredicate<Q> getComparisonPredicate(Class<?> entityType, Type comparisonType, List<String> propertyPath, Object value);
 
 	RangePredicate<Q> getRangePredicate(Class<?> entityType, List<String> propertyPath, Object lowerValue, Object upperValue);
 

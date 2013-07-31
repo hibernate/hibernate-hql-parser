@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
+import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
 import org.hibernate.hql.ast.spi.predicate.ParentPredicate;
 import org.hibernate.hql.ast.spi.predicate.Predicate;
 import org.hibernate.hql.ast.spi.predicate.PredicateFactory;
@@ -77,16 +78,12 @@ public class SingleEntityQueryBuilder<Q> {
 		return this;
 	}
 
-	public SingleEntityQueryBuilder<Q> addEqualsPredicate(String property, Object value) {
-		return addEqualsPredicate( Arrays.asList( property ), value );
-	}
-
-	public SingleEntityQueryBuilder<Q> addEqualsPredicate(List<String> propertyPath, Object value) {
+	public SingleEntityQueryBuilder<Q> addComparisonPredicate(List<String> propertyPath, Type comparisonType, Object value) {
 		Object typedValue = value instanceof String ?
 				propertyHelper.convertToPropertyType( entityType, propertyPath, (String) value ) :
 				value;
 
-		pushPredicate( predicateFactory.getEqualsPredicate( entityType, propertyPath, typedValue ) );
+		pushPredicate( predicateFactory.getComparisonPredicate( entityType, comparisonType, propertyPath, typedValue ) );
 
 		return this;
 	}

@@ -21,25 +21,30 @@
 package org.hibernate.hql.lucene.internal.builder.predicate;
 
 import org.apache.lucene.search.Query;
-import org.hibernate.hql.ast.spi.predicate.EqualsPredicate;
+import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate;
 import org.hibernate.search.query.dsl.QueryBuilder;
 
 /**
- * Lucene-based {@code EQUALS} predicate.
+ * Lucene-based comparison predicate.
  *
  * @author Gunnar Morling
  */
-public class LuceneEqualsPredicate extends EqualsPredicate<Query> {
+public class LuceneComparisonPredicate extends ComparisonPredicate<Query> {
 
 	private final QueryBuilder builder;
 
-	public LuceneEqualsPredicate(QueryBuilder builder, String propertyName, Object value) {
-		super( propertyName, value );
+	public LuceneComparisonPredicate(QueryBuilder builder, String propertyName, Type comparisonType, Object value) {
+		super( propertyName, comparisonType, value );
 		this.builder = builder;
 	}
 
 	@Override
 	public Query getQuery() {
-		return builder.keyword().onField( propertyName ).matching( value ).createQuery();
+		switch ( type ) {
+			case EQUALS:
+				return builder.keyword().onField( propertyName ).matching( value ).createQuery();
+			default:
+				throw new UnsupportedOperationException( "Unsupported comparison type: " + type );
+		}
 	}
 }

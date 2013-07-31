@@ -21,23 +21,29 @@
 package org.hibernate.hql.ast.spi.predicate;
 
 /**
- * An {@code EQUALS} predicate.
+ * An comparison predicate such as {@code EQUALS}.
  *
  * @author Gunnar Morling
  */
-public abstract class EqualsPredicate<Q> extends AbstractPredicate<Q> {
+public abstract class ComparisonPredicate<Q> extends AbstractPredicate<Q> {
+
+	public enum Type {
+		EQUALS
+	}
 
 	protected final String propertyName;
+	protected final Type type;
 	protected final Object value;
 
-	public EqualsPredicate(String propertyName, Object value) {
-		super( Type.EQUALS );
+	public ComparisonPredicate(String propertyName, Type type, Object value) {
+		super( Predicate.Type.COMPARISON );
 		this.propertyName = propertyName;
+		this.type = type;
 		this.value = value;
 	}
 
 	@Override
 	public String toString() {
-		return "( EQUALS " + propertyName + " " + value + " )";
+		return "( " + type + " " + propertyName + " " + value + " )";
 	}
 }

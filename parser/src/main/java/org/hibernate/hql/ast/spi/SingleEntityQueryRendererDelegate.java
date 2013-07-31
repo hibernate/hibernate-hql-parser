@@ -28,6 +28,7 @@ import java.util.Map;
 import org.antlr.runtime.tree.Tree;
 import org.hibernate.hql.ast.common.JoinType;
 import org.hibernate.hql.ast.origin.hql.resolve.path.PropertyPath;
+import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
 
 /**
  * This extends the ANTLR generated AST walker to transform a parsed tree
@@ -170,7 +171,7 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 	@Override
 	public void predicateEquals(final String comparativePredicate) {
 		Object comparisonValue = fromNamedQuery( comparativePredicate );
-		builder.addEqualsPredicate( propertyPath.getNodeNamesWithoutAlias(), comparisonValue );
+		builder.addComparisonPredicate( propertyPath.getNodeNamesWithoutAlias(), Type.EQUALS, comparisonValue );
 	}
 
 	@Override

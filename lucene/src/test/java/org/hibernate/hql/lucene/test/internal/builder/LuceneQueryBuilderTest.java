@@ -22,12 +22,14 @@ package org.hibernate.hql.lucene.test.internal.builder;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
 import org.apache.lucene.search.Query;
 import org.hibernate.hql.ast.spi.SingleEntityQueryBuilder;
+import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
 import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
 import org.hibernate.hql.lucene.internal.builder.predicate.LucenePredicateFactory;
 import org.hibernate.hql.lucene.test.internal.builder.model.IndexedEntity;
@@ -57,7 +59,7 @@ public class LuceneQueryBuilderTest {
 
 		queryBuilder = SingleEntityQueryBuilder.getInstance(
 				new LucenePredicateFactory( queryContextBuilder ),
-				new LucenePropertyHelper(searchFactory)
+				new LucenePropertyHelper( searchFactory )
 		);
 	}
 
@@ -65,7 +67,7 @@ public class LuceneQueryBuilderTest {
 	public void shouldBuildEqualsQuery() {
 		Query query = queryBuilder
 			.setEntityType( IndexedEntity.class )
-			.addEqualsPredicate( "name", "foobar" )
+			.addComparisonPredicate( Arrays.asList( "name" ), Type.EQUALS, "foobar" )
 			.build();
 
 		assertThat( query.toString() ).isEqualTo( "name:foobar" );
@@ -75,7 +77,7 @@ public class LuceneQueryBuilderTest {
 	public void shouldBuildLongEqualsQuery() {
 		Query query = queryBuilder
 			.setEntityType( IndexedEntity.class )
-			.addEqualsPredicate( "l", "10" )
+			.addComparisonPredicate( Arrays.asList( "l" ), Type.EQUALS, "10" )
 			.build();
 
 		assertThat( query.toString() ).isEqualTo( "l:[10 TO 10]" );
@@ -85,7 +87,7 @@ public class LuceneQueryBuilderTest {
 	public void shouldBuildDoubleEqualsQuery() {
 		Query query = queryBuilder
 				.setEntityType( IndexedEntity.class )
-				.addEqualsPredicate( "d", "10.0" )
+				.addComparisonPredicate( Arrays.asList( "d" ), Type.EQUALS, "10.0" )
 				.build();
 
 		assertThat( query.toString() ).isEqualTo( "d:[10.0 TO 10.0]" );
@@ -95,7 +97,7 @@ public class LuceneQueryBuilderTest {
 	public void shouldBuildDateEqualsQuery() {
 		Query query = queryBuilder
 				.setEntityType( IndexedEntity.class )
-				.addEqualsPredicate( "date", "201209251130" )
+				.addComparisonPredicate( Arrays.asList( "date" ), Type.EQUALS, "201209251130" )
 				.build();
 
 		//Only "day" resolution expected as per the field's configuration
@@ -109,7 +111,7 @@ public class LuceneQueryBuilderTest {
 
 		Query query = queryBuilder
 				.setEntityType( IndexedEntity.class )
-				.addEqualsPredicate( "date", calendar.getTime() )
+				.addComparisonPredicate( Arrays.asList( "date" ), Type.EQUALS, calendar.getTime() )
 				.build();
 
 		//Only "day" resolution expected as per the field's configuration
@@ -149,8 +151,8 @@ public class LuceneQueryBuilderTest {
 		Query query = queryBuilder
 			.setEntityType( IndexedEntity.class )
 			.pushAndPredicate()
-				.addEqualsPredicate( "name", "foobar" )
-				.addEqualsPredicate( "i", "1" )
+				.addComparisonPredicate( Arrays.asList( "name" ), Type.EQUALS, "foobar" )
+				.addComparisonPredicate( Arrays.asList( "i" ), Type.EQUALS, "1" )
 			.build();
 
 		assertThat( query.toString() ).isEqualTo( "+name:foobar +i:[1 TO 1]" );
@@ -161,8 +163,8 @@ public class LuceneQueryBuilderTest {
 		Query query = queryBuilder
 			.setEntityType( IndexedEntity.class )
 			.pushOrPredicate()
-				.addEqualsPredicate( "name", "foobar" )
-				.addEqualsPredicate( "i", "1" )
+				.addComparisonPredicate( Arrays.asList( "name" ), Type.EQUALS, "foobar" )
+				.addComparisonPredicate( Arrays.asList( "i" ), Type.EQUALS, "1" )
 			.build();
 
 		assertThat( query.toString() ).isEqualTo( "name:foobar i:[1 TO 1]" );
@@ -173,7 +175,7 @@ public class LuceneQueryBuilderTest {
 		Query query = queryBuilder
 			.setEntityType( IndexedEntity.class )
 			.pushNotPredicate()
-				.addEqualsPredicate( "name", "foobar" )
+				.addComparisonPredicate( Arrays.asList( "name" ), Type.EQUALS, "foobar" )
 			.build();
 
 		assertThat( query.toString() ).isEqualTo( "-name:foobar *:*" );
@@ -185,10 +187,10 @@ public class LuceneQueryBuilderTest {
 			.setEntityType( IndexedEntity.class )
 			.pushAndPredicate()
 				.pushOrPredicate()
-					.addEqualsPredicate( "name", "foobar" )
-					.addEqualsPredicate( "i", "1" )
+					.addComparisonPredicate( Arrays.asList( "name" ), Type.EQUALS, "foobar" )
+					.addComparisonPredicate( Arrays.asList( "i" ), Type.EQUALS, "1" )
 					.popBooleanPredicate()
-				.addEqualsPredicate( "l", "10" )
+				.addComparisonPredicate( Arrays.asList( "l" ), Type.EQUALS, "10" )
 			.build();
 
 		assertThat( query.toString() ).isEqualTo( "+(name:foobar i:[1 TO 1]) +l:[10 TO 10]" );
