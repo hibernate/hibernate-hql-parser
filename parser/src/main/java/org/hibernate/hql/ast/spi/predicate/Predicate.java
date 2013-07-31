@@ -54,8 +54,8 @@ public interface Predicate<Q> {
 	}
 
 	/**
-	 * Returns the query represented by this predicate. Contains the all sub-predicates if this predicate
-	 * is a parent predicate.
+	 * Returns the query represented by this predicate. Contains the all sub-predicates if this predicate is a parent
+	 * predicate.
 	 *
 	 * @return the query represented by this predicate
 	 */

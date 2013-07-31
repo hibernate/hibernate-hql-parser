@@ -67,14 +67,14 @@ public class LuceneQueryParsingTest {
 	@Test
 	public void shouldCreateUnrestrictedQuery() {
 		assertLuceneQuery(
-				"from IndexedEntity" ,
+				"from IndexedEntity",
 				"*:*" );
 	}
 
 	@Test
 	public void shouldCreateRestrictedQueryUsingSelect() {
 		assertLuceneQuery(
-				"select e from IndexedEntity e where e.name = 'same' and not e.id = 5" ,
+				"select e from IndexedEntity e where e.name = 'same' and not e.id = 5",
 				"+name:same -id:5" );
 	}
 
@@ -113,7 +113,7 @@ public class LuceneQueryParsingTest {
 	@Test
 	public void shouldCreateQueryWithUnqualifiedPropertyReferences() {
 		assertLuceneQuery(
-				"from IndexedEntity e where name = 'same' and not id = 5" ,
+				"from IndexedEntity e where name = 'same' and not id = 5",
 				"+name:same -id:5" );
 	}
 
@@ -184,25 +184,25 @@ public class LuceneQueryParsingTest {
 	@Test
 	public void shouldCreateNegatedQuery() {
 		assertLuceneQuery(
-				"from IndexedEntity e where NOT e.name = 'same'" ,
+				"from IndexedEntity e where NOT e.name = 'same'",
 				"-name:same *:*" );
 
-		//JPQL syntax
+		// JPQL syntax
 		assertLuceneQuery(
-				"from IndexedEntity e where e.name <> 'same'" ,
+				"from IndexedEntity e where e.name <> 'same'",
 				"-name:same *:*" );
 
-		//HQL syntax
+		// HQL syntax
 		assertLuceneQuery(
-				"from IndexedEntity e where e.name != 'same'" ,
+				"from IndexedEntity e where e.name != 'same'",
 				"-name:same *:*" );
 	}
 
 	@Test
 	public void shouldCreateNegatedRangeQuery() {
 		assertLuceneQuery(
-				"select e from IndexedEntity e where e.name = 'Bob' and not e.position between 1 and 3" ,
-				"+name:Bob -position:[1 TO 3]");
+				"select e from IndexedEntity e where e.name = 'Bob' and not e.position between 1 and 3",
+				"+name:Bob -position:[1 TO 3]" );
 	}
 
 	@Test
@@ -211,29 +211,29 @@ public class LuceneQueryParsingTest {
 		namedParameters.put( "nameParameter", "Bob" );
 
 		assertLuceneQuery(
-				"from IndexedEntity e where e.name = :nameParameter" ,
+				"from IndexedEntity e where e.name = :nameParameter",
 				namedParameters,
-				"name:Bob");
+				"name:Bob" );
 	}
 
 	@Test
 	public void shouldCreateBooleanQuery() {
 		assertLuceneQuery(
-				"from IndexedEntity e where e.name = 'same' or ( e.id = 4 and e.name = 'booh')" ,
+				"from IndexedEntity e where e.name = 'same' or ( e.id = 4 and e.name = 'booh')",
 				"name:same (+id:4 +name:booh)" );
 	}
 
 	@Test
 	public void shouldCreateBooleanQueryUsingSelect() {
 		assertLuceneQuery(
-				"select e from IndexedEntity e where e.name = 'same' or ( e.id = 4 and e.name = 'booh')" ,
+				"select e from IndexedEntity e where e.name = 'same' or ( e.id = 4 and e.name = 'booh')",
 				"name:same (+id:4 +name:booh)" );
 	}
 
 	@Test
 	public void shouldCreateBetweenQuery() {
 		assertLuceneQuery(
-				"select e from IndexedEntity e where e.name between 'aaa' and 'zzz'" ,
+				"select e from IndexedEntity e where e.name between 'aaa' and 'zzz'",
 				"name:[aaa TO zzz]" );
 	}
 
@@ -249,9 +249,9 @@ public class LuceneQueryParsingTest {
 		namedParameters.put( "upper", "zzz" );
 
 		assertLuceneQuery(
-				"select e from IndexedEntity e where e.name between :lower and :upper" ,
+				"select e from IndexedEntity e where e.name between :lower and :upper",
 				namedParameters,
-				"name:[aaa TO zzz]");
+				"name:[aaa TO zzz]" );
 	}
 
 	@Test
@@ -261,15 +261,15 @@ public class LuceneQueryParsingTest {
 		namedParameters.put( "upper", 20L );
 
 		assertLuceneQuery(
-				"select e from IndexedEntity e where e.position between :lower and :upper" ,
+				"select e from IndexedEntity e where e.position between :lower and :upper",
 				namedParameters,
-				"position:[10 TO 20]");
+				"position:[10 TO 20]" );
 	}
 
 	@Test
 	public void shouldCreateQueryWithEmbeddedPropertyInFromClause() {
 		assertLuceneQuery(
-				"from IndexedEntity e where e.author.name = 'Bob'" ,
+				"from IndexedEntity e where e.author.name = 'Bob'",
 				"author.name:Bob" );
 	}
 
@@ -301,7 +301,7 @@ public class LuceneQueryParsingTest {
 		return queryParser.parseQuery(
 				queryString,
 				setUpLuceneProcessingChain( namedParameters )
-		);
+				);
 	}
 
 	private LuceneProcessingChain setUpLuceneProcessingChain(Map<String, Object> namedParameters) {

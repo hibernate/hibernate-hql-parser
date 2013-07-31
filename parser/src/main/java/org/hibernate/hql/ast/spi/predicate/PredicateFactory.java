@@ -25,8 +25,8 @@ import java.util.List;
 import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
 
 /**
- * Factory for creating predicate instances. Used by the query builder to create a stack of predicates representing
- * the processed query.
+ * Factory for creating predicate instances. Used by the query builder to create a stack of predicates representing the
+ * processed query.
  *
  * @author Gunnar Morling
  */
