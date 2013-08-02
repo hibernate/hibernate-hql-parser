@@ -1,3 +1,5 @@
+apply plugin: 'eclipse'
+apply plugin: 'idea'
 apply from: "./libraries.gradle"
 
 ext {
