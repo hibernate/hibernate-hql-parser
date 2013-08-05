@@ -46,6 +46,11 @@ subprojects { subProject ->
     apply plugin: 'maven-publish'
     apply plugin: 'maven-publish-auth'
 
+    // Installing snapshot JARs to the local repo doesn't work correctly via the new Maven publishing plug-in
+    // (GRADLE-2762). Therefore the old plug-in is used for that purpose (via ./gradlew install). Deployments to the
+    // remote repo should be done using the new plug-in (via ./gradlew publish).
+    apply plugin: 'maven'
+
     group = 'org.hibernate.hql'
     //artifactId = project name as created in settings.gradle
     version = rootProject.projectVersion
@@ -167,6 +172,11 @@ subprojects { subProject ->
 
     task sourceJar(type: Jar) {
         from sourceSets.main.allJava
+    }
+
+    // Can be removed once the old Maven plug-in isn't required anymore
+    artifacts {
+        archives sourceJar
     }
 
     publishing {
