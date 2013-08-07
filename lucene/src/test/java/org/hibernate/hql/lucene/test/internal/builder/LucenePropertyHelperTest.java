@@ -25,7 +25,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import org.hibernate.hql.lucene.internal.builder.PropertyHelper;
+import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
 import org.hibernate.hql.lucene.test.internal.builder.model.IndexedEntity;
 import org.hibernate.search.test.programmaticmapping.TestingSearchFactoryHolder;
 import org.junit.Before;
@@ -33,20 +33,20 @@ import org.junit.Rule;
 import org.junit.Test;
 
 /**
- * Test for {@link PropertyHelper}.
+ * Test for {@link LucenePropertyHelper}.
  *
  * @author Gunnar Morling
  */
-public class PropertyHelperTest {
+public class LucenePropertyHelperTest {
 
 	@Rule
 	public TestingSearchFactoryHolder factoryHolder = new TestingSearchFactoryHolder( IndexedEntity.class );
 
-	private PropertyHelper propertyHelper;
+	private LucenePropertyHelper propertyHelper;
 
 	@Before
 	public void setupPropertyTypeHelper() {
-		propertyHelper = new PropertyHelper( factoryHolder.getSearchFactory() );
+		propertyHelper = new LucenePropertyHelper( factoryHolder.getSearchFactory() );
 	}
 
 	@Test

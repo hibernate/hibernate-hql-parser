@@ -23,13 +23,14 @@ package org.hibernate.hql.internal.logging;
 import java.util.List;
 
 import org.antlr.runtime.RecognitionException;
+import org.hibernate.hql.ast.spi.predicate.Predicate;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageLogger;
 
 /**
- * Logging methods for the Lucene query parser component.
+ * Logging methods for the query parser component.
  *
  * @author Gunnar Morling
  */
@@ -41,4 +42,13 @@ public interface Log extends BasicLogger {
 
 	@Message(id = 2, value = "The query %s is not valid; Parser error messages: %s.")
 	IllegalArgumentException getInvalidQuerySyntaxException(String query, List<?> parserErrorMessages);
+
+	@Message(id = 3, value = "The predicate %s is not of type %s.")
+	IllegalArgumentException getUnsupportedPredicateTypeException(Object predicate, String targetTypeName);
+
+	@Message(id = 4, value = "The predicate %s can not be added since there may be only one root predicate.")
+	IllegalStateException getNotMoreThanOnePredicateInRootOfWhereClauseAllowedException(Predicate<?> predicate);
+
+	@Message(id = 5, value = "The predicate %s can not be added since there may be only one sub-predicate in a NOT predicate.")
+	IllegalStateException getNotMoreThanOnePredicateInNegationAllowedException(Predicate<?> predicate);
 }

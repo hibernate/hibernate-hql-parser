@@ -20,35 +20,26 @@
  */
 package org.hibernate.hql.lucene.internal.builder.predicate;
 
-import org.hibernate.hql.lucene.internal.logging.Log;
-import org.hibernate.hql.lucene.internal.logging.LoggerFactory;
+import org.apache.lucene.search.Query;
+import org.hibernate.hql.ast.spi.predicate.EqualsPredicate;
+import org.hibernate.search.query.dsl.QueryBuilder;
 
 /**
- * Base class for predicate implementations.
+ * Lucene-based {@code EQUALS} predicate.
  *
  * @author Gunnar Morling
  */
-public abstract class AbstractPredicate implements Predicate {
+public class LuceneEqualsPredicate extends EqualsPredicate<Query> {
 
-	private static final Log log = LoggerFactory.make();
+	private final QueryBuilder builder;
 
-	private final Type type;
-
-	public AbstractPredicate(Type type) {
-		this.type = type;
+	public LuceneEqualsPredicate(QueryBuilder builder, String propertyName, Object value) {
+		super( propertyName, value );
+		this.builder = builder;
 	}
 
 	@Override
-	public Type getType() {
-		return type;
-	}
-
-	@Override
-	public <T extends Predicate> T as(Class<T> type) {
-		if ( type.isAssignableFrom( getClass() ) ) {
-			return type.cast( this );
-		}
-
-		throw log.getUnsupportedPredicateTypeException( this, type.getCanonicalName() );
+	public Query getQuery() {
+		return builder.keyword().onField( propertyName ).matching( value ).createQuery();
 	}
 }

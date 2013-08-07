@@ -18,17 +18,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.hql.lucene.internal.builder.predicate;
-
-import org.apache.lucene.search.Query;
+package org.hibernate.hql.ast.spi.predicate;
 
 /**
  * Represents a predicate as contained in the {@code WHERE} clause of a query. Implementations know how to create an
- * equivalent Lucene query for themselves and, in case of parent predicates, their children.
+ * equivalent query for themselves and, in case of parent predicates, their children.
+ *
+ * @param <Q> the type of query objects created by this predicate
  *
  * @author Gunnar Morling
  */
-public interface Predicate {
+public interface Predicate<Q> {
 
 	/**
 	 * The type of a predicate.
@@ -55,12 +55,12 @@ public interface Predicate {
 	}
 
 	/**
-	 * Returns the Lucene query represented by this predicate. Contains the all sub-predicates if this predicate
+	 * Returns the query represented by this predicate. Contains the all sub-predicates if this predicate
 	 * is a parent predicate.
 	 *
-	 * @return the Lucene query represented by this predicate
+	 * @return the query represented by this predicate
 	 */
-	Query getQuery();
+	Q getQuery();
 
 	/**
 	 * Returns the type of this predicate.
@@ -76,5 +76,5 @@ public interface Predicate {
 	 * @param type the type to narrow down to
 	 * @return this predicate, narrowed down to the given type
 	 */
-	<T extends Predicate> T as(Class<T> type);
+	<T extends Predicate<?>> T as(Class<T> type);
 }

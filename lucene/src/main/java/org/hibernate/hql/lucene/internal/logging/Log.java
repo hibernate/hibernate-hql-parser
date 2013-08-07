@@ -21,7 +21,6 @@
 package org.hibernate.hql.lucene.internal.logging;
 
 import org.hibernate.hql.ParsingException;
-import org.hibernate.hql.lucene.internal.builder.predicate.Predicate;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageLogger;
@@ -40,21 +39,12 @@ public interface Log extends BasicLogger {
 	@Message(id = 2, value = "The type %s has no indexed property named %s.")
 	ParsingException getNoSuchPropertyException(String typeName, String propertyName);
 
-	@Message(id = 3, value = "The predicate %s is not of type %s.")
-	IllegalArgumentException getUnsupportedPredicateTypeException(Object predicate, String targetTypeName);
-
-	@Message(id = 4, value = "The predicate %s can not be added since there may be only one root predicate.")
-	IllegalStateException getNotMoreThanOnePredicateInRootOfWhereClauseAllowedException(Predicate predicate);
-
-	@Message(id = 5, value = "The predicate %s can not be added since there may be only one sub-predicate in a NOT predicate.")
-	IllegalStateException getNotMoreThanOnePredicateInNegationAllowedException(Predicate predicate);
-
-	@Message(id = 6, value = "No queries can be applied to property %2$s in type %1$s since the property is analyzed.")
+	@Message(id = 3, value = "No queries can be applied to property %2$s in type %1$s since the property is analyzed.")
 	ParsingException getQueryOnAnalyzedPropertyNotSupportedException(String typeName, String propertyName);
 
-	@Message(id = 7, value = "Unknown alias: %s.")
+	@Message(id = 4, value = "Unknown alias: %s.")
 	ParsingException getUnknownAliasException(String unknownAlias);
 
-	@Message(id = 8, value = "Property %2$s can not be selected from type %1$s since it is an embedded entity.")
+	@Message(id = 5, value = "Property %2$s can not be selected from type %1$s since it is an embedded entity.")
 	ParsingException getProjectionOfCompleteEmbeddedEntitiesNotSupportedException(String typeName, String propertyPath);
 }

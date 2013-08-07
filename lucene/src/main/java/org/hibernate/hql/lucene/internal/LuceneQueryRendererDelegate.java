@@ -20,192 +20,30 @@
  */
 package org.hibernate.hql.lucene.internal;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.antlr.runtime.tree.Tree;
-import org.hibernate.hql.ast.common.JoinType;
+import org.apache.lucene.search.Query;
 import org.hibernate.hql.ast.origin.hql.resolve.path.PropertyPath;
 import org.hibernate.hql.ast.spi.EntityNamesResolver;
-import org.hibernate.hql.ast.spi.QueryRendererDelegate;
+import org.hibernate.hql.ast.spi.SingleEntityQueryBuilder;
+import org.hibernate.hql.ast.spi.SingleEntityQueryRendererDelegate;
 import org.hibernate.hql.lucene.LuceneQueryParsingResult;
-import org.hibernate.hql.lucene.internal.builder.LuceneQueryBuilder;
-import org.hibernate.hql.lucene.internal.builder.PropertyHelper;
 import org.hibernate.search.ProjectionConstants;
-import org.hibernate.search.spi.SearchFactoryIntegrator;
 
 /**
- * This extends the ANTLR generated AST walker to transform a parsed tree
- * into a Lucene Query and collect the target entity types of the query.
- * <br/>
- * <b>TODO:</b>
- *   <li>It is currently human-written but should evolve into another ANTLR
- * generated tree walker, not extending GeneratedHQLResolver but using its
- * output as a generic normalization AST transformer.</li>
- *   <li>We are assembling the Lucene Query directly, but this doesn't take
- *   into account parameter types which might need some transformation;
- *   the Hibernate Search provided {@code QueryBuilder} could do this.</li>
- *   <li>Implement more predicates</li>
- *   <li>Support multiple types being targeted by the Query</li>
- *   <li>Support positional parameters (currently only consumed named parameters)<li>
+ * Renderer delegate which creates Lucene queries targeting a single entity or a projection of the same.
  *
- * @author Sanne Grinovero <sanne@hibernate.org> (C) 2011 Red Hat Inc.
  * @author Gunnar Morling
  */
-public class LuceneQueryRendererDelegate implements QueryRendererDelegate<LuceneQueryParsingResult> {
+public class LuceneQueryRendererDelegate extends SingleEntityQueryRendererDelegate<Query, LuceneQueryParsingResult> {
 
-	/**
-	 * States which this object can have during tree walking
-	 *
-	 * @author Gunnar Morling
-	 */
-	private enum Status {
-		DEFINING_SELECT, DEFINING_FROM;
-	}
-
-	/**
-	 * Persister space: keep track of aliases and entity names.
-	 */
-	private final Map<String, String> aliasToEntityType = new HashMap<String, String>();
-
-	/**
-	 * The current status
-	 */
-	private Status status;
-
-	/**
-	 * How to resolve entity names to class instances
-	 */
-	private final EntityNamesResolver entityNames;
-
-	private Class<?> targetType = null;
-
-	private final Map<String, Object> namedParameters;
-
-	private final LuceneQueryBuilder builder;
-
-	private PropertyPath propertyPath;
-
-	private final List<String> projections = new ArrayList<String>();
-
-	public LuceneQueryRendererDelegate(SearchFactoryIntegrator searchFactory,
-			EntityNamesResolver entityNames, Map<String,Object> namedParameters) {
-		this.entityNames = entityNames;
-		this.namedParameters = namedParameters;
-		this.builder = new LuceneQueryBuilder(searchFactory.buildQueryBuilder(), new PropertyHelper( searchFactory ) );
-	}
-
-	/**
-	 * See rule entityName
-	 */
-	@Override
-	public void registerPersisterSpace(Tree entityName, Tree alias) {
-		String put = aliasToEntityType.put( alias.getText(), entityName.getText() );
-		if ( put != null && !put.equalsIgnoreCase( entityName.getText() ) ) {
-			throw new UnsupportedOperationException(
-					"Alias reuse currently not supported: alias " + alias.getText()
-					+ " already assigned to type " + put );
-		}
-		Class<?> targetedType = entityNames.getClassFromName( entityName.getText() );
-		if ( targetedType == null ) {
-			throw new IllegalStateException( "Unknown entity name " + entityName.getText() );
-		}
-		if ( targetType != null ) {
-			throw new IllegalStateException( "Can't target multiple types: " + targetType + " already selected before " + targetedType );
-		}
-		targetType = targetedType;
-		builder.setEntityType( targetedType );
-	}
-
-	@Override
-	public boolean isUnqualifiedPropertyReference() {
-		return true; // TODO - very likely always true for our supported use cases
-	}
-
-	@Override
-	public boolean isPersisterReferenceAlias() {
-		if ( aliasToEntityType.size() == 1 ) {
-			return true; // should be safe
-		}
-		else {
-			throw new UnsupportedOperationException( "Unexpected use case: not implemented yet?" );
-		}
-	}
-
-	@Override
-	public void pushFromStrategy(
-			JoinType joinType,
-			Tree assosiationFetchTree,
-			Tree propertyFetchTree,
-			Tree alias) {
-		throw new UnsupportedOperationException( "Not yet implemented" );
-	}
-
-	@Override
-	public void pushSelectStrategy() {
-		status = Status.DEFINING_SELECT;
-	}
-
-	@Override
-	public void popStrategy() {
-		status = null;
-	}
-
-	@Override
-	public void activateOR() {
-		builder.pushOrPredicate();
-	}
-
-	@Override
-	public void activateAND() {
-		builder.pushAndPredicate();
-	}
-
-	@Override
-	public void activateNOT() {
-		builder.pushNotPredicate();
-	}
-
-	/**
-	 * This implements the equality predicate; the comparison
-	 * predicate could be a constant, a subfunction or
-	 * some random type parameter.
-	 * The tree node has all details but with current tree rendering
-	 * it just passes it's text so we have to figure out the options again.
-	 */
-	@Override
-	public void predicateEquals(final String comparativePredicate) {
-		Object comparisonValue = fromNamedQuery( comparativePredicate );
-		builder.addEqualsPredicate( propertyPath.getNodeNamesWithoutAlias(), comparisonValue );
-	}
-
-	@Override
-	public void predicateBetween(String lower, String upper) {
-		Object lowerComparisonValue = fromNamedQuery( lower );
-		Object upperComparisonValue = fromNamedQuery( upper );
-
-		builder.addRangePredicate( propertyPath.getNodeNamesWithoutAlias(), lowerComparisonValue, upperComparisonValue );
-	}
-
-	private Object fromNamedQuery(String comparativePredicate) {
-		if ( comparativePredicate.startsWith( ":" ) ) {
-			return namedParameters.get( comparativePredicate.substring( 1 ) );
-		}
-		else {
-			return comparativePredicate;
-		}
-	}
-
-	@Override
-	public void deactivateBoolean() {
-		builder.popBooleanPredicate();
+	public LuceneQueryRendererDelegate(EntityNamesResolver entityNames, SingleEntityQueryBuilder<Query> builder, Map<String, Object> namedParameters) {
+		super( entityNames, builder, namedParameters );
 	}
 
 	@Override
 	public LuceneQueryParsingResult getResult() {
-		return new LuceneQueryParsingResult( builder.build(), targetType, projections  );
+		return new LuceneQueryParsingResult( builder.build(), targetType, projections );
 	}
 
 	@Override

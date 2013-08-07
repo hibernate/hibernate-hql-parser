@@ -18,36 +18,39 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.hql.lucene.internal.builder.predicate;
+package org.hibernate.hql.ast.spi.predicate;
 
-import org.apache.lucene.search.Query;
-import org.hibernate.search.query.dsl.QueryBuilder;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * An {@code EQUALS} predicate.
+ * A logical {@code OR} predicate.
  *
  * @author Gunnar Morling
  */
-public class EqualsPredicate extends AbstractPredicate {
+public abstract class DisjunctionPredicate<Q> extends AbstractPredicate<Q> implements ParentPredicate<Q> {
 
-	private final QueryBuilder builder;
-	private final String propertyName;
-	private final Object value;
+	protected final List<Predicate<Q>> children = new ArrayList<Predicate<Q>>( 3 );
 
-	public EqualsPredicate(QueryBuilder builder, String propertyName, Object value) {
-		super( Type.EQUALS );
-		this.builder = builder;
-		this.propertyName = propertyName;
-		this.value = value;
+	public DisjunctionPredicate() {
+		super( Type.DISJUNCTION );
 	}
 
 	@Override
-	public Query getQuery() {
-		return builder.keyword().onField( propertyName ).matching( value ).createQuery();
+	public void add(Predicate<Q> predicate) {
+		children.add( predicate );
 	}
 
 	@Override
 	public String toString() {
-		return "( EQUALS " + propertyName + " " + value + " )";
+		StringBuilder sb = new StringBuilder( "( OR " );
+
+		for ( Predicate<Q> child : children ) {
+			sb.append( child.toString() ).append( " " );
+		}
+
+		sb.append( " )" );
+
+		return sb.toString();
 	}
 }

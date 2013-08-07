@@ -18,19 +18,25 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.hql.lucene.internal.builder.predicate;
+package org.hibernate.hql.ast.spi;
+
+import java.util.List;
 
 /**
- * A predicate which can have one or more sub-predicates.
+ * Helper dealing with entity properties.
  *
  * @author Gunnar Morling
  */
-public interface ParentPredicate extends Predicate {
+public interface PropertyHelper {
 
 	/**
-	 * Adds the given predicate to this parent predicate.
+	 * Converts the given string value into the actual type of the given property.
 	 *
-	 * @param predicate the predicate to add
+	 * @param entityType the entity type owning the property
+	 * @param propertyPath the path from the entity to the property (will only contain more than one element in case the
+	 * entity is hosted on an embedded entity).
+	 * @param value the value of the property
+	 * @return the property value, converted into the actual type of the given entity property
 	 */
-	void add(Predicate predicate);
+	Object convertToPropertyType(Class<?> entityType, List<String> propertyPath, String value);
 }

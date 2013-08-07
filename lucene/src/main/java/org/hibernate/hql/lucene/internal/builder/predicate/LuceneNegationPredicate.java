@@ -20,62 +20,30 @@
  */
 package org.hibernate.hql.lucene.internal.builder.predicate;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.lucene.search.Query;
-import org.hibernate.search.query.dsl.BooleanJunction;
+import org.hibernate.hql.ast.spi.predicate.NegationPredicate;
 import org.hibernate.search.query.dsl.QueryBuilder;
 
 /**
- * A logical {@code AND} predicate.
+ * Lucene-based {@code NOT} predicate.
  *
  * @author Gunnar Morling
  */
-public class ConjunctionPredicate extends AbstractPredicate implements ParentPredicate {
+public class LuceneNegationPredicate extends NegationPredicate<Query> {
 
 	private final QueryBuilder builder;
-	private final List<Predicate> children = new ArrayList<Predicate>();
 
-	public ConjunctionPredicate(QueryBuilder builder) {
-		super( Type.CONJUNCTION );
+	public LuceneNegationPredicate(QueryBuilder builder) {
 		this.builder = builder;
 	}
 
 	@Override
 	public Query getQuery() {
-		@SuppressWarnings("rawtypes")
-		BooleanJunction<BooleanJunction> booleanJunction = builder.bool();
-
-		for ( Predicate predicate : children ) {
-			// minor optimization: unwrap negated predicates and add child directly to this
-			// predicate
-			if ( predicate.getType() == Type.NEGATION ) {
-				booleanJunction.must( predicate.as( NegationPredicate.class ).getChild().getQuery() ).not();
-			}
-			else {
-				booleanJunction.must( predicate.getQuery() );
-			}
-		}
-
-		return booleanJunction.createQuery();
-	}
-
-	@Override
-	public void add(Predicate predicate) {
-		children.add( predicate );
+		return builder.bool().must( getChild().getQuery() ).not().createQuery();
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder( "( AND " );
-
-		for ( Predicate child : children ) {
-			sb.append( child.toString() ).append( " " );
-		}
-
-		sb.append( " )" );
-
-		return sb.toString();
+		return "( NOT " + getChild() + " )";
 	}
 }

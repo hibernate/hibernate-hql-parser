@@ -24,13 +24,17 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.lucene.search.Query;
 import org.hibernate.hql.ast.spi.AstProcessingChain;
 import org.hibernate.hql.ast.spi.AstProcessor;
 import org.hibernate.hql.ast.spi.EntityNamesResolver;
 import org.hibernate.hql.ast.spi.QueryRendererProcessor;
 import org.hibernate.hql.ast.spi.QueryResolverProcessor;
+import org.hibernate.hql.ast.spi.SingleEntityQueryBuilder;
 import org.hibernate.hql.lucene.internal.LuceneQueryRendererDelegate;
 import org.hibernate.hql.lucene.internal.LuceneQueryResolverDelegate;
+import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
+import org.hibernate.hql.lucene.internal.builder.predicate.LucenePredicateFactory;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
 
 /**
@@ -47,7 +51,15 @@ public class LuceneProcessingChain implements AstProcessingChain<LuceneQueryPars
 	public LuceneProcessingChain(SearchFactoryIntegrator searchFactory, EntityNamesResolver entityNames, Map<String, Object> namedParameters) {
 		this.resolverProcessor = new QueryResolverProcessor( new LuceneQueryResolverDelegate( searchFactory, entityNames, namedParameters ) );
 
-		LuceneQueryRendererDelegate rendererDelegate = new LuceneQueryRendererDelegate( searchFactory, entityNames, namedParameters );
+		SingleEntityQueryBuilder<Query> queryBuilder = SingleEntityQueryBuilder.getInstance(
+				new LucenePredicateFactory( searchFactory.buildQueryBuilder() ),
+				new LucenePropertyHelper( searchFactory )
+		);
+
+		LuceneQueryRendererDelegate rendererDelegate = new LuceneQueryRendererDelegate(
+				entityNames,
+				queryBuilder,
+				namedParameters );
 		this.rendererProcessor = new QueryRendererProcessor( rendererDelegate );
 		this.rendererDelegate = rendererDelegate;
 	}
