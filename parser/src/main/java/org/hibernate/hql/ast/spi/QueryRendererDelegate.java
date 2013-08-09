@@ -20,6 +20,8 @@
  */
 package org.hibernate.hql.ast.spi;
 
+import java.util.List;
+
 import org.antlr.runtime.tree.Tree;
 import org.hibernate.hql.ast.common.JoinType;
 import org.hibernate.hql.ast.origin.hql.resolve.path.PropertyPath;
@@ -62,6 +64,8 @@ public interface QueryRendererDelegate<T> {
 	void predicateGreater(String comparativePredicate);
 
 	void predicateBetween(String lower, String upper);
+
+	void predicateIn(List<String> list);
 
 	/**
 	 * Returns the result created by this delegate after the tree processing has been finished.

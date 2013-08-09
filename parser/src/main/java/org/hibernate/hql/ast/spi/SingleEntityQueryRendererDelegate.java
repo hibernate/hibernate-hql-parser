@@ -21,6 +21,7 @@
 package org.hibernate.hql.ast.spi;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,7 +87,7 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 
 	public SingleEntityQueryRendererDelegate(EntityNamesResolver entityNames, SingleEntityQueryBuilder<Q> builder, Map<String, Object> namedParameters) {
 		this.entityNames = entityNames;
-		this.namedParameters = namedParameters;
+		this.namedParameters = namedParameters != null ? namedParameters : Collections.<String, Object>emptyMap();
 		this.builder = builder;
 	}
 
@@ -199,6 +200,12 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 	}
 
 	@Override
+	public void predicateIn(List<String> list) {
+		List<Object> values = fromNamedQuery( list );
+		builder.addInPredicate( propertyPath.getNodeNamesWithoutAlias(), values );
+	}
+
+	@Override
 	public void predicateBetween(String lower, String upper) {
 		Object lowerComparisonValue = fromNamedQuery( lower );
 		Object upperComparisonValue = fromNamedQuery( upper );
@@ -213,6 +220,16 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 		else {
 			return comparativePredicate;
 		}
+	}
+
+	private List<Object> fromNamedQuery(List<String> list) {
+		List<Object> elements = new ArrayList<Object>( list.size() );
+
+		for ( String string : list ) {
+			elements.add( fromNamedQuery( string ) );
+		}
+
+		return elements;
 	}
 
 	@Override

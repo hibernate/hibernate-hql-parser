@@ -20,6 +20,7 @@
  */
 package org.hibernate.hql.ast.spi;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
@@ -102,6 +103,22 @@ public class SingleEntityQueryBuilder<Q> {
 				upper;
 
 		pushPredicate( predicateFactory.getRangePredicate( entityType, propertyPath, lowerValue, upperValue ) );
+
+		return this;
+	}
+
+	public SingleEntityQueryBuilder<Q> addInPredicate(List<String> propertyPath, List<Object> elements) {
+		List<Object> typedElements = new ArrayList<Object>( elements.size() );
+
+		for ( Object element : elements ) {
+			Object typedElement = element instanceof String ?
+					propertyHelper.convertToPropertyType( entityType, propertyPath, (String) element ) :
+					element;
+
+			typedElements.add( typedElement );
+		}
+
+		pushPredicate( predicateFactory.getInPredicate( entityType, propertyPath, typedElements ) );
 
 		return this;
 	}

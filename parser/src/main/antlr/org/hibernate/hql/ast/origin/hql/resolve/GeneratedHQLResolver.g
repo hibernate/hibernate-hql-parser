@@ -222,7 +222,7 @@ predicate
 	|	^( BETWEEN rowValueConstructor betweenList )
 	|	^( NOT_BETWEEN rowValueConstructor betweenList )
 	|	^( IN rowValueConstructor inPredicateValue )
-	|	^( NOT_IN rowValueConstructor inPredicateValue )
+	|	^( NOT_IN rowValueConstructor inPredicateValue ) -> ^( NOT ^( IN rowValueConstructor inPredicateValue ) )
 	|	^( MEMBER_OF rowValueConstructor rowValueConstructor )
 	|	^( NOT_MEMBER_OF rowValueConstructor rowValueConstructor  )
 	|	^( IS_EMPTY rowValueConstructor )

@@ -304,6 +304,51 @@ public class LuceneQueryParsingTest {
 				"position:{100 TO *]" );
 	}
 
+	@Test
+	public void shouldCreateInQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name in ('Bob', 'Alice')",
+				"name:Bob name:Alice" );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.position in (10, 20, 30, 40)",
+				"position:[10 TO 10] position:[20 TO 20] position:[30 TO 30] position:[40 TO 40]" );
+	}
+
+	@Test
+	public void shouldCreateInQueryWithNamedParameters() {
+		Map<String, Object> namedParameters = new HashMap<String, Object>();
+		namedParameters.put( "name1", "Bob" );
+		namedParameters.put( "name2", "Alice" );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name in (:name1, :name2)",
+				namedParameters,
+				"name:Bob name:Alice" );
+
+		namedParameters = new HashMap<String, Object>();
+		namedParameters.put( "pos1", 10 );
+		namedParameters.put( "pos2", 20 );
+		namedParameters.put( "pos3", 30 );
+		namedParameters.put( "pos4", 40 );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.position in (:pos1, :pos2, :pos3, :pos4)",
+				namedParameters,
+				"position:[10 TO 10] position:[20 TO 20] position:[30 TO 30] position:[40 TO 40]" );
+	}
+
+	@Test
+	public void shouldCreateNotInQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name not in ('Bob', 'Alice')",
+				"-(name:Bob name:Alice) *:*" );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.position not in (10, 20, 30, 40)",
+				"-(position:[10 TO 10] position:[20 TO 20] position:[30 TO 30] position:[40 TO 40]) *:*" );
+	}
+
 	private void assertLuceneQuery(String queryString, String expectedLuceneQuery) {
 		assertLuceneQuery( queryString, null, expectedLuceneQuery );
 	}

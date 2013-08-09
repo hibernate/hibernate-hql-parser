@@ -219,8 +219,7 @@ predicate
 	|	^( NOT_LIKE valueExpression valueExpression escapeSpecification? )
 	|	^( BETWEEN rowValueConstructor betweenList )
 	|	^( NOT_BETWEEN rowValueConstructor betweenList )
-	|	^( IN rowValueConstructor inPredicateValue )
-	|	^( NOT_IN rowValueConstructor inPredicateValue )
+	|	^( IN rowValueConstructor inPredicateValue ) { delegate.predicateIn( $inPredicateValue.elements ); }
 	|	^( MEMBER_OF rowValueConstructor rowValueConstructor )
 	|	^( NOT_MEMBER_OF rowValueConstructor rowValueConstructor  )
 	|	^( IS_EMPTY rowValueConstructor )
@@ -244,8 +243,9 @@ escapeSpecification
 	:	^(ESCAPE characterValueExpression)
 	;
 
-inPredicateValue
-	:	^(IN_LIST valueExpression+)
+inPredicateValue returns [List<String> elements]
+	@init{ $elements = new ArrayList<String>(); }
+	:	^(IN_LIST (valueExpression { $elements.add($valueExpression.text); })+)
 	;
 
 numericValueExpression

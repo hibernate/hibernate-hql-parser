@@ -27,6 +27,7 @@ import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate;
 import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
 import org.hibernate.hql.ast.spi.predicate.ConjunctionPredicate;
 import org.hibernate.hql.ast.spi.predicate.DisjunctionPredicate;
+import org.hibernate.hql.ast.spi.predicate.InPredicate;
 import org.hibernate.hql.ast.spi.predicate.NegationPredicate;
 import org.hibernate.hql.ast.spi.predicate.PredicateFactory;
 import org.hibernate.hql.ast.spi.predicate.RangePredicate;
@@ -58,6 +59,11 @@ public class LucenePredicateFactory implements PredicateFactory<Query> {
 	@Override
 	public ComparisonPredicate<Query> getComparisonPredicate(Class<?> entityType, Type comparisonType, List<String> propertyPath, Object value) {
 		return new LuceneComparisonPredicate( queryBuilder, Strings.join( propertyPath, "." ), comparisonType, value );
+	}
+
+	@Override
+	public InPredicate<Query> getInPredicate(Class<?> entityType, List<String> propertyPath, List<Object> values) {
+		return new LuceneInPredicate( queryBuilder, Strings.join( propertyPath, "." ), values );
 	}
 
 	@Override
