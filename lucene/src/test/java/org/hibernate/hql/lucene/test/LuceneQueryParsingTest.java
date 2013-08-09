@@ -239,6 +239,13 @@ public class LuceneQueryParsingTest {
 	}
 
 	@Test
+	public void shouldCreateNotBetweenQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name not between 'aaa' and 'zzz'",
+				"-name:[aaa TO zzz] *:*" );
+	}
+
+	@Test
 	public void shouldCreateBetweenQueryForCharacterLiterals() {
 		assertLuceneQuery( "select e from IndexedEntity e where e.name between 'a' and 'z'", "name:[a TO z]" );
 	}

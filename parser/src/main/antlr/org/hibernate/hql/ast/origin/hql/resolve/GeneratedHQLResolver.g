@@ -220,7 +220,7 @@ predicate
 	|	^( LIKE valueExpression valueExpression escapeSpecification? )
 	|	^( NOT_LIKE valueExpression valueExpression escapeSpecification? ) -> ^( NOT ^( LIKE valueExpression valueExpression escapeSpecification? ) )
 	|	^( BETWEEN rowValueConstructor betweenList )
-	|	^( NOT_BETWEEN rowValueConstructor betweenList )
+	|	^( NOT_BETWEEN rowValueConstructor betweenList ) -> ^( NOT ^( BETWEEN rowValueConstructor betweenList ) )
 	|	^( IN rowValueConstructor inPredicateValue )
 	|	^( NOT_IN rowValueConstructor inPredicateValue ) -> ^( NOT ^( IN rowValueConstructor inPredicateValue ) )
 	|	^( MEMBER_OF rowValueConstructor rowValueConstructor )

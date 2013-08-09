@@ -217,7 +217,6 @@ predicate
 	|	^( IS_NOT_NULL rowValueConstructor )
 	|	^( LIKE valueExpression patternValue=valueExpression escapeSpecification? ) { delegate.predicateLike( $patternValue.text, $escapeSpecification.escapeCharacter ); }
 	|	^( BETWEEN rowValueConstructor betweenList )
-	|	^( NOT_BETWEEN rowValueConstructor betweenList )
 	|	^( IN rowValueConstructor inPredicateValue ) { delegate.predicateIn( $inPredicateValue.elements ); }
 	|	^( MEMBER_OF rowValueConstructor rowValueConstructor )
 	|	^( NOT_MEMBER_OF rowValueConstructor rowValueConstructor  )
