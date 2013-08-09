@@ -218,7 +218,7 @@ predicate
 	|	^( IS_NULL rowValueConstructor )
 	|	^( IS_NOT_NULL rowValueConstructor )
 	|	^( LIKE valueExpression valueExpression escapeSpecification? )
-	|	^( NOT_LIKE valueExpression valueExpression escapeSpecification? )
+	|	^( NOT_LIKE valueExpression valueExpression escapeSpecification? ) -> ^( NOT ^( LIKE valueExpression valueExpression escapeSpecification? ) )
 	|	^( BETWEEN rowValueConstructor betweenList )
 	|	^( NOT_BETWEEN rowValueConstructor betweenList )
 	|	^( IN rowValueConstructor inPredicateValue )

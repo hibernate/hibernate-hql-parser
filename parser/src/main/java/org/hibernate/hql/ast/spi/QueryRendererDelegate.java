@@ -67,6 +67,8 @@ public interface QueryRendererDelegate<T> {
 
 	void predicateIn(List<String> list);
 
+	void predicateLike(String patternValue, Character escapeCharacter);
+
 	/**
 	 * Returns the result created by this delegate after the tree processing has been finished.
 	 *

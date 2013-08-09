@@ -20,31 +20,26 @@
  */
 package org.hibernate.hql.ast.spi.predicate;
 
-import java.util.List;
-
-import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
-
 /**
- * Factory for creating predicate instances. Used by the query builder to create a stack of predicates representing the
- * processed query.
+ * A {@code LIKE} predicate.
  *
  * @author Gunnar Morling
  */
-public interface PredicateFactory<Q> {
+public abstract class LikePredicate<Q> extends AbstractPredicate<Q> {
 
-	RootPredicate<Q> getRootPredicate(Class<?> entityType);
+	protected final String propertyName;
+	protected final String patternValue;
+	protected final Character escapeCharacter;
 
-	ComparisonPredicate<Q> getComparisonPredicate(Class<?> entityType, Type comparisonType, List<String> propertyPath, Object value);
+	public LikePredicate(String propertyName, String patternValue, Character escapeCharacter) {
+		super( Predicate.Type.LIKE );
+		this.propertyName = propertyName;
+		this.patternValue = patternValue;
+		this.escapeCharacter = escapeCharacter;
+	}
 
-	InPredicate<Q> getInPredicate(Class<?> entityType, List<String> propertyPath, List<Object> typedElements);
-
-	RangePredicate<Q> getRangePredicate(Class<?> entityType, List<String> propertyPath, Object lowerValue, Object upperValue);
-
-	NegationPredicate<Q> getNegationPredicate();
-
-	DisjunctionPredicate<Q> getDisjunctionPredicate();
-
-	ConjunctionPredicate<Q> getConjunctionPredicate();
-
-	LikePredicate<Q> getLikePredicate(Class<?> entityType, List<String> propertyPath, String patternValue, Character escapeCharacter);
+	@Override
+	public String toString() {
+		return "( " + propertyName + " LIKE " + patternValue + ( escapeCharacter != null ? " ESCAPE " + escapeCharacter : "" ) + " )";
+	}
 }

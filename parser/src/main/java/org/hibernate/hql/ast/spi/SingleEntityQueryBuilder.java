@@ -123,6 +123,11 @@ public class SingleEntityQueryBuilder<Q> {
 		return this;
 	}
 
+	public SingleEntityQueryBuilder<Q> addLikePredicate(List<String> propertyPath, String patternValue, Character escapeCharacter) {
+		pushPredicate( predicateFactory.getLikePredicate( entityType, propertyPath, patternValue, escapeCharacter ) );
+		return this;
+	}
+
 	public SingleEntityQueryBuilder<Q> pushAndPredicate() {
 		pushPredicate( predicateFactory.getConjunctionPredicate() );
 		return this;

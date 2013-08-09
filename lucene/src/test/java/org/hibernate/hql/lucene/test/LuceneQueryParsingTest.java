@@ -349,6 +349,36 @@ public class LuceneQueryParsingTest {
 				"-(position:[10 TO 10] position:[20 TO 20] position:[30 TO 30] position:[40 TO 40]) *:*" );
 	}
 
+	@Test
+	public void shouldCreateLikeQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name LIKE 'Al_ce'",
+				"name:Al?ce" );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name LIKE 'Ali%'",
+				"name:Ali*" );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name LIKE '_l_ce'",
+				"name:?l?ce" );
+	}
+
+	@Test
+	public void shouldCreateNotLikeQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name NOT LIKE 'Al_ce'",
+				"-name:Al?ce *:*" );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name NOT LIKE 'Ali%'",
+				"-name:Ali* *:*" );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name NOT LIKE '_l_ce'",
+				"-name:?l?ce *:*" );
+	}
+
 	private void assertLuceneQuery(String queryString, String expectedLuceneQuery) {
 		assertLuceneQuery( queryString, null, expectedLuceneQuery );
 	}

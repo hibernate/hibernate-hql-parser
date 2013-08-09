@@ -35,7 +35,7 @@ public interface Predicate<Q> {
 	 * @author Gunnar Morling
 	 */
 	public enum Type {
-		ROOT(true), CONJUNCTION(true), DISJUNCTION(true), NEGATION(true), COMPARISON(false), RANGE(false), IN(false);
+		ROOT(true), CONJUNCTION(true), DISJUNCTION(true), NEGATION(true), COMPARISON(false), RANGE(false), IN(false), LIKE(false);
 
 		private final boolean isParent;
 

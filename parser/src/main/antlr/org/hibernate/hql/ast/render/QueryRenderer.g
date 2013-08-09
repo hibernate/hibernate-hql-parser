@@ -215,8 +215,7 @@ predicate
 	|	^( GREATER_EQUAL rowValueConstructor comparativePredicateValue ) { delegate.predicateGreaterOrEqual( $comparativePredicateValue.text); }
 	|	^( IS_NULL rowValueConstructor )
 	|	^( IS_NOT_NULL rowValueConstructor )
-	|	^( LIKE valueExpression valueExpression escapeSpecification? )
-	|	^( NOT_LIKE valueExpression valueExpression escapeSpecification? )
+	|	^( LIKE valueExpression patternValue=valueExpression escapeSpecification? ) { delegate.predicateLike( $patternValue.text, $escapeSpecification.escapeCharacter ); }
 	|	^( BETWEEN rowValueConstructor betweenList )
 	|	^( NOT_BETWEEN rowValueConstructor betweenList )
 	|	^( IN rowValueConstructor inPredicateValue ) { delegate.predicateIn( $inPredicateValue.elements ); }
@@ -239,8 +238,8 @@ rowValueConstructor
 	:	valueExpression
 	;
 
-escapeSpecification
-	:	^(ESCAPE characterValueExpression)
+escapeSpecification returns [Character escapeCharacter]
+	:	^(ESCAPE characterValueExpression) { $escapeCharacter = $characterValueExpression.text.charAt( 0 ); }
 	;
 
 inPredicateValue returns [List<String> elements]

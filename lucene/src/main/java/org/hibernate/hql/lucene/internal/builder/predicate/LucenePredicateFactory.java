@@ -28,6 +28,7 @@ import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
 import org.hibernate.hql.ast.spi.predicate.ConjunctionPredicate;
 import org.hibernate.hql.ast.spi.predicate.DisjunctionPredicate;
 import org.hibernate.hql.ast.spi.predicate.InPredicate;
+import org.hibernate.hql.ast.spi.predicate.LikePredicate;
 import org.hibernate.hql.ast.spi.predicate.NegationPredicate;
 import org.hibernate.hql.ast.spi.predicate.PredicateFactory;
 import org.hibernate.hql.ast.spi.predicate.RangePredicate;
@@ -84,5 +85,10 @@ public class LucenePredicateFactory implements PredicateFactory<Query> {
 	@Override
 	public ConjunctionPredicate<Query> getConjunctionPredicate() {
 		return new LuceneConjunctionPredicate( queryBuilder );
+	}
+
+	@Override
+	public LikePredicate<Query> getLikePredicate(Class<?> entityType, List<String> propertyPath, String patternValue, Character escapeCharacter) {
+		return new LuceneLikePredicate( queryBuilder, Strings.join( propertyPath, "." ), patternValue );
 	}
 }
