@@ -191,6 +191,13 @@ public class LuceneQueryParsingTest {
 	}
 
 	@Test
+	public void shouldCreateNegatedQueryOnNumericProperty() {
+		assertLuceneQuery(
+				"from IndexedEntity e where e.position <> 3",
+				"-position:[3 TO 3] *:*" );
+	}
+
+	@Test
 	public void shouldCreateNegatedRangeQuery() {
 		assertLuceneQuery(
 				"select e from IndexedEntity e where e.name = 'Bob' and not e.position between 1 and 3",

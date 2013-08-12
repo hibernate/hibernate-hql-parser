@@ -209,6 +209,7 @@ searchCondition
 
 predicate
 	:	^( EQUALS rowValueConstructor comparativePredicateValue ) { delegate.predicateEquals( $comparativePredicateValue.text); }//{ predicateEquals( $rowValueConstructor, $comparativePredicateValue ); }
+	|	^( NOT_EQUAL rowValueConstructor comparativePredicateValue ) { delegate.predicateNotEquals( $comparativePredicateValue.text); }
 	|	^( LESS rowValueConstructor comparativePredicateValue ) { delegate.predicateLess( $comparativePredicateValue.text); }
 	|	^( LESS_EQUAL rowValueConstructor comparativePredicateValue ) { delegate.predicateLessOrEqual( $comparativePredicateValue.text); }
 	|	^( GREATER rowValueConstructor comparativePredicateValue ) { delegate.predicateGreater( $comparativePredicateValue.text); }

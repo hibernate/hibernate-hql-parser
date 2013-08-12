@@ -59,6 +59,8 @@ public interface QueryRendererDelegate<T> {
 
 	void predicateEquals(String comparativePredicate);
 
+	void predicateNotEquals(String comparativePredicate);
+
 	void predicateGreaterOrEqual(String comparativePredicate);
 
 	void predicateGreater(String comparativePredicate);

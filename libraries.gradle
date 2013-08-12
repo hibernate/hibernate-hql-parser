@@ -54,6 +54,7 @@ ext {
         fest_assert: "org.easytesting:fest-assert:1.4",
 
         //Misc.
-        slf4j_api: "org.slf4j:slf4j-api:1.6.4"
+        slf4j_api: "org.slf4j:slf4j-api:1.6.4",
+        log4j: "log4j:log4j:1.2.16"
     ]
 }

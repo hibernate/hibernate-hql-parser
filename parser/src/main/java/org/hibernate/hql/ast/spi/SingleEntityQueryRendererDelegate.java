@@ -185,6 +185,13 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 	}
 
 	@Override
+	public void predicateNotEquals(String comparativePredicate) {
+		builder.pushNotPredicate();
+		addComparisonPredicate( comparativePredicate, Type.EQUALS );
+		builder.popBooleanPredicate();
+	}
+
+	@Override
 	public void predicateGreaterOrEqual(String comparativePredicate) {
 		addComparisonPredicate( comparativePredicate, Type.GREATER_OR_EQUAL );
 	}
