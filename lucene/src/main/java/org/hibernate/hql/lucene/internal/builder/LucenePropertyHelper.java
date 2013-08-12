@@ -22,11 +22,11 @@ package org.hibernate.hql.lucene.internal.builder;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
 import org.hibernate.hql.ast.spi.PropertyHelper;
-import org.hibernate.hql.internal.util.Strings;
 import org.hibernate.hql.lucene.internal.logging.Log;
 import org.hibernate.hql.lucene.internal.logging.LoggerFactory;
 import org.hibernate.search.bridge.FieldBridge;
@@ -35,8 +35,10 @@ import org.hibernate.search.bridge.builtin.FloatNumericFieldBridge;
 import org.hibernate.search.bridge.builtin.IntegerNumericFieldBridge;
 import org.hibernate.search.bridge.builtin.LongNumericFieldBridge;
 import org.hibernate.search.bridge.builtin.impl.TwoWayString2FieldBridgeAdaptor;
-import org.hibernate.search.engine.spi.AbstractDocumentBuilder.PropertiesMetadata;
-import org.hibernate.search.engine.spi.EntityIndexBinder;
+import org.hibernate.search.engine.metadata.impl.EmbeddedTypeMetadata;
+import org.hibernate.search.engine.metadata.impl.PropertyMetadata;
+import org.hibernate.search.engine.metadata.impl.TypeMetadata;
+import org.hibernate.search.engine.spi.EntityIndexBinding;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
 
 /**
@@ -98,16 +100,16 @@ public class LucenePropertyHelper implements PropertyHelper {
 	}
 
 	private FieldBridge getFieldBridge(Class<?> type, String... propertyPath) {
-		EntityIndexBinder entityIndexBinding = getIndexBinding( type );
+		EntityIndexBinding entityIndexBinding = getIndexBinding( type );
 
 		if ( isIdentifierProperty( entityIndexBinding, propertyPath ) ) {
 			return entityIndexBinding.getDocumentBuilder().getIdBridge();
 		}
 
-		PropertiesMetadata metadata = getPropertyMetadata( entityIndexBinding, propertyPath );
-		String fullPropertyName = Strings.join( propertyPath, "." );
+		PropertyMetadata metadata = getLeafTypeMetadata( type, propertyPath ).getPropertyMetadataForProperty( propertyPath[propertyPath.length - 1] );
 
-		return metadata.fieldBridges.get( metadata.fieldNames.indexOf( fullPropertyName ) );
+		// TODO Consider properties with several fields
+		return metadata.getFieldMetadata().iterator().next().getFieldBridge();
 	}
 
 	public boolean exists(Class<?> type, List<String> propertyPath) {
@@ -115,30 +117,49 @@ public class LucenePropertyHelper implements PropertyHelper {
 	}
 
 	public boolean exists(Class<?> type, String... propertyPath) {
-		EntityIndexBinder entityIndexBinding = getIndexBinding( type );
+		EntityIndexBinding entityIndexBinding = getIndexBinding( type );
 
 		if ( isIdentifierProperty( entityIndexBinding, propertyPath ) ) {
 			return true;
 		}
 
-		PropertiesMetadata metadata = entityIndexBinding.getDocumentBuilder().getMetadata();
-		String fullPropertyName = Strings.join( propertyPath, "." );
+		TypeMetadata metadata = entityIndexBinding.getDocumentBuilder().getMetadata();
 
-		for ( String property : propertyPath ) {
-			int embeddedPropertyIndex = metadata.embeddedFieldNames.indexOf( property );
-
-			boolean isEmbedded = embeddedPropertyIndex != -1;
-			boolean isField = metadata.fieldNames.indexOf( fullPropertyName ) != -1;
-
-			if ( !isEmbedded && !isField ) {
+		for ( int i = 0; i < propertyPath.length - 1; i++ ) {
+			Set<EmbeddedTypeMetadata> embeddedTypeMetadata = metadata.getEmbeddedTypeMetadata();
+			metadata = getEmbeddedTypeMetadata( embeddedTypeMetadata, propertyPath[i] );
+			if ( metadata == null ) {
 				return false;
-			}
-			else if ( isEmbedded ) {
-				metadata = metadata.embeddedPropertiesMetadata.get( embeddedPropertyIndex );
 			}
 		}
 
-		return true;
+		return metadata.getPropertyMetadataForProperty( propertyPath[propertyPath.length - 1] ) != null
+				|| getEmbeddedTypeMetadata( metadata.getEmbeddedTypeMetadata(), propertyPath[propertyPath.length - 1] ) != null;
+	}
+
+	private TypeMetadata getLeafTypeMetadata(Class<?> type, String... propertyPath) {
+		EntityIndexBinding entityIndexBinding = getIndexBinding( type );
+		TypeMetadata leafTypeMetadata = entityIndexBinding.getDocumentBuilder().getMetadata();
+
+		for ( int i = 0; i < propertyPath.length; i++ ) {
+			Set<EmbeddedTypeMetadata> embeddedTypeMetadata = leafTypeMetadata.getEmbeddedTypeMetadata();
+			TypeMetadata metadata = getEmbeddedTypeMetadata( embeddedTypeMetadata, propertyPath[i] );
+			if ( metadata != null ) {
+				leafTypeMetadata = metadata;
+			}
+		}
+
+		return leafTypeMetadata;
+	}
+
+	private EmbeddedTypeMetadata getEmbeddedTypeMetadata(Set<EmbeddedTypeMetadata> embeddedTypeMetadata, String name) {
+		for ( EmbeddedTypeMetadata metadata : embeddedTypeMetadata ) {
+			if ( metadata.getEmbeddedFieldName().equals( name ) ) {
+				return metadata;
+			}
+		}
+
+		return null;
 	}
 
 	public boolean isAnalyzed(Class<?> type, List<String> propertyPath) {
@@ -146,16 +167,15 @@ public class LucenePropertyHelper implements PropertyHelper {
 	}
 
 	public boolean isAnalyzed(Class<?> type, String... propertyPath) {
-		EntityIndexBinder entityIndexBinding = getIndexBinding( type );
+		EntityIndexBinding entityIndexBinding = getIndexBinding( type );
 
 		if ( isIdentifierProperty( entityIndexBinding, propertyPath ) ) {
 			return false;
 		}
 
-		PropertiesMetadata metadata = getPropertyMetadata( entityIndexBinding, propertyPath );
-		String fullPropertyName = Strings.join( propertyPath, "." );
-		Index index = metadata.fieldIndex.get( metadata.fieldNames.indexOf( fullPropertyName ) );
+		TypeMetadata metadata = getLeafTypeMetadata( type, propertyPath );
 
+		Index index = metadata.getPropertyMetadataForProperty( propertyPath[propertyPath.length - 1] ).getFieldMetadata().iterator().next().getIndex();
 		return EnumSet.of( Field.Index.ANALYZED, Field.Index.ANALYZED_NO_NORMS ).contains( index );
 	}
 
@@ -172,56 +192,30 @@ public class LucenePropertyHelper implements PropertyHelper {
 	 * otherwise.
 	 */
 	public boolean isEmbedded(Class<?> type, String... propertyPath) {
-		EntityIndexBinder entityIndexBinding = getIndexBinding( type );
-
-		if ( isIdentifierProperty( entityIndexBinding, propertyPath ) ) {
+		if ( propertyPath.length == 0 ) {
 			return false;
 		}
 
-		String fullPropertyName = Strings.join( propertyPath, "." );
+		EntityIndexBinding entityIndexBinding = getIndexBinding( type );
+		TypeMetadata metadata = entityIndexBinding.getDocumentBuilder().getMetadata();
 
-		PropertiesMetadata metadata = entityIndexBinding.getDocumentBuilder().getMetadata();
-
-		for ( String property : propertyPath ) {
-			if ( metadata.embeddedFieldNames.contains( fullPropertyName ) ) {
-				return true;
-			}
-
-			int embeddedPropertyIndex = metadata.embeddedFieldNames.indexOf( property );
-			if ( embeddedPropertyIndex == -1 ) {
+		for ( int i = 0; i < propertyPath.length; i++ ) {
+			Set<EmbeddedTypeMetadata> embeddedTypeMetadata = metadata.getEmbeddedTypeMetadata();
+			metadata = getEmbeddedTypeMetadata( embeddedTypeMetadata, propertyPath[i] );
+			if ( metadata == null ) {
 				break;
-			}
-			else {
-				metadata = metadata.embeddedPropertiesMetadata.get( embeddedPropertyIndex );
 			}
 		}
 
-		return false;
+		return metadata != null;
 	}
 
-	private PropertiesMetadata getPropertyMetadata(EntityIndexBinder entityIndexBinding, String... propertyPath) {
-		PropertiesMetadata metadata = entityIndexBinding.getDocumentBuilder().getMetadata();
-
-		for ( String property : propertyPath ) {
-			int embeddedPropertyIndex = metadata.embeddedFieldNames.indexOf( property );
-
-			if ( embeddedPropertyIndex == -1 ) {
-				break;
-			}
-			else {
-				metadata = metadata.embeddedPropertiesMetadata.get( embeddedPropertyIndex );
-			}
-		}
-
-		return metadata;
-	}
-
-	private boolean isIdentifierProperty(EntityIndexBinder entityIndexBinding, String... propertyPath) {
+	private boolean isIdentifierProperty(EntityIndexBinding entityIndexBinding, String... propertyPath) {
 		return propertyPath.length == 1 && propertyPath[0].equals( entityIndexBinding.getDocumentBuilder().getIdentifierName() );
 	}
 
-	private EntityIndexBinder getIndexBinding(Class<?> type) {
-		EntityIndexBinder entityIndexBinding = searchFactory.getIndexBindingForEntity( type );
+	private EntityIndexBinding getIndexBinding(Class<?> type) {
+		EntityIndexBinding entityIndexBinding = searchFactory.getIndexBinding( type );
 
 		if ( entityIndexBinding == null ) {
 			throw log.getNoIndexedEntityException( type.getCanonicalName() );

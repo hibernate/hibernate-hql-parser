@@ -35,9 +35,8 @@ import org.hibernate.hql.lucene.internal.LuceneQueryResolverDelegate;
 import org.hibernate.hql.lucene.test.model.IndexedEntity;
 import org.hibernate.hql.lucene.testutil.MapBasedEntityNamesResolver;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
-import org.hibernate.search.test.programmaticmapping.TestingSearchFactoryHolder;
+import org.hibernate.search.test.util.SearchFactoryHolder;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -53,7 +52,7 @@ public class LuceneQueryParsingTest {
 	private static boolean USE_STDOUT = true;
 
 	@Rule
-	public TestingSearchFactoryHolder factoryHolder = new TestingSearchFactoryHolder( IndexedEntity.class );
+	public SearchFactoryHolder factoryHolder = new SearchFactoryHolder( IndexedEntity.class );
 
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
@@ -85,14 +84,6 @@ public class LuceneQueryParsingTest {
 
 		assertThat( parsingResult.getQuery().toString() ).isEqualTo( "*:*" );
 		assertThat( parsingResult.getProjections() ).containsExactly( "id", "name" );
-	}
-
-	@Test
-	public void shouldCreateProjectionForPropertyWithMultipleFields() {
-		LuceneQueryParsingResult parsingResult = parseQuery( "select e.titleAnalyzed from IndexedEntity e where e.title = 'foo'" );
-
-		assertThat( parsingResult.getQuery().toString() ).isEqualTo( "title:foo" );
-		assertThat( parsingResult.getProjections() ).containsExactly( "titleAnalyzed" );
 	}
 
 	@Test
@@ -282,7 +273,6 @@ public class LuceneQueryParsingTest {
 	}
 
 	@Test
-	@Ignore("Requires HSEARCH 4.4 (see HSEARCH-1378)")
 	public void shouldCreateLessThanQuery() {
 		assertLuceneQuery(
 				"select e from IndexedEntity e where e.position < 100",
@@ -304,7 +294,6 @@ public class LuceneQueryParsingTest {
 	}
 
 	@Test
-	@Ignore("Requires HSEARCH 4.4 (see HSEARCH-1378)")
 	public void shouldCreateGreaterThanQuery() {
 		assertLuceneQuery(
 				"select e from IndexedEntity e where e.position > 100",

@@ -35,7 +35,7 @@ import org.hibernate.hql.lucene.internal.builder.predicate.LucenePredicateFactor
 import org.hibernate.hql.lucene.test.internal.builder.model.IndexedEntity;
 import org.hibernate.search.query.dsl.QueryContextBuilder;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
-import org.hibernate.search.test.programmaticmapping.TestingSearchFactoryHolder;
+import org.hibernate.search.test.util.SearchFactoryHolder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,7 +48,7 @@ import org.junit.Test;
 public class LuceneQueryBuilderTest {
 
 	@Rule
-	public TestingSearchFactoryHolder factoryHolder = new TestingSearchFactoryHolder( IndexedEntity.class );
+	public SearchFactoryHolder factoryHolder = new SearchFactoryHolder( IndexedEntity.class );
 
 	private SingleEntityQueryBuilder<Query> queryBuilder;
 

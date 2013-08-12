@@ -27,7 +27,7 @@ import java.util.TimeZone;
 
 import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
 import org.hibernate.hql.lucene.test.internal.builder.model.IndexedEntity;
-import org.hibernate.search.test.programmaticmapping.TestingSearchFactoryHolder;
+import org.hibernate.search.test.util.SearchFactoryHolder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,7 +40,7 @@ import org.junit.Test;
 public class LucenePropertyHelperTest {
 
 	@Rule
-	public TestingSearchFactoryHolder factoryHolder = new TestingSearchFactoryHolder( IndexedEntity.class );
+	public SearchFactoryHolder factoryHolder = new SearchFactoryHolder( IndexedEntity.class );
 
 	private LucenePropertyHelper propertyHelper;
 
