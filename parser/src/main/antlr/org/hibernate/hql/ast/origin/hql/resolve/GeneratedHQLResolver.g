@@ -216,7 +216,7 @@ predicate
 	|	^( GREATER rowValueConstructor comparativePredicateValue )
 	|	^( GREATER_EQUAL rowValueConstructor comparativePredicateValue )
 	|	^( IS_NULL rowValueConstructor )
-	|	^( IS_NOT_NULL rowValueConstructor )
+	|	^( IS_NOT_NULL rowValueConstructor ) -> ^( NOT ^( IS_NULL rowValueConstructor ) )
 	|	^( LIKE valueExpression valueExpression escapeSpecification? )
 	|	^( NOT_LIKE valueExpression valueExpression escapeSpecification? ) -> ^( NOT ^( LIKE valueExpression valueExpression escapeSpecification? ) )
 	|	^( BETWEEN rowValueConstructor betweenList )

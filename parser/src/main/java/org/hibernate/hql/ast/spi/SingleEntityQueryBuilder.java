@@ -128,6 +128,11 @@ public class SingleEntityQueryBuilder<Q> {
 		return this;
 	}
 
+	public SingleEntityQueryBuilder<Q> addIsNullPredicate(List<String> propertyPath) {
+		pushPredicate( predicateFactory.getIsNullPredicate( entityType, propertyPath ) );
+		return this;
+	}
+
 	public SingleEntityQueryBuilder<Q> pushAndPredicate() {
 		pushPredicate( predicateFactory.getConjunctionPredicate() );
 		return this;

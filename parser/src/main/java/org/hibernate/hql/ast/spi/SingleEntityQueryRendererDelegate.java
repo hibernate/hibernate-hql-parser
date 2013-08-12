@@ -226,6 +226,11 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 		builder.addLikePredicate( propertyPath.getNodeNamesWithoutAlias(), (String) pattern, escapeCharacter );
 	}
 
+	@Override
+	public void predicateIsNull() {
+		builder.addIsNullPredicate( propertyPath.getNodeNamesWithoutAlias() );
+	}
+
 	private Object fromNamedQuery(String comparativePredicate) {
 		if ( comparativePredicate.startsWith( ":" ) ) {
 			return namedParameters.get( comparativePredicate.substring( 1 ) );

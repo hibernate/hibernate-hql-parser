@@ -51,9 +51,10 @@ public class LuceneProcessingChain implements AstProcessingChain<LuceneQueryPars
 	public LuceneProcessingChain(SearchFactoryIntegrator searchFactory, EntityNamesResolver entityNames, Map<String, Object> namedParameters) {
 		this.resolverProcessor = new QueryResolverProcessor( new LuceneQueryResolverDelegate( searchFactory, entityNames, namedParameters ) );
 
+		LucenePropertyHelper propertyHelper = new LucenePropertyHelper( searchFactory );
 		SingleEntityQueryBuilder<Query> queryBuilder = SingleEntityQueryBuilder.getInstance(
-				new LucenePredicateFactory( searchFactory.buildQueryBuilder() ),
-				new LucenePropertyHelper( searchFactory )
+				new LucenePredicateFactory( searchFactory.buildQueryBuilder(), propertyHelper ),
+				propertyHelper
 		);
 
 		LuceneQueryRendererDelegate rendererDelegate = new LuceneQueryRendererDelegate(

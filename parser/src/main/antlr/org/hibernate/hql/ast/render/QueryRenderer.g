@@ -214,8 +214,7 @@ predicate
 	|	^( LESS_EQUAL rowValueConstructor comparativePredicateValue ) { delegate.predicateLessOrEqual( $comparativePredicateValue.text); }
 	|	^( GREATER rowValueConstructor comparativePredicateValue ) { delegate.predicateGreater( $comparativePredicateValue.text); }
 	|	^( GREATER_EQUAL rowValueConstructor comparativePredicateValue ) { delegate.predicateGreaterOrEqual( $comparativePredicateValue.text); }
-	|	^( IS_NULL rowValueConstructor )
-	|	^( IS_NOT_NULL rowValueConstructor )
+	|	^( IS_NULL rowValueConstructor ) { delegate.predicateIsNull(); }
 	|	^( LIKE valueExpression patternValue=valueExpression escapeSpecification? ) { delegate.predicateLike( $patternValue.text, $escapeSpecification.escapeCharacter ); }
 	|	^( BETWEEN rowValueConstructor betweenList )
 	|	^( IN rowValueConstructor inPredicateValue ) { delegate.predicateIn( $inPredicateValue.elements ); }

@@ -71,6 +71,8 @@ public interface QueryRendererDelegate<T> {
 
 	void predicateLike(String patternValue, Character escapeCharacter);
 
+	void predicateIsNull();
+
 	/**
 	 * Returns the result created by this delegate after the tree processing has been finished.
 	 *

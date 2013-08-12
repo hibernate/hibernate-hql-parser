@@ -56,10 +56,11 @@ public class LuceneQueryBuilderTest {
 	public void setupQueryBuilder() {
 		SearchFactoryIntegrator searchFactory = factoryHolder.getSearchFactory();
 		QueryContextBuilder queryContextBuilder = searchFactory.buildQueryBuilder();
+		LucenePropertyHelper propertyHelper = new LucenePropertyHelper( searchFactory );
 
 		queryBuilder = SingleEntityQueryBuilder.getInstance(
-				new LucenePredicateFactory( queryContextBuilder ),
-				new LucenePropertyHelper( searchFactory )
+				new LucenePredicateFactory( queryContextBuilder, propertyHelper ),
+				propertyHelper
 		);
 	}
 

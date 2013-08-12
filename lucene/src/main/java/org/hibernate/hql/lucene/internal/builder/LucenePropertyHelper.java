@@ -137,7 +137,7 @@ public class LucenePropertyHelper implements PropertyHelper {
 				|| getEmbeddedTypeMetadata( metadata.getEmbeddedTypeMetadata(), propertyPath[propertyPath.length - 1] ) != null;
 	}
 
-	private TypeMetadata getLeafTypeMetadata(Class<?> type, String... propertyPath) {
+	public TypeMetadata getLeafTypeMetadata(Class<?> type, String... propertyPath) {
 		EntityIndexBinding entityIndexBinding = getIndexBinding( type );
 		TypeMetadata leafTypeMetadata = entityIndexBinding.getDocumentBuilder().getMetadata();
 

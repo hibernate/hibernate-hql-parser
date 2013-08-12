@@ -216,7 +216,7 @@ public class LuceneQueryResolverDelegate implements QueryResolverDelegate {
 			throw log.getNoSuchPropertyException( type.toString(), propertyName );
 		}
 
-		if ( status != Status.DEFINING_SELECT && type.isAnalyzed( propertyName ) ) {
+		if ( status != Status.DEFINING_SELECT && !type.isEmbedded( propertyName ) && type.isAnalyzed( propertyName ) ) {
 			throw log.getQueryOnAnalyzedPropertyNotSupportedException( type.getIndexedEntityType().getCanonicalName(), propertyName );
 		}
 

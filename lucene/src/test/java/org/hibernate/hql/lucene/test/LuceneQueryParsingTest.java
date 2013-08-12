@@ -382,6 +382,27 @@ public class LuceneQueryParsingTest {
 				"-name:?l?ce *:*" );
 	}
 
+	@Test
+	public void shouldCreateIsNullQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name IS null",
+				"name:_null_" );
+	}
+
+	@Test
+	public void shouldCreateIsNullQueryForEmbeddedEntity() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.author IS null",
+				"author:_null_" );
+	}
+
+	@Test
+	public void shouldCreateIsNotNullQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name IS NOT null",
+				"-name:_null_ *:*" );
+	}
+
 	private void assertLuceneQuery(String queryString, String expectedLuceneQuery) {
 		assertLuceneQuery( queryString, null, expectedLuceneQuery );
 	}
