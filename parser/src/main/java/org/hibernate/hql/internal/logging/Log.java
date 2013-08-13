@@ -23,6 +23,7 @@ package org.hibernate.hql.internal.logging;
 import java.util.List;
 
 import org.antlr.runtime.RecognitionException;
+import org.hibernate.hql.ParsingException;
 import org.hibernate.hql.ast.spi.predicate.Predicate;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Cause;
@@ -38,10 +39,10 @@ import org.jboss.logging.MessageLogger;
 public interface Log extends BasicLogger {
 
 	@Message(id = 1, value = "The query %s is not valid.")
-	IllegalArgumentException getInvalidQuerySyntaxException(String query, @Cause RecognitionException cause);
+	ParsingException getInvalidQuerySyntaxException(String query, @Cause RecognitionException cause);
 
 	@Message(id = 2, value = "The query %s is not valid; Parser error messages: %s.")
-	IllegalArgumentException getInvalidQuerySyntaxException(String query, List<?> parserErrorMessages);
+	ParsingException getInvalidQuerySyntaxException(String query, List<?> parserErrorMessages);
 
 	@Message(id = 3, value = "The predicate %s is not of type %s.")
 	IllegalArgumentException getUnsupportedPredicateTypeException(Object predicate, String targetTypeName);
@@ -51,4 +52,7 @@ public interface Log extends BasicLogger {
 
 	@Message(id = 5, value = "The predicate %s can not be added since there may be only one sub-predicate in a NOT predicate.")
 	IllegalStateException getNotMoreThanOnePredicateInNegationAllowedException(Predicate<?> predicate);
+
+	@Message(id = 6, value = "The query %s is not valid; Found unconsumed token(s): %s.")
+	ParsingException getInvalidQuerySyntaxDueToUnconsumedTokensException(String query, String unconsumedTokens);
 }
