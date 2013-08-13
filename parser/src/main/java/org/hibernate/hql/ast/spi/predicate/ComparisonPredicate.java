@@ -20,6 +20,7 @@
  */
 package org.hibernate.hql.ast.spi.predicate;
 
+
 /**
  * An comparison predicate such as {@code EQUALS} or {@code LESS}.
  *
@@ -45,6 +46,34 @@ public abstract class ComparisonPredicate<Q> extends AbstractPredicate<Q> {
 		this.type = type;
 		this.value = value;
 	}
+
+	@Override
+	public Q getQuery() {
+		switch ( type ) {
+			case LESS:
+				return getStrictlyLessQuery();
+			case LESS_OR_EQUAL:
+				return getLessOrEqualsQuery();
+			case EQUALS:
+				return getEqualsQuery();
+			case GREATER_OR_EQUAL:
+				return getGreaterOrEqualsQuery();
+			case GREATER:
+				return getStrictlyGreaterQuery();
+			default:
+				throw new UnsupportedOperationException( "Unsupported comparison type: " + type );
+		}
+	}
+
+	protected abstract Q getStrictlyLessQuery();
+
+	protected abstract Q getLessOrEqualsQuery();
+
+	protected abstract Q getEqualsQuery();
+
+	protected abstract Q getGreaterOrEqualsQuery();
+
+	protected abstract Q getStrictlyGreaterQuery();
 
 	@Override
 	public String toString() {

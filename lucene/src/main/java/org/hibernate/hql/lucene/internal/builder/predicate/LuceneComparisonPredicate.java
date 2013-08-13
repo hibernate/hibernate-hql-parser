@@ -39,20 +39,27 @@ public class LuceneComparisonPredicate extends ComparisonPredicate<Query> {
 	}
 
 	@Override
-	public Query getQuery() {
-		switch ( type ) {
-			case LESS:
-				return builder.range().onField( propertyName ).below( value ).excludeLimit().createQuery();
-			case LESS_OR_EQUAL:
-				return builder.range().onField( propertyName ).below( value ).createQuery();
-			case EQUALS:
-				return builder.keyword().onField( propertyName ).matching( value ).createQuery();
-			case GREATER_OR_EQUAL:
-				return builder.range().onField( propertyName ).above( value ).createQuery();
-			case GREATER:
-				return builder.range().onField( propertyName ).above( value ).excludeLimit().createQuery();
-			default:
-				throw new UnsupportedOperationException( "Unsupported comparison type: " + type );
-		}
+	protected Query getStrictlyLessQuery() {
+		return builder.range().onField( propertyName ).below( value ).excludeLimit().createQuery();
+	}
+
+	@Override
+	protected Query getLessOrEqualsQuery() {
+		return builder.range().onField( propertyName ).below( value ).createQuery();
+	}
+
+	@Override
+	protected Query getEqualsQuery() {
+		return builder.keyword().onField( propertyName ).matching( value ).createQuery();
+	}
+
+	@Override
+	protected Query getGreaterOrEqualsQuery() {
+		return builder.range().onField( propertyName ).above( value ).createQuery();
+	}
+
+	@Override
+	protected Query getStrictlyGreaterQuery() {
+		return builder.range().onField( propertyName ).above( value ).excludeLimit().createQuery();
 	}
 }
