@@ -40,6 +40,6 @@ public abstract class LikePredicate<Q> extends AbstractPredicate<Q> {
 
 	@Override
 	public String toString() {
-		return "( " + propertyName + " LIKE " + patternValue + ( escapeCharacter != null ? " ESCAPE " + escapeCharacter : "" ) + " )";
+		return "( " + propertyName + " LIKE '" + patternValue + ( escapeCharacter != null ? " ESCAPE " + escapeCharacter : "" ) + "' )";
 	}
 }

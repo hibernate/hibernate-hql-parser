@@ -363,8 +363,24 @@ public class LuceneQueryParsingTest {
 				"name:Ali*" );
 
 		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name LIKE 'Ali%%'",
+				"name:Ali**" );
+
+		assertLuceneQuery(
 				"select e from IndexedEntity e where e.name LIKE '_l_ce'",
 				"name:?l?ce" );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name LIKE '___ce'",
+				"name:???ce" );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name LIKE '___ce'",
+				"name:???ce" );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name LIKE 'Alice in wonderl%'",
+				"name:Alice in wonderl*" );
 	}
 
 	@Test
@@ -378,8 +394,8 @@ public class LuceneQueryParsingTest {
 				"-name:Ali* *:*" );
 
 		assertLuceneQuery(
-				"select e from IndexedEntity e where e.name NOT LIKE '_l_ce'",
-				"-name:?l?ce *:*" );
+				"select e from IndexedEntity e where e.name NOT LIKE '_l_ce' and not (e.title LIKE '%goo' and e.position = '5' )",
+				"-name:?l?ce -(+title:*goo +position:[5 TO 5])" );
 	}
 
 	@Test
