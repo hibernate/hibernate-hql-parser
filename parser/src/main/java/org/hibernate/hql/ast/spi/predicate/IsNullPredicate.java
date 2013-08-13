@@ -20,33 +20,22 @@
  */
 package org.hibernate.hql.ast.spi.predicate;
 
-import java.util.List;
-
-import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
-
 /**
- * Factory for creating predicate instances. Used by the query builder to create a stack of predicates representing the
- * processed query.
+ * A {@code IS NULL} predicate.
  *
  * @author Gunnar Morling
  */
-public interface PredicateFactory<Q> {
+public abstract class IsNullPredicate<Q> extends AbstractPredicate<Q> {
 
-	RootPredicate<Q> getRootPredicate(Class<?> entityType);
+	protected final String propertyName;
 
-	ComparisonPredicate<Q> getComparisonPredicate(Class<?> entityType, Type comparisonType, List<String> propertyPath, Object value);
+	public IsNullPredicate(String propertyName) {
+		super( Predicate.Type.IS_NULL );
+		this.propertyName = propertyName;
+	}
 
-	InPredicate<Q> getInPredicate(Class<?> entityType, List<String> propertyPath, List<Object> typedElements);
-
-	RangePredicate<Q> getRangePredicate(Class<?> entityType, List<String> propertyPath, Object lowerValue, Object upperValue);
-
-	NegationPredicate<Q> getNegationPredicate();
-
-	DisjunctionPredicate<Q> getDisjunctionPredicate();
-
-	ConjunctionPredicate<Q> getConjunctionPredicate();
-
-	LikePredicate<Q> getLikePredicate(Class<?> entityType, List<String> propertyPath, String patternValue, Character escapeCharacter);
-
-	IsNullPredicate<Q> getIsNullPredicate(Class<?> entityType, List<String> propertyPath);
+	@Override
+	public String toString() {
+		return "( " + propertyName + " IS NULL )";
+	}
 }

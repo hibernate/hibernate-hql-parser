@@ -209,18 +209,15 @@ searchCondition
 
 predicate
 	:	^( EQUALS rowValueConstructor comparativePredicateValue ) { delegate.predicateEquals( $comparativePredicateValue.text); }//{ predicateEquals( $rowValueConstructor, $comparativePredicateValue ); }
-	|	^( LESS rowValueConstructor comparativePredicateValue )
-	|	^( LESS_EQUAL rowValueConstructor comparativePredicateValue )
-	|	^( GREATER rowValueConstructor comparativePredicateValue )
-	|	^( GREATER_EQUAL rowValueConstructor comparativePredicateValue )
-	|	^( IS_NULL rowValueConstructor )
-	|	^( IS_NOT_NULL rowValueConstructor )
-	|	^( LIKE valueExpression valueExpression escapeSpecification? )
-	|	^( NOT_LIKE valueExpression valueExpression escapeSpecification? )
+	|	^( NOT_EQUAL rowValueConstructor comparativePredicateValue ) { delegate.predicateNotEquals( $comparativePredicateValue.text); }
+	|	^( LESS rowValueConstructor comparativePredicateValue ) { delegate.predicateLess( $comparativePredicateValue.text); }
+	|	^( LESS_EQUAL rowValueConstructor comparativePredicateValue ) { delegate.predicateLessOrEqual( $comparativePredicateValue.text); }
+	|	^( GREATER rowValueConstructor comparativePredicateValue ) { delegate.predicateGreater( $comparativePredicateValue.text); }
+	|	^( GREATER_EQUAL rowValueConstructor comparativePredicateValue ) { delegate.predicateGreaterOrEqual( $comparativePredicateValue.text); }
+	|	^( IS_NULL rowValueConstructor ) { delegate.predicateIsNull(); }
+	|	^( LIKE valueExpression patternValue=valueExpression escapeSpecification? ) { delegate.predicateLike( $patternValue.text, $escapeSpecification.escapeCharacter ); }
 	|	^( BETWEEN rowValueConstructor betweenList )
-	|	^( NOT_BETWEEN rowValueConstructor betweenList )
-	|	^( IN rowValueConstructor inPredicateValue )
-	|	^( NOT_IN rowValueConstructor inPredicateValue )
+	|	^( IN rowValueConstructor inPredicateValue ) { delegate.predicateIn( $inPredicateValue.elements ); }
 	|	^( MEMBER_OF rowValueConstructor rowValueConstructor )
 	|	^( NOT_MEMBER_OF rowValueConstructor rowValueConstructor  )
 	|	^( IS_EMPTY rowValueConstructor )
@@ -240,12 +237,13 @@ rowValueConstructor
 	:	valueExpression
 	;
 
-escapeSpecification
-	:	^(ESCAPE characterValueExpression)
+escapeSpecification returns [Character escapeCharacter]
+	:	^(ESCAPE characterValueExpression) { $escapeCharacter = $characterValueExpression.text.charAt( 0 ); }
 	;
 
-inPredicateValue
-	:	^(IN_LIST valueExpression+)
+inPredicateValue returns [List<String> elements]
+	@init{ $elements = new ArrayList<String>(); }
+	:	^(IN_LIST (valueExpression { $elements.add($valueExpression.text); })+)
 	;
 
 numericValueExpression

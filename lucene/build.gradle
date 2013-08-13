@@ -5,6 +5,7 @@ dependencies {
     compile( libraries.jboss_logging )
 
     testCompile( libraries.hibernate_search_tests )
+    testCompile( libraries.log4j )
 
     testRuntime( libraries.jta_api )
 }

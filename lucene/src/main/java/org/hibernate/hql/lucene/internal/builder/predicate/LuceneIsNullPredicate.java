@@ -18,26 +18,30 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.hql.ast.spi.predicate;
+package org.hibernate.hql.lucene.internal.builder.predicate;
+
+import org.apache.lucene.search.Query;
+import org.hibernate.hql.ast.spi.predicate.IsNullPredicate;
+import org.hibernate.search.query.dsl.QueryBuilder;
 
 /**
- * An {@code EQUALS} predicate.
+ * Lucene-based {@code IS NULL} predicate.
  *
  * @author Gunnar Morling
  */
-public abstract class EqualsPredicate<Q> extends AbstractPredicate<Q> {
+public class LuceneIsNullPredicate extends IsNullPredicate<Query> {
 
-	protected final String propertyName;
-	protected final Object value;
+	private final QueryBuilder builder;
+	private final String nullToken;
 
-	public EqualsPredicate(String propertyName, Object value) {
-		super( Type.EQUALS );
-		this.propertyName = propertyName;
-		this.value = value;
+	public LuceneIsNullPredicate(QueryBuilder builder, String propertyName, String nullToken) {
+		super( propertyName );
+		this.builder = builder;
+		this.nullToken = nullToken;
 	}
 
 	@Override
-	public String toString() {
-		return "( EQUALS " + propertyName + " " + value + " )";
+	public Query getQuery() {
+		return builder.keyword().onField( propertyName ).matching( nullToken ).createQuery();
 	}
 }

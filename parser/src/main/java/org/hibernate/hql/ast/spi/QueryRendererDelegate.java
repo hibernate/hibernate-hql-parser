@@ -20,6 +20,8 @@
  */
 package org.hibernate.hql.ast.spi;
 
+import java.util.List;
+
 import org.antlr.runtime.tree.Tree;
 import org.hibernate.hql.ast.common.JoinType;
 import org.hibernate.hql.ast.origin.hql.resolve.path.PropertyPath;
@@ -51,9 +53,25 @@ public interface QueryRendererDelegate<T> {
 
 	void deactivateBoolean();
 
+	void predicateLess(String comparativePredicate);
+
+	void predicateLessOrEqual(String comparativePredicate);
+
 	void predicateEquals(String comparativePredicate);
 
+	void predicateNotEquals(String comparativePredicate);
+
+	void predicateGreaterOrEqual(String comparativePredicate);
+
+	void predicateGreater(String comparativePredicate);
+
 	void predicateBetween(String lower, String upper);
+
+	void predicateIn(List<String> list);
+
+	void predicateLike(String patternValue, Character escapeCharacter);
+
+	void predicateIsNull();
 
 	/**
 	 * Returns the result created by this delegate after the tree processing has been finished.

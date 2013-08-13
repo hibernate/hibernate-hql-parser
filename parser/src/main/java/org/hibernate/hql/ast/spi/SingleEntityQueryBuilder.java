@@ -20,10 +20,12 @@
  */
 package org.hibernate.hql.ast.spi;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
+import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
 import org.hibernate.hql.ast.spi.predicate.ParentPredicate;
 import org.hibernate.hql.ast.spi.predicate.Predicate;
 import org.hibernate.hql.ast.spi.predicate.PredicateFactory;
@@ -77,16 +79,12 @@ public class SingleEntityQueryBuilder<Q> {
 		return this;
 	}
 
-	public SingleEntityQueryBuilder<Q> addEqualsPredicate(String property, Object value) {
-		return addEqualsPredicate( Arrays.asList( property ), value );
-	}
-
-	public SingleEntityQueryBuilder<Q> addEqualsPredicate(List<String> propertyPath, Object value) {
+	public SingleEntityQueryBuilder<Q> addComparisonPredicate(List<String> propertyPath, Type comparisonType, Object value) {
 		Object typedValue = value instanceof String ?
 				propertyHelper.convertToPropertyType( entityType, propertyPath, (String) value ) :
 				value;
 
-		pushPredicate( predicateFactory.getEqualsPredicate( entityType, propertyPath, typedValue ) );
+		pushPredicate( predicateFactory.getComparisonPredicate( entityType, comparisonType, propertyPath, typedValue ) );
 
 		return this;
 	}
@@ -106,6 +104,32 @@ public class SingleEntityQueryBuilder<Q> {
 
 		pushPredicate( predicateFactory.getRangePredicate( entityType, propertyPath, lowerValue, upperValue ) );
 
+		return this;
+	}
+
+	public SingleEntityQueryBuilder<Q> addInPredicate(List<String> propertyPath, List<Object> elements) {
+		List<Object> typedElements = new ArrayList<Object>( elements.size() );
+
+		for ( Object element : elements ) {
+			Object typedElement = element instanceof String ?
+					propertyHelper.convertToPropertyType( entityType, propertyPath, (String) element ) :
+					element;
+
+			typedElements.add( typedElement );
+		}
+
+		pushPredicate( predicateFactory.getInPredicate( entityType, propertyPath, typedElements ) );
+
+		return this;
+	}
+
+	public SingleEntityQueryBuilder<Q> addLikePredicate(List<String> propertyPath, String patternValue, Character escapeCharacter) {
+		pushPredicate( predicateFactory.getLikePredicate( entityType, propertyPath, patternValue, escapeCharacter ) );
+		return this;
+	}
+
+	public SingleEntityQueryBuilder<Q> addIsNullPredicate(List<String> propertyPath) {
+		pushPredicate( predicateFactory.getIsNullPredicate( entityType, propertyPath ) );
 		return this;
 	}
 

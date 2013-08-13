@@ -18,35 +18,41 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.hql.ast.spi.predicate;
+package org.hibernate.hql.lucene.internal.builder.predicate;
 
 import java.util.List;
 
-import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
+import org.apache.lucene.search.Query;
+import org.hibernate.hql.ast.spi.predicate.InPredicate;
+import org.hibernate.search.query.dsl.QueryBuilder;
 
 /**
- * Factory for creating predicate instances. Used by the query builder to create a stack of predicates representing the
- * processed query.
+ * Lucene-based {@code IN} predicate in the form of disjoint {@code EQUALS} predicates for the given values.
  *
  * @author Gunnar Morling
  */
-public interface PredicateFactory<Q> {
+public class LuceneInPredicate extends InPredicate<Query> {
 
-	RootPredicate<Q> getRootPredicate(Class<?> entityType);
+	private final QueryBuilder builder;
 
-	ComparisonPredicate<Q> getComparisonPredicate(Class<?> entityType, Type comparisonType, List<String> propertyPath, Object value);
+	public LuceneInPredicate(QueryBuilder builder, String propertyName, List<Object> values) {
+		super( propertyName, values );
+		this.builder = builder;
+	}
 
-	InPredicate<Q> getInPredicate(Class<?> entityType, List<String> propertyPath, List<Object> typedElements);
+	@Override
+	public Query getQuery() {
+		LuceneDisjunctionPredicate predicate = new LuceneDisjunctionPredicate( builder );
 
-	RangePredicate<Q> getRangePredicate(Class<?> entityType, List<String> propertyPath, Object lowerValue, Object upperValue);
+		for ( Object element : values ) {
+			LuceneComparisonPredicate equals = new LuceneComparisonPredicate(
+					builder,
+					propertyName,
+					org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type.EQUALS, element );
 
-	NegationPredicate<Q> getNegationPredicate();
+			predicate.add( equals );
+		}
 
-	DisjunctionPredicate<Q> getDisjunctionPredicate();
-
-	ConjunctionPredicate<Q> getConjunctionPredicate();
-
-	LikePredicate<Q> getLikePredicate(Class<?> entityType, List<String> propertyPath, String patternValue, Character escapeCharacter);
-
-	IsNullPredicate<Q> getIsNullPredicate(Class<?> entityType, List<String> propertyPath);
+		return predicate.getQuery();
+	}
 }

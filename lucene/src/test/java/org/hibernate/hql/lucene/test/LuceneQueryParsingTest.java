@@ -35,7 +35,7 @@ import org.hibernate.hql.lucene.internal.LuceneQueryResolverDelegate;
 import org.hibernate.hql.lucene.test.model.IndexedEntity;
 import org.hibernate.hql.lucene.testutil.MapBasedEntityNamesResolver;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
-import org.hibernate.search.test.programmaticmapping.TestingSearchFactoryHolder;
+import org.hibernate.search.test.util.SearchFactoryHolder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class LuceneQueryParsingTest {
 	private static boolean USE_STDOUT = true;
 
 	@Rule
-	public TestingSearchFactoryHolder factoryHolder = new TestingSearchFactoryHolder( IndexedEntity.class );
+	public SearchFactoryHolder factoryHolder = new SearchFactoryHolder( IndexedEntity.class );
 
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
@@ -67,14 +67,14 @@ public class LuceneQueryParsingTest {
 	@Test
 	public void shouldCreateUnrestrictedQuery() {
 		assertLuceneQuery(
-				"from IndexedEntity" ,
+				"from IndexedEntity",
 				"*:*" );
 	}
 
 	@Test
 	public void shouldCreateRestrictedQueryUsingSelect() {
 		assertLuceneQuery(
-				"select e from IndexedEntity e where e.name = 'same' and not e.id = 5" ,
+				"select e from IndexedEntity e where e.name = 'same' and not e.id = 5",
 				"+name:same -id:5" );
 	}
 
@@ -84,14 +84,6 @@ public class LuceneQueryParsingTest {
 
 		assertThat( parsingResult.getQuery().toString() ).isEqualTo( "*:*" );
 		assertThat( parsingResult.getProjections() ).containsExactly( "id", "name" );
-	}
-
-	@Test
-	public void shouldCreateProjectionForPropertyWithMultipleFields() {
-		LuceneQueryParsingResult parsingResult = parseQuery( "select e.titleAnalyzed from IndexedEntity e where e.title = 'foo'" );
-
-		assertThat( parsingResult.getQuery().toString() ).isEqualTo( "title:foo" );
-		assertThat( parsingResult.getProjections() ).containsExactly( "titleAnalyzed" );
 	}
 
 	@Test
@@ -113,7 +105,7 @@ public class LuceneQueryParsingTest {
 	@Test
 	public void shouldCreateQueryWithUnqualifiedPropertyReferences() {
 		assertLuceneQuery(
-				"from IndexedEntity e where name = 'same' and not id = 5" ,
+				"from IndexedEntity e where name = 'same' and not id = 5",
 				"+name:same -id:5" );
 	}
 
@@ -184,25 +176,32 @@ public class LuceneQueryParsingTest {
 	@Test
 	public void shouldCreateNegatedQuery() {
 		assertLuceneQuery(
-				"from IndexedEntity e where NOT e.name = 'same'" ,
+				"from IndexedEntity e where NOT e.name = 'same'",
 				"-name:same *:*" );
 
-		//JPQL syntax
+		// JPQL syntax
 		assertLuceneQuery(
-				"from IndexedEntity e where e.name <> 'same'" ,
+				"from IndexedEntity e where e.name <> 'same'",
 				"-name:same *:*" );
 
-		//HQL syntax
+		// HQL syntax
 		assertLuceneQuery(
-				"from IndexedEntity e where e.name != 'same'" ,
+				"from IndexedEntity e where e.name != 'same'",
 				"-name:same *:*" );
+	}
+
+	@Test
+	public void shouldCreateNegatedQueryOnNumericProperty() {
+		assertLuceneQuery(
+				"from IndexedEntity e where e.position <> 3",
+				"-position:[3 TO 3] *:*" );
 	}
 
 	@Test
 	public void shouldCreateNegatedRangeQuery() {
 		assertLuceneQuery(
-				"select e from IndexedEntity e where e.name = 'Bob' and not e.position between 1 and 3" ,
-				"+name:Bob -position:[1 TO 3]");
+				"select e from IndexedEntity e where e.name = 'Bob' and not e.position between 1 and 3",
+				"+name:Bob -position:[1 TO 3]" );
 	}
 
 	@Test
@@ -211,30 +210,37 @@ public class LuceneQueryParsingTest {
 		namedParameters.put( "nameParameter", "Bob" );
 
 		assertLuceneQuery(
-				"from IndexedEntity e where e.name = :nameParameter" ,
+				"from IndexedEntity e where e.name = :nameParameter",
 				namedParameters,
-				"name:Bob");
+				"name:Bob" );
 	}
 
 	@Test
 	public void shouldCreateBooleanQuery() {
 		assertLuceneQuery(
-				"from IndexedEntity e where e.name = 'same' or ( e.id = 4 and e.name = 'booh')" ,
+				"from IndexedEntity e where e.name = 'same' or ( e.id = 4 and e.name = 'booh')",
 				"name:same (+id:4 +name:booh)" );
 	}
 
 	@Test
 	public void shouldCreateBooleanQueryUsingSelect() {
 		assertLuceneQuery(
-				"select e from IndexedEntity e where e.name = 'same' or ( e.id = 4 and e.name = 'booh')" ,
+				"select e from IndexedEntity e where e.name = 'same' or ( e.id = 4 and e.name = 'booh')",
 				"name:same (+id:4 +name:booh)" );
 	}
 
 	@Test
 	public void shouldCreateBetweenQuery() {
 		assertLuceneQuery(
-				"select e from IndexedEntity e where e.name between 'aaa' and 'zzz'" ,
+				"select e from IndexedEntity e where e.name between 'aaa' and 'zzz'",
 				"name:[aaa TO zzz]" );
+	}
+
+	@Test
+	public void shouldCreateNotBetweenQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name not between 'aaa' and 'zzz'",
+				"-name:[aaa TO zzz] *:*" );
 	}
 
 	@Test
@@ -249,9 +255,9 @@ public class LuceneQueryParsingTest {
 		namedParameters.put( "upper", "zzz" );
 
 		assertLuceneQuery(
-				"select e from IndexedEntity e where e.name between :lower and :upper" ,
+				"select e from IndexedEntity e where e.name between :lower and :upper",
 				namedParameters,
-				"name:[aaa TO zzz]");
+				"name:[aaa TO zzz]" );
 	}
 
 	@Test
@@ -261,16 +267,140 @@ public class LuceneQueryParsingTest {
 		namedParameters.put( "upper", 20L );
 
 		assertLuceneQuery(
-				"select e from IndexedEntity e where e.position between :lower and :upper" ,
+				"select e from IndexedEntity e where e.position between :lower and :upper",
 				namedParameters,
-				"position:[10 TO 20]");
+				"position:[10 TO 20]" );
 	}
 
 	@Test
 	public void shouldCreateQueryWithEmbeddedPropertyInFromClause() {
 		assertLuceneQuery(
-				"from IndexedEntity e where e.author.name = 'Bob'" ,
+				"from IndexedEntity e where e.author.name = 'Bob'",
 				"author.name:Bob" );
+	}
+
+	@Test
+	public void shouldCreateLessThanQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.position < 100",
+				"position:[* TO 100}" );
+	}
+
+	@Test
+	public void shouldCreateLessThanOrEqualsToQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.position <= 100",
+				"position:[* TO 100]" );
+	}
+
+	@Test
+	public void shouldCreateGreaterThanOrEqualsToQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.position >= 100",
+				"position:[100 TO *]" );
+	}
+
+	@Test
+	public void shouldCreateGreaterThanQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.position > 100",
+				"position:{100 TO *]" );
+	}
+
+	@Test
+	public void shouldCreateInQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name in ('Bob', 'Alice')",
+				"name:Bob name:Alice" );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.position in (10, 20, 30, 40)",
+				"position:[10 TO 10] position:[20 TO 20] position:[30 TO 30] position:[40 TO 40]" );
+	}
+
+	@Test
+	public void shouldCreateInQueryWithNamedParameters() {
+		Map<String, Object> namedParameters = new HashMap<String, Object>();
+		namedParameters.put( "name1", "Bob" );
+		namedParameters.put( "name2", "Alice" );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name in (:name1, :name2)",
+				namedParameters,
+				"name:Bob name:Alice" );
+
+		namedParameters = new HashMap<String, Object>();
+		namedParameters.put( "pos1", 10 );
+		namedParameters.put( "pos2", 20 );
+		namedParameters.put( "pos3", 30 );
+		namedParameters.put( "pos4", 40 );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.position in (:pos1, :pos2, :pos3, :pos4)",
+				namedParameters,
+				"position:[10 TO 10] position:[20 TO 20] position:[30 TO 30] position:[40 TO 40]" );
+	}
+
+	@Test
+	public void shouldCreateNotInQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name not in ('Bob', 'Alice')",
+				"-(name:Bob name:Alice) *:*" );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.position not in (10, 20, 30, 40)",
+				"-(position:[10 TO 10] position:[20 TO 20] position:[30 TO 30] position:[40 TO 40]) *:*" );
+	}
+
+	@Test
+	public void shouldCreateLikeQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name LIKE 'Al_ce'",
+				"name:Al?ce" );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name LIKE 'Ali%'",
+				"name:Ali*" );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name LIKE '_l_ce'",
+				"name:?l?ce" );
+	}
+
+	@Test
+	public void shouldCreateNotLikeQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name NOT LIKE 'Al_ce'",
+				"-name:Al?ce *:*" );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name NOT LIKE 'Ali%'",
+				"-name:Ali* *:*" );
+
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name NOT LIKE '_l_ce'",
+				"-name:?l?ce *:*" );
+	}
+
+	@Test
+	public void shouldCreateIsNullQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name IS null",
+				"name:_null_" );
+	}
+
+	@Test
+	public void shouldCreateIsNullQueryForEmbeddedEntity() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.author IS null",
+				"author:_null_" );
+	}
+
+	@Test
+	public void shouldCreateIsNotNullQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e where e.name IS NOT null",
+				"-name:_null_ *:*" );
 	}
 
 	private void assertLuceneQuery(String queryString, String expectedLuceneQuery) {
@@ -301,7 +431,7 @@ public class LuceneQueryParsingTest {
 		return queryParser.parseQuery(
 				queryString,
 				setUpLuceneProcessingChain( namedParameters )
-		);
+				);
 	}
 
 	private LuceneProcessingChain setUpLuceneProcessingChain(Map<String, Object> namedParameters) {

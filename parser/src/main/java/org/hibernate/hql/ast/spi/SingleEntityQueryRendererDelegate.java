@@ -21,6 +21,7 @@
 package org.hibernate.hql.ast.spi;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import java.util.Map;
 import org.antlr.runtime.tree.Tree;
 import org.hibernate.hql.ast.common.JoinType;
 import org.hibernate.hql.ast.origin.hql.resolve.path.PropertyPath;
+import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
 
 /**
  * This extends the ANTLR generated AST walker to transform a parsed tree
@@ -85,7 +87,7 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 
 	public SingleEntityQueryRendererDelegate(EntityNamesResolver entityNames, SingleEntityQueryBuilder<Q> builder, Map<String, Object> namedParameters) {
 		this.entityNames = entityNames;
-		this.namedParameters = namedParameters;
+		this.namedParameters = namedParameters != null ? namedParameters : Collections.<String, Object>emptyMap();
 		this.builder = builder;
 	}
 
@@ -160,6 +162,16 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 		builder.pushNotPredicate();
 	}
 
+	@Override
+	public void predicateLess(String comparativePredicate) {
+		addComparisonPredicate( comparativePredicate, Type.LESS );
+	}
+
+	@Override
+	public void predicateLessOrEqual(String comparativePredicate) {
+		addComparisonPredicate( comparativePredicate, Type.LESS_OR_EQUAL );
+	}
+
 	/**
 	 * This implements the equality predicate; the comparison
 	 * predicate could be a constant, a subfunction or
@@ -169,8 +181,35 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 	 */
 	@Override
 	public void predicateEquals(final String comparativePredicate) {
+		addComparisonPredicate( comparativePredicate, Type.EQUALS );
+	}
+
+	@Override
+	public void predicateNotEquals(String comparativePredicate) {
+		builder.pushNotPredicate();
+		addComparisonPredicate( comparativePredicate, Type.EQUALS );
+		builder.popBooleanPredicate();
+	}
+
+	@Override
+	public void predicateGreaterOrEqual(String comparativePredicate) {
+		addComparisonPredicate( comparativePredicate, Type.GREATER_OR_EQUAL );
+	}
+
+	@Override
+	public void predicateGreater(String comparativePredicate) {
+		addComparisonPredicate( comparativePredicate, Type.GREATER );
+	}
+
+	private void addComparisonPredicate(String comparativePredicate, Type comparisonType) {
 		Object comparisonValue = fromNamedQuery( comparativePredicate );
-		builder.addEqualsPredicate( propertyPath.getNodeNamesWithoutAlias(), comparisonValue );
+		builder.addComparisonPredicate( propertyPath.getNodeNamesWithoutAlias(), comparisonType, comparisonValue );
+	}
+
+	@Override
+	public void predicateIn(List<String> list) {
+		List<Object> values = fromNamedQuery( list );
+		builder.addInPredicate( propertyPath.getNodeNamesWithoutAlias(), values );
 	}
 
 	@Override
@@ -181,6 +220,17 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 		builder.addRangePredicate( propertyPath.getNodeNamesWithoutAlias(), lowerComparisonValue, upperComparisonValue );
 	}
 
+	@Override
+	public void predicateLike(String patternValue, Character escapeCharacter) {
+		Object pattern = fromNamedQuery( patternValue );
+		builder.addLikePredicate( propertyPath.getNodeNamesWithoutAlias(), (String) pattern, escapeCharacter );
+	}
+
+	@Override
+	public void predicateIsNull() {
+		builder.addIsNullPredicate( propertyPath.getNodeNamesWithoutAlias() );
+	}
+
 	private Object fromNamedQuery(String comparativePredicate) {
 		if ( comparativePredicate.startsWith( ":" ) ) {
 			return namedParameters.get( comparativePredicate.substring( 1 ) );
@@ -188,6 +238,16 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 		else {
 			return comparativePredicate;
 		}
+	}
+
+	private List<Object> fromNamedQuery(List<String> list) {
+		List<Object> elements = new ArrayList<Object>( list.size() );
+
+		for ( String string : list ) {
+			elements.add( fromNamedQuery( string ) );
+		}
+
+		return elements;
 	}
 
 	@Override

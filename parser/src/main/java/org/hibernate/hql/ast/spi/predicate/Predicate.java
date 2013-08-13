@@ -25,7 +25,6 @@ package org.hibernate.hql.ast.spi.predicate;
  * equivalent query for themselves and, in case of parent predicates, their children.
  *
  * @param <Q> the type of query objects created by this predicate
- *
  * @author Gunnar Morling
  */
 public interface Predicate<Q> {
@@ -36,7 +35,7 @@ public interface Predicate<Q> {
 	 * @author Gunnar Morling
 	 */
 	public enum Type {
-		ROOT(true), CONJUNCTION(true), DISJUNCTION(true), NEGATION(true), EQUALS(false), RANGE(false);
+		ROOT(true), CONJUNCTION(true), DISJUNCTION(true), NEGATION(true), COMPARISON(false), RANGE(false), IN(false), LIKE(false), IS_NULL(false);
 
 		private final boolean isParent;
 
@@ -55,8 +54,8 @@ public interface Predicate<Q> {
 	}
 
 	/**
-	 * Returns the query represented by this predicate. Contains the all sub-predicates if this predicate
-	 * is a parent predicate.
+	 * Returns the query represented by this predicate. Contains the all sub-predicates if this predicate is a parent
+	 * predicate.
 	 *
 	 * @return the query represented by this predicate
 	 */

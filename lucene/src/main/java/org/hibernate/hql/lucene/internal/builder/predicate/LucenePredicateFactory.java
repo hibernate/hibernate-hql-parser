@@ -23,14 +23,22 @@ package org.hibernate.hql.lucene.internal.builder.predicate;
 import java.util.List;
 
 import org.apache.lucene.search.Query;
+import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate;
+import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
 import org.hibernate.hql.ast.spi.predicate.ConjunctionPredicate;
 import org.hibernate.hql.ast.spi.predicate.DisjunctionPredicate;
-import org.hibernate.hql.ast.spi.predicate.EqualsPredicate;
+import org.hibernate.hql.ast.spi.predicate.InPredicate;
+import org.hibernate.hql.ast.spi.predicate.IsNullPredicate;
+import org.hibernate.hql.ast.spi.predicate.LikePredicate;
 import org.hibernate.hql.ast.spi.predicate.NegationPredicate;
 import org.hibernate.hql.ast.spi.predicate.PredicateFactory;
 import org.hibernate.hql.ast.spi.predicate.RangePredicate;
 import org.hibernate.hql.ast.spi.predicate.RootPredicate;
 import org.hibernate.hql.internal.util.Strings;
+import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
+import org.hibernate.search.engine.metadata.impl.EmbeddedTypeMetadata;
+import org.hibernate.search.engine.metadata.impl.PropertyMetadata;
+import org.hibernate.search.engine.metadata.impl.TypeMetadata;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import org.hibernate.search.query.dsl.QueryContextBuilder;
 
@@ -42,10 +50,12 @@ import org.hibernate.search.query.dsl.QueryContextBuilder;
 public class LucenePredicateFactory implements PredicateFactory<Query> {
 
 	private final QueryContextBuilder queryContextBuilder;
+	private final LucenePropertyHelper propertyHelper;
 	private QueryBuilder queryBuilder;
 
-	public LucenePredicateFactory(QueryContextBuilder queryContextBuilder) {
+	public LucenePredicateFactory(QueryContextBuilder queryContextBuilder, LucenePropertyHelper propertyHelper) {
 		this.queryContextBuilder = queryContextBuilder;
+		this.propertyHelper = propertyHelper;
 	}
 
 	@Override
@@ -55,8 +65,13 @@ public class LucenePredicateFactory implements PredicateFactory<Query> {
 	}
 
 	@Override
-	public EqualsPredicate<Query> getEqualsPredicate(Class<?> entityType, List<String> propertyPath, Object value) {
-		return new LuceneEqualsPredicate( queryBuilder, Strings.join( propertyPath, "." ), value );
+	public ComparisonPredicate<Query> getComparisonPredicate(Class<?> entityType, Type comparisonType, List<String> propertyPath, Object value) {
+		return new LuceneComparisonPredicate( queryBuilder, Strings.join( propertyPath, "." ), comparisonType, value );
+	}
+
+	@Override
+	public InPredicate<Query> getInPredicate(Class<?> entityType, List<String> propertyPath, List<Object> values) {
+		return new LuceneInPredicate( queryBuilder, Strings.join( propertyPath, "." ), values );
 	}
 
 	@Override
@@ -77,5 +92,26 @@ public class LucenePredicateFactory implements PredicateFactory<Query> {
 	@Override
 	public ConjunctionPredicate<Query> getConjunctionPredicate() {
 		return new LuceneConjunctionPredicate( queryBuilder );
+	}
+
+	@Override
+	public LikePredicate<Query> getLikePredicate(Class<?> entityType, List<String> propertyPath, String patternValue, Character escapeCharacter) {
+		return new LuceneLikePredicate( queryBuilder, Strings.join( propertyPath, "." ), patternValue );
+	}
+
+	@Override
+	public IsNullPredicate<Query> getIsNullPredicate(Class<?> entityType, List<String> propertyPath) {
+		TypeMetadata typeMetadata = propertyHelper.getLeafTypeMetadata( entityType, propertyPath.toArray( new String[propertyPath.size()] ) );
+
+		String nullToken;
+		if ( propertyHelper.isEmbedded( entityType, propertyPath ) ) {
+			nullToken = ( (EmbeddedTypeMetadata) typeMetadata ).getEmbeddedNullToken();
+		}
+		else {
+			PropertyMetadata propertyMetadata = typeMetadata.getPropertyMetadataForProperty( propertyPath.get( propertyPath.size() - 1 ) );
+			nullToken = propertyMetadata.getFieldMetadata().iterator().next().indexNullAs();
+		}
+
+		return new LuceneIsNullPredicate( queryBuilder, Strings.join( propertyPath, "." ), nullToken );
 	}
 }

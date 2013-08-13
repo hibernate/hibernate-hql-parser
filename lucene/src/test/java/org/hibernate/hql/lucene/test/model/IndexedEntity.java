@@ -53,7 +53,7 @@ public class IndexedEntity {
 		this.id = id;
 	}
 
-	@Field(analyze = Analyze.NO)
+	@Field(analyze = Analyze.NO, indexNullAs = Field.DEFAULT_NULL_TOKEN)
 	public String getName() {
 		return name;
 	}
@@ -95,7 +95,7 @@ public class IndexedEntity {
 	}
 
 	@OneToOne(cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
-	@IndexedEmbedded
+	@IndexedEmbedded(indexNullAs = Field.DEFAULT_NULL_TOKEN)
 	public Author getAuthor() {
 		return author;
 	}
