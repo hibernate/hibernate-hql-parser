@@ -77,6 +77,7 @@ SELECT/FROM STATEMENT
 "from bank.Account account where account.owner.id.country = 'AU' and account.owner.id.medicareNumber = 123456"  OK
 "from eg.Cat cat where cat.class = eg.DomesticCat"  OK
 "from eg.AuditLog log, eg.Payment payment where log.item.class = 'eg.Payment' and log.item.id = payment.id"  OK
+"from eg.Cat as cat where cat.name='Fritz' blah blah blah" FAIL
 [Section 9.8 - Expressions]
 "from eg.DomesticCat cat where cat.name between 'A' and 'B'"  OK
 "from eg.DomesticCat cat where cat.name in ( 'Foo', 'Bar', 'Baz' )"  OK

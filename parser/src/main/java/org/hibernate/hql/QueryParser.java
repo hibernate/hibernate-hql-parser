@@ -23,7 +23,7 @@ package org.hibernate.hql;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.TokenStream;
+import org.antlr.runtime.Token;
 import org.antlr.runtime.tree.CommonTree;
 import org.hibernate.hql.ast.origin.hql.parse.HQLLexer;
 import org.hibernate.hql.ast.origin.hql.parse.HQLParser;
@@ -51,14 +51,13 @@ public class QueryParser {
 	 *
 	 * @param queryString the query string to parse
 	 * @param processingChain one or more {@link AstProcessor}s which traverse the query parse tree in order to
-	 * normalize/validate
-	 * it and create the parsing result
+	 * normalize/validate it and create the parsing result
 	 * @return the result of this parsing as created by the given processing chain
 	 * @throws ParsingException in case any exception occurs during parsing
 	 */
 	public <T> T parseQuery(String queryString, AstProcessingChain<T> processingChain) throws ParsingException {
 		HQLLexer lexer = new HQLLexer( new ANTLRStringStream( queryString ) );
-		TokenStream tokens = new CommonTokenStream( lexer );
+		CommonTokenStream tokens = new CommonTokenStream( lexer );
 		HQLParser parser = new HQLParser( tokens );
 
 		try {
@@ -67,6 +66,11 @@ public class QueryParser {
 
 			if ( parser.hasErrors() ) {
 				throw log.getInvalidQuerySyntaxException( queryString, parser.getErrorMessages() );
+			}
+
+			String unconsumedTokens = getUnconsumedTokens( tokens );
+			if ( unconsumedTokens != null ) {
+				throw log.getInvalidQuerySyntaxDueToUnconsumedTokensException( queryString, unconsumedTokens );
 			}
 
 			CommonTree tree = (CommonTree) r.getTree();
@@ -85,5 +89,22 @@ public class QueryParser {
 		catch (RecognitionException e) {
 			throw log.getInvalidQuerySyntaxException( queryString, e );
 		}
+	}
+
+	private String getUnconsumedTokens(CommonTokenStream tokens) {
+		if ( tokens.index() == tokens.size() - 1 ) {
+			return null;
+		}
+
+		StringBuilder nonEofEndingTokens = new StringBuilder();
+
+		for ( Token endToken : tokens.getTokens( tokens.index(), tokens.size() - 1 ) ) {
+			// Ignore <EOF> tokens as they might be inserted by the parser
+			if ( !"<EOF>".equals( endToken.getText() ) ) {
+				nonEofEndingTokens.append( endToken.getText() );
+			}
+		}
+
+		return nonEofEndingTokens.length() > 0 ? nonEofEndingTokens.toString() : null;
 	}
 }
