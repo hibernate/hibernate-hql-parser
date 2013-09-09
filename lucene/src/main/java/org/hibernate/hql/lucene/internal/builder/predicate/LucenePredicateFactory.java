@@ -35,10 +35,6 @@ import org.hibernate.hql.ast.spi.predicate.PredicateFactory;
 import org.hibernate.hql.ast.spi.predicate.RangePredicate;
 import org.hibernate.hql.ast.spi.predicate.RootPredicate;
 import org.hibernate.hql.internal.util.Strings;
-import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
-import org.hibernate.search.engine.metadata.impl.EmbeddedTypeMetadata;
-import org.hibernate.search.engine.metadata.impl.PropertyMetadata;
-import org.hibernate.search.engine.metadata.impl.TypeMetadata;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import org.hibernate.search.query.dsl.QueryContextBuilder;
 
@@ -50,12 +46,10 @@ import org.hibernate.search.query.dsl.QueryContextBuilder;
 public class LucenePredicateFactory implements PredicateFactory<Query> {
 
 	private final QueryContextBuilder queryContextBuilder;
-	private final LucenePropertyHelper propertyHelper;
 	private QueryBuilder queryBuilder;
 
-	public LucenePredicateFactory(QueryContextBuilder queryContextBuilder, LucenePropertyHelper propertyHelper) {
+	public LucenePredicateFactory(QueryContextBuilder queryContextBuilder) {
 		this.queryContextBuilder = queryContextBuilder;
-		this.propertyHelper = propertyHelper;
 	}
 
 	@Override
@@ -101,17 +95,6 @@ public class LucenePredicateFactory implements PredicateFactory<Query> {
 
 	@Override
 	public IsNullPredicate<Query> getIsNullPredicate(Class<?> entityType, List<String> propertyPath) {
-		TypeMetadata typeMetadata = propertyHelper.getLeafTypeMetadata( entityType, propertyPath.toArray( new String[propertyPath.size()] ) );
-
-		String nullToken;
-		if ( propertyHelper.isEmbedded( entityType, propertyPath ) ) {
-			nullToken = ( (EmbeddedTypeMetadata) typeMetadata ).getEmbeddedNullToken();
-		}
-		else {
-			PropertyMetadata propertyMetadata = typeMetadata.getPropertyMetadataForProperty( propertyPath.get( propertyPath.size() - 1 ) );
-			nullToken = propertyMetadata.getFieldMetadata().iterator().next().indexNullAs();
-		}
-
-		return new LuceneIsNullPredicate( queryBuilder, Strings.join( propertyPath, "." ), nullToken );
+		return new LuceneIsNullPredicate( queryBuilder, Strings.join( propertyPath, "." ) );
 	}
 }

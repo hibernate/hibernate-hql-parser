@@ -26,7 +26,6 @@ import javax.persistence.OneToOne;
 
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.NumericField;
@@ -82,10 +81,7 @@ public class IndexedEntity {
 		this.size = size;
 	}
 
-	@Fields({
-		@Field(name = "titleAnalyzed", analyze = Analyze.YES),
-		@Field(name = "title", analyze = Analyze.NO)
-	})
+	@Field(name = "title", analyze = Analyze.NO)
 	public String getTitle() {
 		return title;
 	}

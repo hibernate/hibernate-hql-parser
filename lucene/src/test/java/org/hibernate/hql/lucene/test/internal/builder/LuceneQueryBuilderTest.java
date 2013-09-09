@@ -59,7 +59,7 @@ public class LuceneQueryBuilderTest {
 		LucenePropertyHelper propertyHelper = new LucenePropertyHelper( searchFactory );
 
 		queryBuilder = SingleEntityQueryBuilder.getInstance(
-				new LucenePredicateFactory( queryContextBuilder, propertyHelper ),
+				new LucenePredicateFactory( queryContextBuilder ),
 				propertyHelper
 		);
 	}

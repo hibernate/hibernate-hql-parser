@@ -53,7 +53,7 @@ public class LuceneProcessingChain implements AstProcessingChain<LuceneQueryPars
 
 		LucenePropertyHelper propertyHelper = new LucenePropertyHelper( searchFactory );
 		SingleEntityQueryBuilder<Query> queryBuilder = SingleEntityQueryBuilder.getInstance(
-				new LucenePredicateFactory( searchFactory.buildQueryBuilder(), propertyHelper ),
+				new LucenePredicateFactory( searchFactory.buildQueryBuilder() ),
 				propertyHelper
 		);
 
