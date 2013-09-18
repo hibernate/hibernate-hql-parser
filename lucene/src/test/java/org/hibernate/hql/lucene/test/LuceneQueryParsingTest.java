@@ -452,11 +452,7 @@ public class LuceneQueryParsingTest {
 
 	private LuceneProcessingChain setUpLuceneProcessingChain(Map<String, Object> namedParameters) {
 		SearchFactoryIntegrator searchFactory = factoryHolder.getSearchFactory();
-
-		Map<String, Class<?>> entityNames = new HashMap<String, Class<?>>();
-		entityNames.put( "com.acme.IndexedEntity", IndexedEntity.class );
-		entityNames.put( "IndexedEntity", IndexedEntity.class );
-		EntityNamesResolver nameResolver = new MapBasedEntityNamesResolver( entityNames );
+		EntityNamesResolver nameResolver = MapBasedEntityNamesResolver.forClasses( IndexedEntity.class );
 
 		return new LuceneProcessingChain( searchFactory, nameResolver, namedParameters );
 	}
