@@ -37,10 +37,9 @@ import org.hibernate.hql.lucene.internal.ast.HSearchEmbeddedEntityTypeDescriptor
 import org.hibernate.hql.lucene.internal.ast.HSearchIndexedEntityTypeDescriptor;
 import org.hibernate.hql.lucene.internal.ast.HSearchPropertyTypeDescriptor;
 import org.hibernate.hql.lucene.internal.ast.HSearchTypeDescriptor;
-import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
+import org.hibernate.hql.lucene.internal.builder.ClassBasedLucenePropertyHelper;
 import org.hibernate.hql.lucene.internal.logging.Log;
 import org.hibernate.hql.lucene.internal.logging.LoggerFactory;
-import org.hibernate.search.spi.SearchFactoryIntegrator;
 
 /**
  * This extends the ANTLR generated AST walker to transform a parsed tree
@@ -61,7 +60,7 @@ import org.hibernate.search.spi.SearchFactoryIntegrator;
  * @author Gunnar Morling
  *
  */
-public class LuceneQueryResolverDelegate implements QueryResolverDelegate {
+public class ClassBasedLuceneQueryResolverDelegate implements QueryResolverDelegate {
 
 	private enum Status {
 		DEFINING_SELECT, DEFINING_FROM;
@@ -80,14 +79,13 @@ public class LuceneQueryResolverDelegate implements QueryResolverDelegate {
 	 */
 	private final EntityNamesResolver entityNames;
 
-	private final LucenePropertyHelper propertyHelper;
+	private final ClassBasedLucenePropertyHelper propertyHelper;
 
 	private Class<?> targetType = null;
 
-	public LuceneQueryResolverDelegate(SearchFactoryIntegrator searchFactory,
-			EntityNamesResolver entityNames, Map<String,Object> namedParameters) {
+	public ClassBasedLuceneQueryResolverDelegate(ClassBasedLucenePropertyHelper propertyHelper, EntityNamesResolver entityNames, Map<String,Object> namedParameters) {
 		this.entityNames = entityNames;
-		this.propertyHelper = new LucenePropertyHelper( searchFactory, entityNames );
+		this.propertyHelper = propertyHelper;
 	}
 
 	/**

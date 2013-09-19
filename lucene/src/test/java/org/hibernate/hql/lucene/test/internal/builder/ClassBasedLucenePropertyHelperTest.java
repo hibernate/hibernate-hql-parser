@@ -27,7 +27,7 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 import org.hibernate.hql.ast.spi.EntityNamesResolver;
-import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
+import org.hibernate.hql.lucene.internal.builder.ClassBasedLucenePropertyHelper;
 import org.hibernate.hql.lucene.test.internal.builder.model.IndexedEntity;
 import org.hibernate.hql.lucene.testutil.MapBasedEntityNamesResolver;
 import org.hibernate.search.test.util.SearchFactoryHolder;
@@ -36,21 +36,21 @@ import org.junit.Rule;
 import org.junit.Test;
 
 /**
- * Test for {@link LucenePropertyHelper}.
+ * Test for {@link ClassBasedLucenePropertyHelper}.
  *
  * @author Gunnar Morling
  */
-public class LucenePropertyHelperTest {
+public class ClassBasedLucenePropertyHelperTest {
 
 	@Rule
 	public SearchFactoryHolder factoryHolder = new SearchFactoryHolder( IndexedEntity.class );
 
-	private LucenePropertyHelper propertyHelper;
+	private ClassBasedLucenePropertyHelper propertyHelper;
 
 	@Before
 	public void setupPropertyTypeHelper() {
 		EntityNamesResolver nameResolver = MapBasedEntityNamesResolver.forClasses( IndexedEntity.class );
-		propertyHelper = new LucenePropertyHelper( factoryHolder.getSearchFactory(), nameResolver );
+		propertyHelper = new ClassBasedLucenePropertyHelper( factoryHolder.getSearchFactory(), nameResolver );
 	}
 
 	@Test

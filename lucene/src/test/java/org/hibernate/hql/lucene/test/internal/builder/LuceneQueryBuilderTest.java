@@ -29,9 +29,10 @@ import java.util.TimeZone;
 
 import org.apache.lucene.search.Query;
 import org.hibernate.hql.ast.spi.EntityNamesResolver;
+import org.hibernate.hql.ast.spi.PropertyHelper;
 import org.hibernate.hql.ast.spi.SingleEntityQueryBuilder;
 import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
-import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
+import org.hibernate.hql.lucene.internal.builder.ClassBasedLucenePropertyHelper;
 import org.hibernate.hql.lucene.internal.builder.predicate.LucenePredicateFactory;
 import org.hibernate.hql.lucene.test.internal.builder.model.IndexedEntity;
 import org.hibernate.hql.lucene.testutil.MapBasedEntityNamesResolver;
@@ -59,7 +60,7 @@ public class LuceneQueryBuilderTest {
 		SearchFactoryIntegrator searchFactory = factoryHolder.getSearchFactory();
 		QueryContextBuilder queryContextBuilder = searchFactory.buildQueryBuilder();
 		EntityNamesResolver nameResolver = MapBasedEntityNamesResolver.forClasses( IndexedEntity.class );
-		LucenePropertyHelper propertyHelper = new LucenePropertyHelper( searchFactory, nameResolver );
+		PropertyHelper propertyHelper = new ClassBasedLucenePropertyHelper( searchFactory, nameResolver );
 
 		queryBuilder = SingleEntityQueryBuilder.getInstance(
 				new LucenePredicateFactory( queryContextBuilder, nameResolver ),
