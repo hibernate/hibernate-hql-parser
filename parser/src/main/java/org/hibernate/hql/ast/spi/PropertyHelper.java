@@ -38,5 +38,5 @@ public interface PropertyHelper {
 	 * @param value the value of the property
 	 * @return the property value, converted into the actual type of the given entity property
 	 */
-	Object convertToPropertyType(Class<?> entityType, List<String> propertyPath, String value);
+	Object convertToPropertyType(String entityType, List<String> propertyPath, String value);
 }

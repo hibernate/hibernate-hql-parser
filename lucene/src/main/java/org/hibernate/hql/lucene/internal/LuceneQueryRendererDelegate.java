@@ -43,7 +43,7 @@ public class LuceneQueryRendererDelegate extends SingleEntityQueryRendererDelega
 
 	@Override
 	public LuceneQueryParsingResult getResult() {
-		return new LuceneQueryParsingResult( builder.build(), targetType, projections );
+		return new LuceneQueryParsingResult( builder.build(), targetTypeName, targetType, projections );
 	}
 
 	@Override

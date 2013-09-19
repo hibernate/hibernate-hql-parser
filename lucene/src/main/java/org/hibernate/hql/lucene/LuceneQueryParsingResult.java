@@ -24,36 +24,48 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.lucene.search.Query;
-import org.hibernate.hql.lucene.internal.LuceneQueryResolverDelegate;
+import org.hibernate.hql.ast.spi.EntityNamesResolver;
 
 /**
- * The result of walking a query parse tree using a {@link LuceneQueryResolverDelegate}.
+ * The result of walking a query parse tree, representing an equivalent Lucene query.
  *
  * @author Gunnar Morling
  */
 public class LuceneQueryParsingResult {
 
 	private final Query query;
+	private final String targetEntityName;
 	private final Class<?> targetEntity;
 	private final List<String> projections;
 
-	public LuceneQueryParsingResult(Query query, Class<?> targetEntity, List<String> projections) {
+	public LuceneQueryParsingResult(Query query, String targetEntityName, Class<?> targetEntity, List<String> projections) {
 		this.query = query;
+		this.targetEntityName = targetEntityName;
 		this.targetEntity = targetEntity;
 		this.projections = projections != null ? projections : Collections.<String>emptyList();
 	}
 
 	/**
-	 * Returns the Lucene create created while walking the parse tree.
+	 * Returns the Lucene query created while walking the parse tree.
 	 *
-	 * @return the Lucene create created while walking the parse tree
+	 * @return the Lucene query created while walking the parse tree
 	 */
 	public Query getQuery() {
 		return query;
 	}
 
 	/**
-	 * Returns the entity type of the parsed query.
+	 * Returns the original entity name as given in the query
+	 *
+	 * @return the entity name of the query
+	 */
+	public String getTargetEntityName() {
+		return targetEntityName;
+	}
+
+	/**
+	 * Returns the entity type of the parsed query as derived from the queried entity name via the configured
+	 * {@link EntityNamesResolver}.
 	 *
 	 * @return the entity type of the parsed query
 	 */

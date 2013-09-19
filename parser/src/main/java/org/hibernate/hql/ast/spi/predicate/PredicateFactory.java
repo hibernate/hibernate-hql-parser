@@ -32,13 +32,13 @@ import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
  */
 public interface PredicateFactory<Q> {
 
-	RootPredicate<Q> getRootPredicate(Class<?> entityType);
+	RootPredicate<Q> getRootPredicate(String entityType);
 
-	ComparisonPredicate<Q> getComparisonPredicate(Class<?> entityType, Type comparisonType, List<String> propertyPath, Object value);
+	ComparisonPredicate<Q> getComparisonPredicate(String entityType, Type comparisonType, List<String> propertyPath, Object value);
 
-	InPredicate<Q> getInPredicate(Class<?> entityType, List<String> propertyPath, List<Object> typedElements);
+	InPredicate<Q> getInPredicate(String entityType, List<String> propertyPath, List<Object> typedElements);
 
-	RangePredicate<Q> getRangePredicate(Class<?> entityType, List<String> propertyPath, Object lowerValue, Object upperValue);
+	RangePredicate<Q> getRangePredicate(String entityType, List<String> propertyPath, Object lowerValue, Object upperValue);
 
 	NegationPredicate<Q> getNegationPredicate();
 
@@ -46,7 +46,7 @@ public interface PredicateFactory<Q> {
 
 	ConjunctionPredicate<Q> getConjunctionPredicate();
 
-	LikePredicate<Q> getLikePredicate(Class<?> entityType, List<String> propertyPath, String patternValue, Character escapeCharacter);
+	LikePredicate<Q> getLikePredicate(String entityType, List<String> propertyPath, String patternValue, Character escapeCharacter);
 
-	IsNullPredicate<Q> getIsNullPredicate(Class<?> entityType, List<String> propertyPath);
+	IsNullPredicate<Q> getIsNullPredicate(String entityType, List<String> propertyPath);
 }

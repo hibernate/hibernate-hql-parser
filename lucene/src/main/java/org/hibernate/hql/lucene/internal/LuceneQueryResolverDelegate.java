@@ -87,7 +87,7 @@ public class LuceneQueryResolverDelegate implements QueryResolverDelegate {
 	public LuceneQueryResolverDelegate(SearchFactoryIntegrator searchFactory,
 			EntityNamesResolver entityNames, Map<String,Object> namedParameters) {
 		this.entityNames = entityNames;
-		this.propertyHelper = new LucenePropertyHelper( searchFactory );
+		this.propertyHelper = new LucenePropertyHelper( searchFactory, entityNames );
 	}
 
 	/**

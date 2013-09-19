@@ -65,7 +65,9 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 	 */
 	protected Status status;
 
-	protected Class<?> targetType = null;
+	protected String targetTypeName;
+
+	protected Class<?> targetType;
 
 	protected final SingleEntityQueryBuilder<Q> builder;
 
@@ -96,21 +98,37 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 	 */
 	@Override
 	public void registerPersisterSpace(Tree entityName, Tree alias) {
-		String put = aliasToEntityType.put( alias.getText(), entityName.getText() );
-		if ( put != null && !put.equalsIgnoreCase( entityName.getText() ) ) {
+		registerAlias( entityName.getText(), alias.getText() );
+		setTargetTypeName( entityName.getText() );
+		setTargetType( entityName.getText() );
+
+		builder.setEntityType( targetTypeName );
+	}
+
+	private void registerAlias(String entityName, String alias) {
+		String put = aliasToEntityType.put( alias, entityName );
+		if ( put != null && !put.equalsIgnoreCase( entityName ) ) {
 			throw new UnsupportedOperationException(
-					"Alias reuse currently not supported: alias " + alias.getText()
+					"Alias reuse currently not supported: alias " + alias
 							+ " already assigned to type " + put );
 		}
-		Class<?> targetedType = entityNames.getClassFromName( entityName.getText() );
+	}
+
+	private void setTargetType(String entityName) {
+		Class<?> targetedType = entityNames.getClassFromName( entityName );
 		if ( targetedType == null ) {
-			throw new IllegalStateException( "Unknown entity name " + entityName.getText() );
+			throw new IllegalStateException( "Unknown entity name " + entityName );
 		}
-		if ( targetType != null ) {
-			throw new IllegalStateException( "Can't target multiple types: " + targetType + " already selected before " + targetedType );
-		}
+
 		targetType = targetedType;
-		builder.setEntityType( targetedType );
+	}
+
+	private void setTargetTypeName(String entityName) {
+		if ( targetTypeName != null ) {
+			throw new IllegalStateException( "Can't target multiple types: " + targetTypeName + " already selected before " + entityName );
+		}
+
+		targetTypeName = entityName;
 	}
 
 	@Override

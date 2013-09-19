@@ -23,6 +23,7 @@ package org.hibernate.hql.lucene.internal.builder.predicate;
 import java.util.List;
 
 import org.apache.lucene.search.Query;
+import org.hibernate.hql.ast.spi.EntityNamesResolver;
 import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate;
 import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
 import org.hibernate.hql.ast.spi.predicate.ConjunctionPredicate;
@@ -46,30 +47,37 @@ import org.hibernate.search.query.dsl.QueryContextBuilder;
 public class LucenePredicateFactory implements PredicateFactory<Query> {
 
 	private final QueryContextBuilder queryContextBuilder;
+	private final EntityNamesResolver entityNames;
 	private QueryBuilder queryBuilder;
 
-	public LucenePredicateFactory(QueryContextBuilder queryContextBuilder) {
+	public LucenePredicateFactory(QueryContextBuilder queryContextBuilder, EntityNamesResolver entityNames) {
 		this.queryContextBuilder = queryContextBuilder;
+		this.entityNames = entityNames;
 	}
 
 	@Override
-	public RootPredicate<Query> getRootPredicate(Class<?> entityType) {
-		queryBuilder = queryContextBuilder.forEntity( entityType ).get();
+	public RootPredicate<Query> getRootPredicate(String entityType) {
+		Class<?> targetedType = entityNames.getClassFromName( entityType );
+		if ( targetedType == null ) {
+			throw new IllegalStateException( "Unknown entity name " + entityType );
+		}
+
+		queryBuilder = queryContextBuilder.forEntity( targetedType ).get();
 		return new LuceneRootPredicate( queryBuilder );
 	}
 
 	@Override
-	public ComparisonPredicate<Query> getComparisonPredicate(Class<?> entityType, Type comparisonType, List<String> propertyPath, Object value) {
+	public ComparisonPredicate<Query> getComparisonPredicate(String entityType, Type comparisonType, List<String> propertyPath, Object value) {
 		return new LuceneComparisonPredicate( queryBuilder, Strings.join( propertyPath, "." ), comparisonType, value );
 	}
 
 	@Override
-	public InPredicate<Query> getInPredicate(Class<?> entityType, List<String> propertyPath, List<Object> values) {
+	public InPredicate<Query> getInPredicate(String entityType, List<String> propertyPath, List<Object> values) {
 		return new LuceneInPredicate( queryBuilder, Strings.join( propertyPath, "." ), values );
 	}
 
 	@Override
-	public RangePredicate<Query> getRangePredicate(Class<?> entityType, List<String> propertyPath, Object lowerValue, Object upperValue) {
+	public RangePredicate<Query> getRangePredicate(String entityType, List<String> propertyPath, Object lowerValue, Object upperValue) {
 		return new LuceneRangePredicate( queryBuilder, Strings.join( propertyPath, "." ), lowerValue, upperValue );
 	}
 
@@ -89,12 +97,12 @@ public class LucenePredicateFactory implements PredicateFactory<Query> {
 	}
 
 	@Override
-	public LikePredicate<Query> getLikePredicate(Class<?> entityType, List<String> propertyPath, String patternValue, Character escapeCharacter) {
+	public LikePredicate<Query> getLikePredicate(String entityType, List<String> propertyPath, String patternValue, Character escapeCharacter) {
 		return new LuceneLikePredicate( queryBuilder, Strings.join( propertyPath, "." ), patternValue );
 	}
 
 	@Override
-	public IsNullPredicate<Query> getIsNullPredicate(Class<?> entityType, List<String> propertyPath) {
+	public IsNullPredicate<Query> getIsNullPredicate(String entityType, List<String> propertyPath) {
 		return new LuceneIsNullPredicate( queryBuilder, Strings.join( propertyPath, "." ) );
 	}
 }

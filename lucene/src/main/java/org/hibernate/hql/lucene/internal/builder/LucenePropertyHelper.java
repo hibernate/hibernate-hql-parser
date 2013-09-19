@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
+import org.hibernate.hql.ast.spi.EntityNamesResolver;
 import org.hibernate.hql.ast.spi.PropertyHelper;
 import org.hibernate.hql.lucene.internal.logging.Log;
 import org.hibernate.hql.lucene.internal.logging.LoggerFactory;
@@ -51,18 +52,11 @@ public class LucenePropertyHelper implements PropertyHelper {
 	private static final Log log = LoggerFactory.make();
 
 	private final SearchFactoryIntegrator searchFactory;
+	private final EntityNamesResolver entityNames;
 
-	public LucenePropertyHelper(SearchFactoryIntegrator searchFactory) {
+	public LucenePropertyHelper(SearchFactoryIntegrator searchFactory, EntityNamesResolver entityNames) {
 		this.searchFactory = searchFactory;
-	}
-
-	@Override
-	public Object convertToPropertyType(Class<?> entityType, List<String> propertyPath, String value) {
-		return convertToPropertyType( value, entityType, propertyPath );
-	}
-
-	public Object convertToPropertyType(String value, Class<?> entityType, List<String> propertyPath) {
-		return convertToPropertyType( value, entityType, propertyPath.toArray( new String[propertyPath.size()] ) );
+		this.entityNames = entityNames;
 	}
 
 	/**
@@ -74,7 +68,8 @@ public class LucenePropertyHelper implements PropertyHelper {
 	 * @param propertyPath the name of the property
 	 * @return the given value converted into the type of the given property
 	 */
-	public Object convertToPropertyType(String value, Class<?> entityType, String... propertyPath) {
+	@Override
+	public Object convertToPropertyType(String entityType, List<String> propertyPath, String value) {
 		FieldBridge bridge = getFieldBridge( entityType, propertyPath );
 
 		if ( bridge instanceof TwoWayString2FieldBridgeAdaptor ) {
@@ -99,17 +94,29 @@ public class LucenePropertyHelper implements PropertyHelper {
 		// See DocumentBuilderHelper.processFieldsForProjection for a more complete logic esp around embedded objects
 	}
 
-	private FieldBridge getFieldBridge(Class<?> type, String... propertyPath) {
+	private FieldBridge getFieldBridge(String entityType, List<String> propertyPath) {
+		Class<?> type = getType( entityType );
+		String[] propertyPathAsArray = propertyPath.toArray( new String[propertyPath.size()] );
+
 		EntityIndexBinding entityIndexBinding = getIndexBinding( type );
 
-		if ( isIdentifierProperty( entityIndexBinding, propertyPath ) ) {
+		if ( isIdentifierProperty( entityIndexBinding, propertyPathAsArray ) ) {
 			return entityIndexBinding.getDocumentBuilder().getIdBridge();
 		}
 
-		PropertyMetadata metadata = getLeafTypeMetadata( type, propertyPath ).getPropertyMetadataForProperty( propertyPath[propertyPath.length - 1] );
+		PropertyMetadata metadata = getLeafTypeMetadata( type, propertyPathAsArray ).getPropertyMetadataForProperty( propertyPathAsArray[propertyPathAsArray.length - 1] );
 
 		// TODO Consider properties with several fields
 		return metadata.getFieldMetadata().iterator().next().getFieldBridge();
+	}
+
+	private Class<?> getType(String typeName) {
+		Class<?> type = entityNames.getClassFromName( typeName );
+		if ( type == null ) {
+			throw new IllegalStateException( "Unknown entity name " + type );
+		}
+
+		return type;
 	}
 
 	public boolean exists(Class<?> type, List<String> propertyPath) {

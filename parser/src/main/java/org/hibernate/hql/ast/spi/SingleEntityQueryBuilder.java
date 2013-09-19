@@ -48,7 +48,7 @@ public class SingleEntityQueryBuilder<Q> {
 	/**
 	 * The targeted entity type of the built query.
 	 */
-	private Class<?> entityType;
+	private String entityType;
 
 	/**
 	 * The root predicate of the {@code WHERE} clause of the built query.
@@ -70,7 +70,7 @@ public class SingleEntityQueryBuilder<Q> {
 		return new SingleEntityQueryBuilder<Q>( predicateFactory, propertyHelper );
 	}
 
-	public SingleEntityQueryBuilder<Q> setEntityType(Class<?> entityType) {
+	public SingleEntityQueryBuilder<Q> setEntityType(String entityType) {
 		this.entityType = entityType;
 
 		rootPredicate = predicateFactory.getRootPredicate( entityType );

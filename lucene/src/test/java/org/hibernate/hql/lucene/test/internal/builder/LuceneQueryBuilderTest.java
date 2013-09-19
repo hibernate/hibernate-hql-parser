@@ -28,11 +28,13 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.apache.lucene.search.Query;
+import org.hibernate.hql.ast.spi.EntityNamesResolver;
 import org.hibernate.hql.ast.spi.SingleEntityQueryBuilder;
 import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
 import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
 import org.hibernate.hql.lucene.internal.builder.predicate.LucenePredicateFactory;
 import org.hibernate.hql.lucene.test.internal.builder.model.IndexedEntity;
+import org.hibernate.hql.lucene.testutil.MapBasedEntityNamesResolver;
 import org.hibernate.search.query.dsl.QueryContextBuilder;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
 import org.hibernate.search.test.util.SearchFactoryHolder;
@@ -56,10 +58,11 @@ public class LuceneQueryBuilderTest {
 	public void setupQueryBuilder() {
 		SearchFactoryIntegrator searchFactory = factoryHolder.getSearchFactory();
 		QueryContextBuilder queryContextBuilder = searchFactory.buildQueryBuilder();
-		LucenePropertyHelper propertyHelper = new LucenePropertyHelper( searchFactory );
+		EntityNamesResolver nameResolver = MapBasedEntityNamesResolver.forClasses( IndexedEntity.class );
+		LucenePropertyHelper propertyHelper = new LucenePropertyHelper( searchFactory, nameResolver );
 
 		queryBuilder = SingleEntityQueryBuilder.getInstance(
-				new LucenePredicateFactory( queryContextBuilder ),
+				new LucenePredicateFactory( queryContextBuilder, nameResolver ),
 				propertyHelper
 		);
 	}
@@ -67,7 +70,7 @@ public class LuceneQueryBuilderTest {
 	@Test
 	public void shouldBuildEqualsQuery() {
 		Query query = queryBuilder
-			.setEntityType( IndexedEntity.class )
+			.setEntityType( "IndexedEntity" )
 			.addComparisonPredicate( Arrays.asList( "name" ), Type.EQUALS, "foobar" )
 			.build();
 
@@ -77,7 +80,7 @@ public class LuceneQueryBuilderTest {
 	@Test
 	public void shouldBuildLongEqualsQuery() {
 		Query query = queryBuilder
-			.setEntityType( IndexedEntity.class )
+			.setEntityType( "IndexedEntity" )
 			.addComparisonPredicate( Arrays.asList( "l" ), Type.EQUALS, "10" )
 			.build();
 
@@ -87,7 +90,7 @@ public class LuceneQueryBuilderTest {
 	@Test
 	public void shouldBuildDoubleEqualsQuery() {
 		Query query = queryBuilder
-				.setEntityType( IndexedEntity.class )
+				.setEntityType( "IndexedEntity" )
 				.addComparisonPredicate( Arrays.asList( "d" ), Type.EQUALS, "10.0" )
 				.build();
 
@@ -97,7 +100,7 @@ public class LuceneQueryBuilderTest {
 	@Test
 	public void shouldBuildDateEqualsQuery() {
 		Query query = queryBuilder
-				.setEntityType( IndexedEntity.class )
+				.setEntityType( "IndexedEntity" )
 				.addComparisonPredicate( Arrays.asList( "date" ), Type.EQUALS, "201209251130" )
 				.build();
 
@@ -111,7 +114,7 @@ public class LuceneQueryBuilderTest {
 		calendar.set( 2012, 8, 25 );
 
 		Query query = queryBuilder
-				.setEntityType( IndexedEntity.class )
+				.setEntityType( "IndexedEntity" )
 				.addComparisonPredicate( Arrays.asList( "date" ), Type.EQUALS, calendar.getTime() )
 				.build();
 
@@ -129,7 +132,7 @@ public class LuceneQueryBuilderTest {
 		Date end = calendar.getTime();
 
 		Query query = queryBuilder
-				.setEntityType( IndexedEntity.class )
+				.setEntityType( "IndexedEntity" )
 				.addRangePredicate( "date", start, end )
 				.build();
 
@@ -140,7 +143,7 @@ public class LuceneQueryBuilderTest {
 	@Test
 	public void shouldBuildRangeQuery() {
 		Query query = queryBuilder
-			.setEntityType( IndexedEntity.class )
+			.setEntityType( "IndexedEntity" )
 			.addRangePredicate( "i", "1", "10" )
 			.build();
 
@@ -150,7 +153,7 @@ public class LuceneQueryBuilderTest {
 	@Test
 	public void shouldBuildConjunctionQuery() {
 		Query query = queryBuilder
-			.setEntityType( IndexedEntity.class )
+			.setEntityType( "IndexedEntity" )
 			.pushAndPredicate()
 				.addComparisonPredicate( Arrays.asList( "name" ), Type.EQUALS, "foobar" )
 				.addComparisonPredicate( Arrays.asList( "i" ), Type.EQUALS, "1" )
@@ -162,7 +165,7 @@ public class LuceneQueryBuilderTest {
 	@Test
 	public void shouldBuildDisjunctionQuery() {
 		Query query = queryBuilder
-			.setEntityType( IndexedEntity.class )
+			.setEntityType( "IndexedEntity" )
 			.pushOrPredicate()
 				.addComparisonPredicate( Arrays.asList( "name" ), Type.EQUALS, "foobar" )
 				.addComparisonPredicate( Arrays.asList( "i" ), Type.EQUALS, "1" )
@@ -174,7 +177,7 @@ public class LuceneQueryBuilderTest {
 	@Test
 	public void shouldBuildNegationQuery() {
 		Query query = queryBuilder
-			.setEntityType( IndexedEntity.class )
+			.setEntityType( "IndexedEntity" )
 			.pushNotPredicate()
 				.addComparisonPredicate( Arrays.asList( "name" ), Type.EQUALS, "foobar" )
 			.build();
@@ -185,7 +188,7 @@ public class LuceneQueryBuilderTest {
 	@Test
 	public void shouldBuildNestedLogicalPredicatesQuery() {
 		Query query = queryBuilder
-			.setEntityType( IndexedEntity.class )
+			.setEntityType( "IndexedEntity" )
 			.pushAndPredicate()
 				.pushOrPredicate()
 					.addComparisonPredicate( Arrays.asList( "name" ), Type.EQUALS, "foobar" )
