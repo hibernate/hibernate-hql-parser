@@ -18,29 +18,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.hql.lucene.internal.builder.predicate;
+package org.hibernate.hql.lucene.test.model;
 
-import org.apache.lucene.search.Query;
-import org.hibernate.hql.ast.spi.predicate.RangePredicate;
-import org.hibernate.search.bridge.FieldBridge;
-import org.hibernate.search.query.dsl.QueryBuilder;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.ProvidedId;
 
 /**
- * Lucene-based {@code BETWEEN} predicate.
+ * A wrapper type used for querying non-class based types.
  *
  * @author Gunnar Morling
  */
-public class LuceneRangePredicate extends RangePredicate<Query> {
-
-	private final MatchingContextSupport matchingContextSupport;
-
-	public LuceneRangePredicate(QueryBuilder builder, FieldBridge fieldBridge, String propertyName, Object lower, Object upper) {
-		super( propertyName, lower, upper );
-		this.matchingContextSupport = new MatchingContextSupport( builder, fieldBridge, propertyName );
-	}
-
-	@Override
-	public Query getQuery() {
-		return matchingContextSupport.rangeMatchingContext().from( lower ).to( upper ).createQuery();
-	}
+@Indexed
+@ProvidedId
+public class GenericValueHolder {
 }

@@ -22,6 +22,7 @@ package org.hibernate.hql.lucene.internal.builder.predicate;
 
 import org.apache.lucene.search.Query;
 import org.hibernate.hql.ast.spi.predicate.IsNullPredicate;
+import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.query.dsl.QueryBuilder;
 
 /**
@@ -31,15 +32,15 @@ import org.hibernate.search.query.dsl.QueryBuilder;
  */
 public class LuceneIsNullPredicate extends IsNullPredicate<Query> {
 
-	private final QueryBuilder builder;
+	private final MatchingContextSupport matchingContextSupport;
 
-	public LuceneIsNullPredicate(QueryBuilder builder, String propertyName) {
+	public LuceneIsNullPredicate(QueryBuilder builder, FieldBridge fieldBridge, String propertyName) {
 		super( propertyName );
-		this.builder = builder;
+		this.matchingContextSupport = new MatchingContextSupport( builder, fieldBridge, propertyName );
 	}
 
 	@Override
 	public Query getQuery() {
-		return builder.keyword().onField( propertyName ).matching( null ).createQuery();
+		return matchingContextSupport.keyWordTermMatchingContext().matching( null ).createQuery();
 	}
 }

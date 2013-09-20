@@ -18,29 +18,25 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.hql.lucene.internal.builder.predicate;
+package org.hibernate.hql.lucene.spi;
 
-import org.apache.lucene.search.Query;
-import org.hibernate.hql.ast.spi.predicate.RangePredicate;
 import org.hibernate.search.bridge.FieldBridge;
-import org.hibernate.search.query.dsl.QueryBuilder;
 
 /**
- * Lucene-based {@code BETWEEN} predicate.
+ * Implementations provide the field bridges to be applied for queries on the properties of an entity.
  *
  * @author Gunnar Morling
  */
-public class LuceneRangePredicate extends RangePredicate<Query> {
+public interface FieldBridgeProvider {
 
-	private final MatchingContextSupport matchingContextSupport;
-
-	public LuceneRangePredicate(QueryBuilder builder, FieldBridge fieldBridge, String propertyName, Object lower, Object upper) {
-		super( propertyName, lower, upper );
-		this.matchingContextSupport = new MatchingContextSupport( builder, fieldBridge, propertyName );
-	}
-
-	@Override
-	public Query getQuery() {
-		return matchingContextSupport.rangeMatchingContext().from( lower ).to( upper ).createQuery();
-	}
+	/**
+	 * Returns the field bridge to be applied when executing queries on the given property of the given entity type.
+	 *
+	 * @param type the entity type hosting the given property; may either identify an actual Java type or a virtual type
+	 * managed by the given implementation; never {@code null}
+	 * @param propertyPath a dot separated path denoting the property of interest, e.g. "foo" or "foo.bar" (in case this
+	 * is an embedded property); never {@code null}
+	 * @return the field bridge to be used for querying the given property; may be {@code null}
+	 */
+	FieldBridge getFieldBridge(String type, String propertyPath);
 }

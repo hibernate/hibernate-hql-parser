@@ -36,11 +36,17 @@ import org.hibernate.hql.ast.spi.predicate.PredicateFactory;
 import org.hibernate.hql.ast.spi.predicate.RangePredicate;
 import org.hibernate.hql.ast.spi.predicate.RootPredicate;
 import org.hibernate.hql.internal.util.Strings;
+import org.hibernate.hql.lucene.spi.FieldBridgeProvider;
+import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import org.hibernate.search.query.dsl.QueryContextBuilder;
 
 /**
  * Factory creating predicate instances based on Lucene.
+ * <p>
+ * Depending on whether the factory is created with or without a {@link FieldBridgeProvider}, the generated predicates
+ * will either make use of the default field bridges configured for the addressed fields or obtain field bridges from
+ * that provider.
  *
  * @author Gunnar Morling
  */
@@ -48,11 +54,17 @@ public class LucenePredicateFactory implements PredicateFactory<Query> {
 
 	private final QueryContextBuilder queryContextBuilder;
 	private final EntityNamesResolver entityNames;
+	private final FieldBridgeProvider fieldBridgeProvider;
 	private QueryBuilder queryBuilder;
 
 	public LucenePredicateFactory(QueryContextBuilder queryContextBuilder, EntityNamesResolver entityNames) {
+		this( queryContextBuilder, entityNames, null );
+	}
+
+	public LucenePredicateFactory(QueryContextBuilder queryContextBuilder, EntityNamesResolver entityNames, FieldBridgeProvider fieldBridgeProvider) {
 		this.queryContextBuilder = queryContextBuilder;
 		this.entityNames = entityNames;
+		this.fieldBridgeProvider = fieldBridgeProvider;
 	}
 
 	@Override
@@ -68,17 +80,26 @@ public class LucenePredicateFactory implements PredicateFactory<Query> {
 
 	@Override
 	public ComparisonPredicate<Query> getComparisonPredicate(String entityType, Type comparisonType, List<String> propertyPath, Object value) {
-		return new LuceneComparisonPredicate( queryBuilder, Strings.join( propertyPath, "." ), comparisonType, value );
+		String pathAsString = getPathAsString( propertyPath );
+		FieldBridge fieldBridge = getFieldBridge( entityType, pathAsString );
+
+		return new LuceneComparisonPredicate( queryBuilder, fieldBridge, pathAsString, comparisonType, value );
 	}
 
 	@Override
 	public InPredicate<Query> getInPredicate(String entityType, List<String> propertyPath, List<Object> values) {
-		return new LuceneInPredicate( queryBuilder, Strings.join( propertyPath, "." ), values );
+		String pathAsString = getPathAsString( propertyPath );
+		FieldBridge fieldBridge = getFieldBridge( entityType, pathAsString );
+
+		return new LuceneInPredicate( queryBuilder, fieldBridge, pathAsString, values );
 	}
 
 	@Override
 	public RangePredicate<Query> getRangePredicate(String entityType, List<String> propertyPath, Object lowerValue, Object upperValue) {
-		return new LuceneRangePredicate( queryBuilder, Strings.join( propertyPath, "." ), lowerValue, upperValue );
+		String pathAsString = getPathAsString( propertyPath );
+		FieldBridge fieldBridge = getFieldBridge( entityType, pathAsString );
+
+		return new LuceneRangePredicate( queryBuilder, fieldBridge, pathAsString, lowerValue, upperValue );
 	}
 
 	@Override
@@ -98,11 +119,25 @@ public class LucenePredicateFactory implements PredicateFactory<Query> {
 
 	@Override
 	public LikePredicate<Query> getLikePredicate(String entityType, List<String> propertyPath, String patternValue, Character escapeCharacter) {
-		return new LuceneLikePredicate( queryBuilder, Strings.join( propertyPath, "." ), patternValue );
+		String pathAsString = getPathAsString( propertyPath );
+		FieldBridge fieldBridge = getFieldBridge( entityType, pathAsString );
+
+		return new LuceneLikePredicate( queryBuilder, fieldBridge, pathAsString, patternValue );
 	}
 
 	@Override
 	public IsNullPredicate<Query> getIsNullPredicate(String entityType, List<String> propertyPath) {
-		return new LuceneIsNullPredicate( queryBuilder, Strings.join( propertyPath, "." ) );
+		String pathAsString = getPathAsString( propertyPath );
+		FieldBridge fieldBridge = getFieldBridge( entityType, pathAsString );
+
+		return new LuceneIsNullPredicate( queryBuilder, fieldBridge, pathAsString );
+	}
+
+	private String getPathAsString(List<String> propertyPath) {
+		return Strings.join( propertyPath, "." );
+	}
+
+	private FieldBridge getFieldBridge(String entityType, String pathAsString) {
+		return fieldBridgeProvider != null ? fieldBridgeProvider.getFieldBridge( entityType, pathAsString ) : null;
 	}
 }

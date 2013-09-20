@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 
 import org.apache.lucene.search.Query;
 import org.hibernate.hql.ast.spi.predicate.LikePredicate;
+import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.query.dsl.QueryBuilder;
 
 /**
@@ -39,11 +40,11 @@ public class LuceneLikePredicate extends LikePredicate<Query> {
 	private static final Pattern MULTIPLE_CHARACTERS_WILDCARD_PATTERN = Pattern.compile( "%" );
 	private static final Pattern SINGLE_CHARACTER_WILDCARD_PATTERN = Pattern.compile( "_" );
 
-	private final QueryBuilder builder;
+	private final MatchingContextSupport matchingContextSupport;
 
-	public LuceneLikePredicate(QueryBuilder builder, String propertyName, String patternValue) {
+	public LuceneLikePredicate(QueryBuilder builder, FieldBridge fieldBridge, String propertyName, String patternValue) {
 		super( propertyName, patternValue, null );
-		this.builder = builder;
+		this.matchingContextSupport = new MatchingContextSupport( builder, fieldBridge, propertyName );
 	}
 
 	@Override
@@ -51,6 +52,6 @@ public class LuceneLikePredicate extends LikePredicate<Query> {
 		String patternValue = MULTIPLE_CHARACTERS_WILDCARD_PATTERN.matcher( this.patternValue ).replaceAll( LUCENE_MULTIPLE_CHARACTERS_WILDCARD );
 		patternValue = SINGLE_CHARACTER_WILDCARD_PATTERN.matcher( patternValue ).replaceAll( LUCENE_SINGLE_CHARACTER_WILDCARD );
 
-		return builder.keyword().wildcard().onField( propertyName ).matching( patternValue ).createQuery();
+		return matchingContextSupport.wildcardTermMatchingContext().matching( patternValue ).createQuery();
 	}
 }
