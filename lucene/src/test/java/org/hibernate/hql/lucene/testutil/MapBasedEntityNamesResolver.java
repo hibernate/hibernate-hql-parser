@@ -20,16 +20,31 @@
  */
 package org.hibernate.hql.lucene.testutil;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.hibernate.hql.ast.spi.EntityNamesResolver;
 
 /**
+ * A simple {@link EntityNamesResolver} implementation which resolves using their qualified and unqualified names.
+ *
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
+ * @author Gunnar Morling
  */
 public class MapBasedEntityNamesResolver implements EntityNamesResolver {
 
 	private final Map<String, Class<?>> entityNames;
+
+	public static MapBasedEntityNamesResolver forClasses(Class<?>... classes) {
+		Map<String, Class<?>> entityNames = new HashMap<String, Class<?>>();
+
+		for ( Class<?> clazz : classes ) {
+			entityNames.put( clazz.getCanonicalName(), clazz );
+			entityNames.put( clazz.getSimpleName(), clazz );
+		}
+
+		return new MapBasedEntityNamesResolver( entityNames );
+	}
 
 	public MapBasedEntityNamesResolver(Map<String, Class<?>> entityNames) {
 		this.entityNames = entityNames;

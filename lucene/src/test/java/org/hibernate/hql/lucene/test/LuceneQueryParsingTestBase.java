@@ -27,32 +27,22 @@ import java.util.Map;
 
 import org.hibernate.hql.ParsingException;
 import org.hibernate.hql.QueryParser;
-import org.hibernate.hql.ast.spi.EntityNamesResolver;
 import org.hibernate.hql.lucene.LuceneProcessingChain;
 import org.hibernate.hql.lucene.LuceneQueryParsingResult;
-import org.hibernate.hql.lucene.internal.LuceneQueryRendererDelegate;
-import org.hibernate.hql.lucene.internal.LuceneQueryResolverDelegate;
-import org.hibernate.hql.lucene.test.model.IndexedEntity;
-import org.hibernate.hql.lucene.testutil.MapBasedEntityNamesResolver;
-import org.hibernate.search.spi.SearchFactoryIntegrator;
-import org.hibernate.search.test.util.SearchFactoryHolder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 /**
- * Integration test for {@link LuceneQueryResolverDelegate} and {@link LuceneQueryRendererDelegate}.
+ * Provides common tests and infrastructure for Lucene query parsing tests.
  *
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
  * @author Gunnar Morling
  */
-public class LuceneQueryParsingTest {
+public abstract class LuceneQueryParsingTestBase {
 
 	private static boolean USE_STDOUT = true;
-
-	@Rule
-	public SearchFactoryHolder factoryHolder = new SearchFactoryHolder( IndexedEntity.class );
 
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
@@ -62,6 +52,14 @@ public class LuceneQueryParsingTest {
 	@Before
 	public void setupParser() {
 		queryParser = new QueryParser();
+	}
+
+	@Test
+	public void shouldRaiseExceptionDueToUnknownAlias() {
+		expectedException.expect( ParsingException.class );
+		expectedException.expectMessage( "HQLLUCN000004" );
+
+		parseQuery( "from IndexedEntity e where a.name = 'same'" );
 	}
 
 	@Test
@@ -107,70 +105,6 @@ public class LuceneQueryParsingTest {
 		assertLuceneQuery(
 				"from IndexedEntity e where name = 'same' and not id = 5",
 				"+name:same -id:5" );
-	}
-
-	@Test
-	public void shouldRaiseExceptionDueToUnknownAlias() {
-		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000004" );
-
-		parseQuery( "from IndexedEntity e where a.name = 'same'" );
-	}
-
-	@Test
-	public void shouldRaiseExceptionDueToUnknownQualifiedProperty() {
-		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000002" );
-
-		parseQuery( "from IndexedEntity e where e.foobar = 'same'" );
-	}
-
-	@Test
-	public void shouldRaiseExceptionDueToUnknownUnqualifiedProperty() {
-		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000002" );
-
-		parseQuery( "from IndexedEntity e where foobar = 'same'" );
-	}
-
-	@Test
-	public void shouldRaiseExceptionDueToAnalyzedPropertyInFromClause() {
-		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000003" );
-
-		parseQuery( "from IndexedEntity e where e.size = 10" );
-	}
-
-	@Test
-	public void shouldRaiseExceptionDueToUnknownPropertyInSelectClause() {
-		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000002" );
-
-		parseQuery( "select e.foobar from IndexedEntity e" );
-	}
-
-	@Test
-	public void shouldRaiseExceptionDueToUnknownPropertyInEmbeddedSelectClause() {
-		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000002" );
-
-		parseQuery( "select e.author.foo from IndexedEntity e" );
-	}
-
-	@Test
-	public void shouldRaiseExceptionDueToSelectionOfCompleteEmbeddedEntity() {
-		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000005" );
-
-		parseQuery( "select e.author from IndexedEntity e" );
-	}
-
-	@Test
-	public void shouldRaiseExceptionDueToUnqualifiedSelectionOfCompleteEmbeddedEntity() {
-		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000005" );
-
-		parseQuery( "select author from IndexedEntity e" );
 	}
 
 	@Test
@@ -425,8 +359,6 @@ public class LuceneQueryParsingTest {
 
 	private void assertLuceneQuery(String queryString, Map<String, Object> namedParameters, String expectedLuceneQuery) {
 		LuceneQueryParsingResult parsingResult = parseQuery( queryString, namedParameters );
-
-		assertThat( parsingResult.getTargetEntity() ).isSameAs( IndexedEntity.class );
 		assertThat( parsingResult.getQuery().toString() ).isEqualTo( expectedLuceneQuery );
 
 		if ( USE_STDOUT ) {
@@ -435,7 +367,7 @@ public class LuceneQueryParsingTest {
 		}
 	}
 
-	private LuceneQueryParsingResult parseQuery(String queryString) {
+	protected LuceneQueryParsingResult parseQuery(String queryString) {
 		return parseQuery( queryString, null );
 	}
 
@@ -450,14 +382,5 @@ public class LuceneQueryParsingTest {
 				);
 	}
 
-	private LuceneProcessingChain setUpLuceneProcessingChain(Map<String, Object> namedParameters) {
-		SearchFactoryIntegrator searchFactory = factoryHolder.getSearchFactory();
-
-		Map<String, Class<?>> entityNames = new HashMap<String, Class<?>>();
-		entityNames.put( "com.acme.IndexedEntity", IndexedEntity.class );
-		entityNames.put( "IndexedEntity", IndexedEntity.class );
-		EntityNamesResolver nameResolver = new MapBasedEntityNamesResolver( entityNames );
-
-		return new LuceneProcessingChain( searchFactory, nameResolver, namedParameters );
-	}
+	protected abstract LuceneProcessingChain setUpLuceneProcessingChain(Map<String, Object> namedParameters);
 }

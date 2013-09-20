@@ -22,61 +22,65 @@ package org.hibernate.hql.lucene.test.internal.builder;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
+import org.hibernate.hql.ast.spi.EntityNamesResolver;
+import org.hibernate.hql.lucene.internal.builder.ClassBasedLucenePropertyHelper;
 import org.hibernate.hql.lucene.test.internal.builder.model.IndexedEntity;
+import org.hibernate.hql.lucene.testutil.MapBasedEntityNamesResolver;
 import org.hibernate.search.test.util.SearchFactoryHolder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 /**
- * Test for {@link LucenePropertyHelper}.
+ * Test for {@link ClassBasedLucenePropertyHelper}.
  *
  * @author Gunnar Morling
  */
-public class LucenePropertyHelperTest {
+public class ClassBasedLucenePropertyHelperTest {
 
 	@Rule
 	public SearchFactoryHolder factoryHolder = new SearchFactoryHolder( IndexedEntity.class );
 
-	private LucenePropertyHelper propertyHelper;
+	private ClassBasedLucenePropertyHelper propertyHelper;
 
 	@Before
 	public void setupPropertyTypeHelper() {
-		propertyHelper = new LucenePropertyHelper( factoryHolder.getSearchFactory() );
+		EntityNamesResolver nameResolver = MapBasedEntityNamesResolver.forClasses( IndexedEntity.class );
+		propertyHelper = new ClassBasedLucenePropertyHelper( factoryHolder.getSearchFactory(), nameResolver );
 	}
 
 	@Test
 	public void shouldConvertIdProperty() {
-		assertThat( propertyHelper.convertToPropertyType( "42", IndexedEntity.class, "id" ) ).isEqualTo( "42" );
+		assertThat( convertToPropertyType( IndexedEntity.class, "id", "42" ) ).isEqualTo( "42" );
 	}
 
 	@Test
 	public void shouldConvertStringProperty() {
-		assertThat( propertyHelper.convertToPropertyType( "42", IndexedEntity.class, "name" ) ).isEqualTo( "42" );
+		assertThat( convertToPropertyType( IndexedEntity.class, "name", "42" ) ).isEqualTo( "42" );
 	}
 
 	@Test
 	public void shouldConvertIntProperty() {
-		assertThat( propertyHelper.convertToPropertyType( "42", IndexedEntity.class, "i" ) ).isEqualTo( 42 );
+		assertThat( convertToPropertyType( IndexedEntity.class, "i", "42" ) ).isEqualTo( 42 );
 	}
 
 	@Test
 	public void shouldConvertLongProperty() {
-		assertThat( propertyHelper.convertToPropertyType( "42", IndexedEntity.class, "l" ) ).isEqualTo( 42L );
+		assertThat( convertToPropertyType( IndexedEntity.class, "l", "42" ) ).isEqualTo( 42L );
 	}
 
 	@Test
 	public void shouldConvertFloatProperty() {
-		assertThat( propertyHelper.convertToPropertyType( "42.0", IndexedEntity.class, "f" ) ).isEqualTo( 42.0F );
+		assertThat( convertToPropertyType( IndexedEntity.class, "f", "42.0" ) ).isEqualTo( 42.0F );
 	}
 
 	@Test
 	public void shouldConvertDoubleProperty() {
-		assertThat( propertyHelper.convertToPropertyType( "42.0", IndexedEntity.class, "d" ) ).isEqualTo( 42.0D );
+		assertThat( convertToPropertyType( IndexedEntity.class, "d", "42.0" ) ).isEqualTo( 42.0D );
 	}
 
 	@Test
@@ -84,7 +88,7 @@ public class LucenePropertyHelperTest {
 		Calendar calendar = Calendar.getInstance( TimeZone.getTimeZone( "GMT" ) );
 		calendar.clear();
 		calendar.set( 2012, 8, 25 );
-		assertThat( propertyHelper.convertToPropertyType( "20120925", IndexedEntity.class, "date" ) ).isEqualTo( calendar.getTime() );
+		assertThat( convertToPropertyType( IndexedEntity.class, "date", "20120925" ) ).isEqualTo( calendar.getTime() );
 	}
 
 	@Test
@@ -95,5 +99,9 @@ public class LucenePropertyHelperTest {
 	@Test
 	public void shouldRecognizeUnanalyzedField() {
 		assertThat( propertyHelper.isAnalyzed( IndexedEntity.class, "i" ) ).isFalse();
+	}
+
+	private Object convertToPropertyType(Class<?> type, String propertyName, String value) {
+		return propertyHelper.convertToPropertyType( type.getSimpleName(), Arrays.asList( propertyName ), value );
 	}
 }

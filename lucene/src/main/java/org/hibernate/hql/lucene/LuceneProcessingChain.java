@@ -28,13 +28,17 @@ import org.apache.lucene.search.Query;
 import org.hibernate.hql.ast.spi.AstProcessingChain;
 import org.hibernate.hql.ast.spi.AstProcessor;
 import org.hibernate.hql.ast.spi.EntityNamesResolver;
+import org.hibernate.hql.ast.spi.PropertyHelper;
 import org.hibernate.hql.ast.spi.QueryRendererProcessor;
 import org.hibernate.hql.ast.spi.QueryResolverProcessor;
 import org.hibernate.hql.ast.spi.SingleEntityQueryBuilder;
+import org.hibernate.hql.lucene.internal.ClassBasedLuceneQueryResolverDelegate;
 import org.hibernate.hql.lucene.internal.LuceneQueryRendererDelegate;
-import org.hibernate.hql.lucene.internal.LuceneQueryResolverDelegate;
-import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
+import org.hibernate.hql.lucene.internal.UntypedLuceneQueryResolverDelegate;
+import org.hibernate.hql.lucene.internal.builder.ClassBasedLucenePropertyHelper;
+import org.hibernate.hql.lucene.internal.builder.FieldBridgeProviderBasedLucenePropertyHelper;
 import org.hibernate.hql.lucene.internal.builder.predicate.LucenePredicateFactory;
+import org.hibernate.hql.lucene.spi.FieldBridgeProvider;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
 
 /**
@@ -48,20 +52,86 @@ public class LuceneProcessingChain implements AstProcessingChain<LuceneQueryPars
 	private final QueryRendererProcessor rendererProcessor;
 	private final LuceneQueryRendererDelegate rendererDelegate;
 
-	public LuceneProcessingChain(SearchFactoryIntegrator searchFactory, EntityNamesResolver entityNames, Map<String, Object> namedParameters) {
-		this.resolverProcessor = new QueryResolverProcessor( new LuceneQueryResolverDelegate( searchFactory, entityNames, namedParameters ) );
+	/**
+	 * Builds new {@link LuceneProcessingChain}s.
+	 *
+	 * @author Gunnar Morling
+	 */
+	public static class Builder {
 
-		LucenePropertyHelper propertyHelper = new LucenePropertyHelper( searchFactory );
-		SingleEntityQueryBuilder<Query> queryBuilder = SingleEntityQueryBuilder.getInstance(
-				new LucenePredicateFactory( searchFactory.buildQueryBuilder(), propertyHelper ),
-				propertyHelper
-		);
+		private final SearchFactoryIntegrator searchFactory;
+		private final EntityNamesResolver entityNames;
+		private Map<String, Object> namedParameters;
 
-		LuceneQueryRendererDelegate rendererDelegate = new LuceneQueryRendererDelegate(
-				entityNames,
-				queryBuilder,
-				namedParameters );
-		this.rendererProcessor = new QueryRendererProcessor( rendererDelegate );
+		public Builder(SearchFactoryIntegrator searchFactory, EntityNamesResolver entityNames) {
+			this.searchFactory = searchFactory;
+			this.entityNames = entityNames;
+		}
+
+		public Builder namedParameters(Map<String, Object> namedParameters) {
+			this.namedParameters = namedParameters;
+			return this;
+		}
+
+		/**
+		 * Builds a processing chain for parsing queries targeted at dynamic entities, i.e. entity types which are not
+		 * backed by an actual Java class.
+		 *
+		 * @param fieldBridgeProvider the field bridge provider to use for querying the targeted dynamic entity type
+		 * @return a Lucene processing chain for parsing queries targeted at dynamic entities
+		 */
+		public LuceneProcessingChain buildProcessingChainForDynamicEntities(FieldBridgeProvider fieldBridgeProvider) {
+			QueryResolverProcessor resolverProcessor = new QueryResolverProcessor( new UntypedLuceneQueryResolverDelegate( ) );
+
+			LuceneQueryRendererDelegate rendererDelegate = getRendererDelegate(
+					searchFactory,
+					fieldBridgeProvider,
+					entityNames,
+					namedParameters,
+					new FieldBridgeProviderBasedLucenePropertyHelper( fieldBridgeProvider )
+					);
+
+			QueryRendererProcessor rendererProcessor = new QueryRendererProcessor( rendererDelegate );
+
+			return new LuceneProcessingChain( resolverProcessor, rendererProcessor, rendererDelegate );
+		}
+
+		/**
+		 * Builds a processing chain for parsing queries targeted at Java class-based entities.
+		 *
+		 * @return a Lucene processing chain for parsing queries targeted at Java class-based entities
+		 */
+		public LuceneProcessingChain buildProcessingChainForClassBasedEntities() {
+			ClassBasedLucenePropertyHelper propertyHelper = new ClassBasedLucenePropertyHelper( searchFactory, entityNames );
+
+			QueryResolverProcessor resolverProcessor = new QueryResolverProcessor(
+					new ClassBasedLuceneQueryResolverDelegate( propertyHelper, entityNames )
+					);
+
+			LuceneQueryRendererDelegate rendererDelegate = getRendererDelegate( searchFactory, null, entityNames, namedParameters, propertyHelper );
+
+			QueryRendererProcessor rendererProcessor = new QueryRendererProcessor( rendererDelegate );
+
+			return new LuceneProcessingChain( resolverProcessor, rendererProcessor, rendererDelegate );
+		}
+
+		private static LuceneQueryRendererDelegate getRendererDelegate(SearchFactoryIntegrator searchFactory, FieldBridgeProvider fieldBridgeProvider, EntityNamesResolver entityNames, Map<String, Object> namedParameters, PropertyHelper propertyHelper) {
+			SingleEntityQueryBuilder<Query> queryBuilder = SingleEntityQueryBuilder.getInstance(
+					new LucenePredicateFactory( searchFactory.buildQueryBuilder(), entityNames, fieldBridgeProvider ),
+					propertyHelper
+					);
+
+			return new LuceneQueryRendererDelegate(
+					entityNames,
+					queryBuilder,
+					namedParameters );
+		}
+	}
+
+	private LuceneProcessingChain(QueryResolverProcessor resolverProcessor, QueryRendererProcessor rendererProcessor,
+			LuceneQueryRendererDelegate rendererDelegate) {
+		this.resolverProcessor = resolverProcessor;
+		this.rendererProcessor = rendererProcessor;
 		this.rendererDelegate = rendererDelegate;
 	}
 

@@ -18,29 +18,32 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.hibernate.hql.lucene.internal.builder.predicate;
+package org.hibernate.hql.lucene.internal.builder;
 
-import org.apache.lucene.search.Query;
-import org.hibernate.hql.ast.spi.predicate.RangePredicate;
+import java.util.List;
+
+import org.hibernate.hql.internal.util.Strings;
+import org.hibernate.hql.lucene.spi.FieldBridgeProvider;
 import org.hibernate.search.bridge.FieldBridge;
-import org.hibernate.search.query.dsl.QueryBuilder;
 
 /**
- * Lucene-based {@code BETWEEN} predicate.
+ * A {@link LucenePropertyHelper} which delegates retrieval of {@link FieldBridge}s to a {@link FieldBridgeProvider}.
  *
  * @author Gunnar Morling
  */
-public class LuceneRangePredicate extends RangePredicate<Query> {
+public class FieldBridgeProviderBasedLucenePropertyHelper extends LucenePropertyHelper {
 
-	private final MatchingContextSupport matchingContextSupport;
+	private final FieldBridgeProvider fieldBridgeProvider;
 
-	public LuceneRangePredicate(QueryBuilder builder, FieldBridge fieldBridge, String propertyName, Object lower, Object upper) {
-		super( propertyName, lower, upper );
-		this.matchingContextSupport = new MatchingContextSupport( builder, fieldBridge, propertyName );
+	public FieldBridgeProviderBasedLucenePropertyHelper(FieldBridgeProvider fieldBridgeProvider) {
+		this.fieldBridgeProvider = fieldBridgeProvider;
 	}
 
 	@Override
-	public Query getQuery() {
-		return matchingContextSupport.rangeMatchingContext().from( lower ).to( upper ).createQuery();
+	protected FieldBridge getFieldBridge(String entityType, List<String> propertyPath) {
+		return fieldBridgeProvider.getFieldBridge(
+				entityType,
+				Strings.join( propertyPath.toArray( new String[propertyPath.size()] ), "." )
+		);
 	}
 }

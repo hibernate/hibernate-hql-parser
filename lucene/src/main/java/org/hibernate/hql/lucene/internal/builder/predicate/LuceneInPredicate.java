@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.apache.lucene.search.Query;
 import org.hibernate.hql.ast.spi.predicate.InPredicate;
+import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.query.dsl.QueryBuilder;
 
 /**
@@ -34,10 +35,12 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 public class LuceneInPredicate extends InPredicate<Query> {
 
 	private final QueryBuilder builder;
+	private final FieldBridge fieldBridge;
 
-	public LuceneInPredicate(QueryBuilder builder, String propertyName, List<Object> values) {
+	public LuceneInPredicate(QueryBuilder builder, FieldBridge fieldBridge, String propertyName, List<Object> values) {
 		super( propertyName, values );
 		this.builder = builder;
+		this.fieldBridge = fieldBridge;
 	}
 
 	@Override
@@ -47,6 +50,7 @@ public class LuceneInPredicate extends InPredicate<Query> {
 		for ( Object element : values ) {
 			LuceneComparisonPredicate equals = new LuceneComparisonPredicate(
 					builder,
+					fieldBridge,
 					propertyName,
 					org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type.EQUALS, element );
 

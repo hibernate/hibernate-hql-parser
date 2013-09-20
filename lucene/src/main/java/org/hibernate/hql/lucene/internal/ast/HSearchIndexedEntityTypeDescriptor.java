@@ -21,7 +21,7 @@
 package org.hibernate.hql.lucene.internal.ast;
 
 import org.hibernate.hql.ast.TypeDescriptor;
-import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
+import org.hibernate.hql.lucene.internal.builder.ClassBasedLucenePropertyHelper;
 
 /**
  * A {@link TypeDescriptor} representing a Hibernate Search indexed entity.
@@ -31,9 +31,9 @@ import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
 public class HSearchIndexedEntityTypeDescriptor implements HSearchTypeDescriptor {
 
 	private final Class<?> indexedEntityType;
-	private final LucenePropertyHelper propertyHelper;
+	private final ClassBasedLucenePropertyHelper propertyHelper;
 
-	public HSearchIndexedEntityTypeDescriptor(Class<?> indexedEntityType, LucenePropertyHelper propertyHelper) {
+	public HSearchIndexedEntityTypeDescriptor(Class<?> indexedEntityType, ClassBasedLucenePropertyHelper propertyHelper) {
 		this.indexedEntityType = indexedEntityType;
 		this.propertyHelper = propertyHelper;
 	}
