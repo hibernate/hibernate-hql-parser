@@ -53,7 +53,9 @@ public class ClassBasedLuceneQueryParsingTest extends LuceneQueryParsingTestBase
 		SearchFactoryIntegrator searchFactory = factoryHolder.getSearchFactory();
 		EntityNamesResolver nameResolver = MapBasedEntityNamesResolver.forClasses( IndexedEntity.class );
 
-		return new LuceneProcessingChain( searchFactory, nameResolver, namedParameters );
+		return new LuceneProcessingChain.Builder( searchFactory, nameResolver )
+			.namedParameters( namedParameters )
+			.buildProcessingChainForClassBasedEntities();
 	}
 
 	@Test

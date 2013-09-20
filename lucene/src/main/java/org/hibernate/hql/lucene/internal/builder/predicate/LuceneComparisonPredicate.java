@@ -22,6 +22,7 @@ package org.hibernate.hql.lucene.internal.builder.predicate;
 
 import org.apache.lucene.search.Query;
 import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate;
+import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.query.dsl.QueryBuilder;
 
 /**
@@ -31,35 +32,35 @@ import org.hibernate.search.query.dsl.QueryBuilder;
  */
 public class LuceneComparisonPredicate extends ComparisonPredicate<Query> {
 
-	private final QueryBuilder builder;
+	private final MatchingContextSupport matchingContextSupport;
 
-	public LuceneComparisonPredicate(QueryBuilder builder, String propertyName, Type comparisonType, Object value) {
+	public LuceneComparisonPredicate(QueryBuilder builder, FieldBridge fieldBridge, String propertyName, Type comparisonType, Object value) {
 		super( propertyName, comparisonType, value );
-		this.builder = builder;
+		this.matchingContextSupport = new MatchingContextSupport( builder, fieldBridge, propertyName );
 	}
 
 	@Override
 	protected Query getStrictlyLessQuery() {
-		return builder.range().onField( propertyName ).below( value ).excludeLimit().createQuery();
+		return matchingContextSupport.rangeMatchingContext().below( value ).excludeLimit().createQuery();
 	}
 
 	@Override
 	protected Query getLessOrEqualsQuery() {
-		return builder.range().onField( propertyName ).below( value ).createQuery();
+		return matchingContextSupport.rangeMatchingContext().below( value ).createQuery();
 	}
 
 	@Override
 	protected Query getEqualsQuery() {
-		return builder.keyword().onField( propertyName ).matching( value ).createQuery();
+		return matchingContextSupport.keyWordTermMatchingContext().matching( value ).createQuery();
 	}
 
 	@Override
 	protected Query getGreaterOrEqualsQuery() {
-		return builder.range().onField( propertyName ).above( value ).createQuery();
+		return matchingContextSupport.rangeMatchingContext().above( value ).createQuery();
 	}
 
 	@Override
 	protected Query getStrictlyGreaterQuery() {
-		return builder.range().onField( propertyName ).above( value ).excludeLimit().createQuery();
+		return matchingContextSupport.rangeMatchingContext().above( value ).excludeLimit().createQuery();
 	}
 }

@@ -83,7 +83,7 @@ public class ClassBasedLuceneQueryResolverDelegate implements QueryResolverDeleg
 
 	private Class<?> targetType = null;
 
-	public ClassBasedLuceneQueryResolverDelegate(ClassBasedLucenePropertyHelper propertyHelper, EntityNamesResolver entityNames, Map<String,Object> namedParameters) {
+	public ClassBasedLuceneQueryResolverDelegate(ClassBasedLucenePropertyHelper propertyHelper, EntityNamesResolver entityNames) {
 		this.entityNames = entityNames;
 		this.propertyHelper = propertyHelper;
 	}
