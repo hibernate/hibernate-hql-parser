@@ -36,3 +36,4 @@ atlassian-ide-plugin.xml
 *.sh
 .clover
 
+/build
