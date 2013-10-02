@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CharStream;
@@ -36,7 +37,6 @@ import org.antlr.runtime.RuleReturnScope;
 import org.antlr.runtime.Token;
 import org.antlr.runtime.TokenStream;
 import org.antlr.runtime.tree.CommonTree;
-
 import org.hibernate.hql.testing.internal.model.GrammarRuleTestDescriptor;
 import org.hibernate.hql.testing.internal.model.GrammarRuleTestGroupDescriptor;
 import org.hibernate.hql.testing.internal.model.GrammarTestDescriptor;
@@ -180,7 +180,7 @@ public class GrammarRuleTestRunner {
 
 		StringBuilder nonEofEndingTokens = new StringBuilder();
 
-		for ( Token endToken : tokens.getTokens( tokens.index(), tokens.size() - 1 ) ) {
+		for ( Token endToken : (List<Token>) tokens.getTokens( tokens.index(), tokens.size() - 1 ) ) {
 			// Ignore <EOF> tokens as they might be inserted by the parser
 			if ( !"<EOF>".equals( endToken.getText() ) ) {
 				nonEofEndingTokens.append( endToken.getText() );

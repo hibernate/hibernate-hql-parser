@@ -20,6 +20,8 @@
  */
 package org.hibernate.hql;
 
+import java.util.List;
+
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
@@ -98,7 +100,7 @@ public class QueryParser {
 
 		StringBuilder nonEofEndingTokens = new StringBuilder();
 
-		for ( Token endToken : tokens.getTokens( tokens.index(), tokens.size() - 1 ) ) {
+		for ( Token endToken : (List<Token>) tokens.getTokens( tokens.index(), tokens.size() - 1 ) ) {
 			// Ignore <EOF> tokens as they might be inserted by the parser
 			if ( !"<EOF>".equals( endToken.getText() ) ) {
 				nonEofEndingTokens.append( endToken.getText() );
