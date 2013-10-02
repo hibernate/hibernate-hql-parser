@@ -22,7 +22,7 @@
 * Boston, MA 02110-1301 USA
 */
 ext {
-    antlr3Version = "3.4.1-preview-jbossorg-0"
+    antlr3Version = "3.4"
     antlr4Version = "4.0"
     hibernateSearchVersion = "4.4.0.Beta1"
 
