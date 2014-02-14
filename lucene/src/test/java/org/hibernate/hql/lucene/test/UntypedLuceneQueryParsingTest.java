@@ -34,7 +34,7 @@ import org.hibernate.hql.lucene.spi.FieldBridgeProvider;
 import org.hibernate.hql.lucene.test.model.GenericValueHolder;
 import org.hibernate.hql.lucene.test.model.IndexedEntity;
 import org.hibernate.search.bridge.FieldBridge;
-import org.hibernate.search.bridge.builtin.LongNumericFieldBridge;
+import org.hibernate.search.bridge.builtin.NumericFieldBridge;
 import org.hibernate.search.bridge.builtin.StringBridge;
 import org.hibernate.search.bridge.builtin.impl.DefaultStringBridge;
 import org.hibernate.search.bridge.builtin.impl.NullEncodingFieldBridge;
@@ -88,7 +88,7 @@ public class UntypedLuceneQueryParsingTest extends LuceneQueryParsingTestBase {
 
 			indexedEntityBridges.put( "id", new TwoWayString2FieldBridgeAdaptor( new StringBridge() ) );
 			indexedEntityBridges.put( "name", new NullEncodingTwoWayFieldBridge( new TwoWayString2FieldBridgeAdaptor( new StringBridge() ), "_null_" ) );
-			indexedEntityBridges.put( "position", new LongNumericFieldBridge() );
+			indexedEntityBridges.put( "position", NumericFieldBridge.LONG_FIELD_BRIDGE );
 			indexedEntityBridges.put( "title", new TwoWayString2FieldBridgeAdaptor( new StringBridge() ) );
 			indexedEntityBridges.put( "author", new NullEncodingFieldBridge( new String2FieldBridgeAdaptor( DefaultStringBridge.INSTANCE ), "_null_" ) );
 			indexedEntityBridges.put( "author.name", new TwoWayString2FieldBridgeAdaptor( new StringBridge() ) );

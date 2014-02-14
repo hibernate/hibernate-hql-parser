@@ -24,16 +24,14 @@ import java.util.List;
 
 import org.hibernate.hql.ast.spi.PropertyHelper;
 import org.hibernate.search.bridge.FieldBridge;
-import org.hibernate.search.bridge.builtin.DoubleNumericFieldBridge;
-import org.hibernate.search.bridge.builtin.FloatNumericFieldBridge;
-import org.hibernate.search.bridge.builtin.IntegerNumericFieldBridge;
-import org.hibernate.search.bridge.builtin.LongNumericFieldBridge;
+import org.hibernate.search.bridge.builtin.NumericFieldBridge;
 import org.hibernate.search.bridge.builtin.impl.TwoWayString2FieldBridgeAdaptor;
 
 /**
  * Provides functionality for dealing with Lucene-mapped properties.
  *
  * @author Gunnar Morling
+ * @author Sanne Grinovero
  */
 public abstract class LucenePropertyHelper implements PropertyHelper {
 
@@ -48,28 +46,24 @@ public abstract class LucenePropertyHelper implements PropertyHelper {
 	 */
 	@Override
 	public Object convertToPropertyType(String entityType, List<String> propertyPath, String value) {
-		FieldBridge bridge = getFieldBridge( entityType, propertyPath );
+		final FieldBridge bridge = getFieldBridge( entityType, propertyPath );
 
 		if ( bridge instanceof TwoWayString2FieldBridgeAdaptor ) {
 			return ( (TwoWayString2FieldBridgeAdaptor) bridge ).unwrap().stringToObject( value );
 		}
-		else if ( bridge instanceof IntegerNumericFieldBridge ) {
-			return Integer.parseInt( value );
-		}
-		else if ( bridge instanceof LongNumericFieldBridge ) {
-			return Long.parseLong( value );
-		}
-		else if ( bridge instanceof FloatNumericFieldBridge ) {
-			return Float.parseFloat( value );
-		}
-		else if ( bridge instanceof DoubleNumericFieldBridge ) {
-			return Double.parseDouble( value );
+		else if ( bridge instanceof NumericFieldBridge ) {
+			NumericFieldBridge numericBridge = (NumericFieldBridge) bridge;
+			switch ( numericBridge ) {
+				case INT_FIELD_BRIDGE : return Integer.valueOf( value );
+				case LONG_FIELD_BRIDGE : return Long.valueOf( value );
+				case FLOAT_FIELD_BRIDGE : return Float.valueOf( value );
+				case DOUBLE_FIELD_BRIDGE : return Double.valueOf( value );
+				default: return value;
+			}
 		}
 		else {
 			return value;
 		}
-
-		// See DocumentBuilderHelper.processFieldsForProjection for a more complete logic esp around embedded objects
 	}
 
 	protected abstract FieldBridge getFieldBridge(String entityType, List<String> propertyPath);
