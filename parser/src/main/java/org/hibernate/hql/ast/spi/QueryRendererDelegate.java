@@ -43,6 +43,8 @@ public interface QueryRendererDelegate<T> {
 
 	void pushSelectStrategy();
 
+	void pushOrderByStrategy();
+
 	void popStrategy();
 
 	void activateOR();
@@ -72,6 +74,15 @@ public interface QueryRendererDelegate<T> {
 	void predicateLike(String patternValue, Character escapeCharacter);
 
 	void predicateIsNull();
+
+   /**
+    * Sets the sort direction, either "asc" or "desc", for the current property. The property was already
+    * specified by {@link #setPropertyPath(PropertyPath)}
+    *
+    * @param collateName optional collation name
+    * @param orderSpec a string with possible values "asc" or "desc"
+    */
+	void sortSpecification(String collateName, String orderSpec);
 
 	/**
 	 * Returns the result created by this delegate after the tree processing has been finished.

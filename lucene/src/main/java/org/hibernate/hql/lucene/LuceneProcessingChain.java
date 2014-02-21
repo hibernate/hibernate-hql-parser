@@ -28,7 +28,6 @@ import org.apache.lucene.search.Query;
 import org.hibernate.hql.ast.spi.AstProcessingChain;
 import org.hibernate.hql.ast.spi.AstProcessor;
 import org.hibernate.hql.ast.spi.EntityNamesResolver;
-import org.hibernate.hql.ast.spi.PropertyHelper;
 import org.hibernate.hql.ast.spi.QueryRendererProcessor;
 import org.hibernate.hql.ast.spi.QueryResolverProcessor;
 import org.hibernate.hql.ast.spi.SingleEntityQueryBuilder;
@@ -37,6 +36,7 @@ import org.hibernate.hql.lucene.internal.LuceneQueryRendererDelegate;
 import org.hibernate.hql.lucene.internal.UntypedLuceneQueryResolverDelegate;
 import org.hibernate.hql.lucene.internal.builder.ClassBasedLucenePropertyHelper;
 import org.hibernate.hql.lucene.internal.builder.FieldBridgeProviderBasedLucenePropertyHelper;
+import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
 import org.hibernate.hql.lucene.internal.builder.predicate.LucenePredicateFactory;
 import org.hibernate.hql.lucene.spi.FieldBridgeProvider;
 import org.hibernate.search.spi.SearchFactoryIntegrator;
@@ -115,7 +115,7 @@ public class LuceneProcessingChain implements AstProcessingChain<LuceneQueryPars
 			return new LuceneProcessingChain( resolverProcessor, rendererProcessor, rendererDelegate );
 		}
 
-		private static LuceneQueryRendererDelegate getRendererDelegate(SearchFactoryIntegrator searchFactory, FieldBridgeProvider fieldBridgeProvider, EntityNamesResolver entityNames, Map<String, Object> namedParameters, PropertyHelper propertyHelper) {
+		private static LuceneQueryRendererDelegate getRendererDelegate(SearchFactoryIntegrator searchFactory, FieldBridgeProvider fieldBridgeProvider, EntityNamesResolver entityNames, Map<String, Object> namedParameters, LucenePropertyHelper propertyHelper) {
 			SingleEntityQueryBuilder<Query> queryBuilder = SingleEntityQueryBuilder.getInstance(
 					new LucenePredicateFactory( searchFactory.buildQueryBuilder(), entityNames, fieldBridgeProvider ),
 					propertyHelper
@@ -124,7 +124,9 @@ public class LuceneProcessingChain implements AstProcessingChain<LuceneQueryPars
 			return new LuceneQueryRendererDelegate(
 					entityNames,
 					queryBuilder,
-					namedParameters );
+					namedParameters,
+					propertyHelper
+					);
 		}
 	}
 

@@ -193,11 +193,11 @@ rootSelectExpression
 	;
 
 orderByClause
-	:	^(ORDER_BY sortSpecification+)
+	:	{ delegate.pushOrderByStrategy(); } ^(ORDER_BY sortSpecification+) { delegate.popStrategy(); }
 	;
 
 sortSpecification
-	:	^(SORT_SPEC valueExpression COLLATE? ORDER_SPEC)
+	:	^(SORT_SPEC valueExpression COLLATE? ORDER_SPEC) { delegate.sortSpecification( $COLLATE.text, $ORDER_SPEC.text ); }
 	;
 
 searchCondition
