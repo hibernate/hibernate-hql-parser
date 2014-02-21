@@ -20,15 +20,25 @@
  */
 package org.hibernate.hql.lucene.internal;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.hibernate.hql.ast.origin.hql.resolve.path.PropertyPath;
 import org.hibernate.hql.ast.spi.EntityNamesResolver;
 import org.hibernate.hql.ast.spi.SingleEntityQueryBuilder;
 import org.hibernate.hql.ast.spi.SingleEntityQueryRendererDelegate;
 import org.hibernate.hql.lucene.LuceneQueryParsingResult;
+import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
 import org.hibernate.search.ProjectionConstants;
+import org.hibernate.search.bridge.FieldBridge;
+import org.hibernate.search.bridge.builtin.DoubleNumericFieldBridge;
+import org.hibernate.search.bridge.builtin.FloatNumericFieldBridge;
+import org.hibernate.search.bridge.builtin.IntegerNumericFieldBridge;
+import org.hibernate.search.bridge.builtin.LongNumericFieldBridge;
 
 /**
  * Renderer delegate which creates Lucene queries targeting a single entity or a projection of the same.
@@ -37,13 +47,46 @@ import org.hibernate.search.ProjectionConstants;
  */
 public class LuceneQueryRendererDelegate extends SingleEntityQueryRendererDelegate<Query, LuceneQueryParsingResult> {
 
-	public LuceneQueryRendererDelegate(EntityNamesResolver entityNames, SingleEntityQueryBuilder<Query> builder, Map<String, Object> namedParameters) {
+	private final LucenePropertyHelper propertyHelper;
+
+	private List<SortField> sortFields;
+
+	public LuceneQueryRendererDelegate(EntityNamesResolver entityNames, SingleEntityQueryBuilder<Query> builder, Map<String, Object> namedParameters, LucenePropertyHelper propertyHelper) {
 		super( entityNames, builder, namedParameters );
+		this.propertyHelper = propertyHelper;
+	}
+
+	@Override
+	protected void addSortField(PropertyPath propertyPath, String collationName, boolean isAscending) {
+		if ( sortFields == null ) {
+			sortFields = new ArrayList<SortField>( 5 );
+		}
+
+		int sortType = SortField.STRING;
+		FieldBridge fieldBridge = propertyHelper.getFieldBridge( targetTypeName, propertyPath.getNodeNamesWithoutAlias() );
+		// Determine sort type based on FieldBridgeType. SortField.BYTE and SortField.SHORT are not covered!
+		if ( fieldBridge instanceof IntegerNumericFieldBridge ) {
+			sortType = SortField.INT;
+		}
+		else if ( fieldBridge instanceof LongNumericFieldBridge ) {
+			sortType = SortField.LONG;
+		}
+		else if ( fieldBridge instanceof DoubleNumericFieldBridge ) {
+			sortType = SortField.DOUBLE;
+		}
+		else if ( fieldBridge instanceof FloatNumericFieldBridge ) {
+			sortType = SortField.FLOAT;
+		}
+		sortFields.add( new SortField( propertyPath.asStringPathWithoutAlias(), sortType, !isAscending ) );
 	}
 
 	@Override
 	public LuceneQueryParsingResult getResult() {
-		return new LuceneQueryParsingResult( builder.build(), targetTypeName, targetType, projections );
+		Sort sort = null;
+		if ( sortFields != null ) {
+			sort = new Sort( sortFields.toArray( new SortField[sortFields.size()] ) );
+		}
+		return new LuceneQueryParsingResult( builder.build(), targetTypeName, targetType, projections, sort );
 	}
 
 	@Override

@@ -53,7 +53,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 	}
 
 	@Override
-	protected FieldBridge getFieldBridge(String entityType, List<String> propertyPath) {
+	public FieldBridge getFieldBridge(String entityType, List<String> propertyPath) {
 		Class<?> type = getType( entityType );
 		String[] propertyPathAsArray = propertyPath.toArray( new String[propertyPath.size()] );
 

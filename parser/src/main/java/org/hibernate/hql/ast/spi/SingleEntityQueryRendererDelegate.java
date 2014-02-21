@@ -51,13 +51,15 @@ import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
  */
 public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRendererDelegate<R> {
 
+	protected static final String SORT_ASC_SPEC = "asc";
+
 	/**
 	 * States which this object can have during tree walking
 	 *
 	 * @author Gunnar Morling
 	 */
 	protected enum Status {
-		DEFINING_SELECT, DEFINING_FROM;
+		DEFINING_SELECT, DEFINING_FROM, DEFINING_ORDER_BY
 	}
 
 	/**
@@ -161,6 +163,11 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 	}
 
 	@Override
+	public void pushOrderByStrategy() {
+		status = Status.DEFINING_ORDER_BY;
+	}
+
+	@Override
 	public void popStrategy() {
 		status = null;
 	}
@@ -248,6 +255,21 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 	public void predicateIsNull() {
 		builder.addIsNullPredicate( propertyPath.getNodeNamesWithoutAlias() );
 	}
+
+	@Override
+	public void sortSpecification(String collateName, String orderSpec) {
+		// orderSpec is already normalized to be lowercase and non-null
+		addSortField( propertyPath, collateName, SORT_ASC_SPEC.equals( orderSpec ) );
+	}
+
+	/**
+    * Add field sort criteria. To be implemented by subclasses.
+    *
+    * @param propertyPath the path of the field being sorted
+    * @param collateName optional collation name
+    * @param isAscending sort direction
+    */
+	protected abstract void addSortField(PropertyPath propertyPath, String collateName, boolean isAscending);
 
 	private Object fromNamedQuery(String comparativePredicate) {
 		if ( comparativePredicate.startsWith( ":" ) ) {

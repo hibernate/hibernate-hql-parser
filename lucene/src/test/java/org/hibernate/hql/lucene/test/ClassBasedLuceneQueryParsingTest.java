@@ -24,6 +24,8 @@ import static org.fest.assertions.Assertions.assertThat;
 
 import java.util.Map;
 
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.hibernate.hql.ParsingException;
 import org.hibernate.hql.ast.spi.EntityNamesResolver;
 import org.hibernate.hql.lucene.LuceneProcessingChain;
@@ -123,5 +125,38 @@ public class ClassBasedLuceneQueryParsingTest extends LuceneQueryParsingTestBase
 		parsingResult = parseQuery( "select e from org.hibernate.hql.lucene.test.model.IndexedEntity e" );
 		assertThat( parsingResult.getTargetEntity() ).isSameAs( IndexedEntity.class );
 		assertThat( parsingResult.getTargetEntityName() ).isEqualTo( "org.hibernate.hql.lucene.test.model.IndexedEntity" );
+	}
+
+	@Test
+	public void shouldBuildOneFieldSort() {
+		LuceneQueryParsingResult parsingResult = parseQuery( "select e from IndexedEntity e where e.name = 'same' order by e.title" );
+		Sort sort = parsingResult.getSort();
+		assertThat( sort ).isNotNull();
+		assertThat( sort.getSort().length ).isEqualTo( 1 );
+		assertThat( sort.getSort()[0].getField() ).isEqualTo( "title" );
+		assertThat( sort.getSort()[0].getReverse() ).isEqualTo( false );
+		assertThat( sort.getSort()[0].getType() ).isEqualTo( SortField.STRING );
+	}
+
+	@Test
+	public void shouldBuildTwoFieldsSort() {
+		LuceneQueryParsingResult parsingResult = parseQuery( "select e from IndexedEntity e where e.name = 'same' order by e.title, e.position DESC" );
+		Sort sort = parsingResult.getSort();
+		assertThat( sort ).isNotNull();
+		assertThat( sort.getSort().length ).isEqualTo( 2 );
+		assertThat( sort.getSort()[0].getField() ).isEqualTo( "title" );
+		assertThat( sort.getSort()[0].getReverse() ).isEqualTo( false );
+		assertThat( sort.getSort()[0].getType() ).isEqualTo( SortField.STRING );
+		assertThat( sort.getSort()[1].getField() ).isEqualTo( "position" );
+		assertThat( sort.getSort()[1].getReverse() ).isEqualTo( true );
+		assertThat( sort.getSort()[1].getType() ).isEqualTo( SortField.LONG );
+	}
+
+	@Test
+	public void shouldRaiseExceptionDueToUnrecognizedSortDirection() {
+		expectedException.expect( ParsingException.class );
+		expectedException.expectMessage( "HQLPARSER000006" );
+
+		parseQuery( "select e from IndexedEntity e where e.name = 'same' order by e.title DESblah, e.name ASC" );
 	}
 }

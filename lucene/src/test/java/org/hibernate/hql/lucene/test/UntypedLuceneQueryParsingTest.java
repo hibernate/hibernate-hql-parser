@@ -25,6 +25,8 @@ import static org.fest.assertions.Assertions.assertThat;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.hibernate.hql.ast.spi.EntityNamesResolver;
 import org.hibernate.hql.lucene.LuceneProcessingChain;
 import org.hibernate.hql.lucene.LuceneQueryParsingResult;
@@ -72,6 +74,31 @@ public class UntypedLuceneQueryParsingTest extends LuceneQueryParsingTestBase {
 		LuceneQueryParsingResult parsingResult = parseQuery( "select e from IndexedEntity e where e.name = 'same' and not e.id = 5" );
 		assertThat( parsingResult.getTargetEntityName() ).isEqualTo( "IndexedEntity" );
 		assertThat( parsingResult.getTargetEntity() ).isSameAs( GenericValueHolder.class );
+	}
+
+	@Test
+	public void shouldBuildOneFieldSort() {
+		LuceneQueryParsingResult parsingResult = parseQuery( "select e from IndexedEntity e where e.name = 'same' order by e.title" );
+		Sort sort = parsingResult.getSort();
+		assertThat( sort ).isNotNull();
+		assertThat( sort.getSort().length ).isEqualTo( 1 );
+		assertThat( sort.getSort()[0].getField() ).isEqualTo( "title" );
+		assertThat( sort.getSort()[0].getReverse() ).isEqualTo( false );
+		assertThat( sort.getSort()[0].getType() ).isEqualTo( SortField.STRING );
+	}
+
+	@Test
+	public void shouldBuildTwoFieldsSort() {
+		LuceneQueryParsingResult parsingResult = parseQuery( "select e from IndexedEntity e where e.name = 'same' order by e.title, e.position DESC" );
+		Sort sort = parsingResult.getSort();
+		assertThat( sort ).isNotNull();
+		assertThat( sort.getSort().length ).isEqualTo( 2 );
+		assertThat( sort.getSort()[0].getField() ).isEqualTo( "title" );
+		assertThat( sort.getSort()[0].getReverse() ).isEqualTo( false );
+		assertThat( sort.getSort()[0].getType() ).isEqualTo( SortField.STRING );
+		assertThat( sort.getSort()[1].getField() ).isEqualTo( "position" );
+		assertThat( sort.getSort()[1].getReverse() ).isEqualTo( true );
+		assertThat( sort.getSort()[1].getType() ).isEqualTo( SortField.LONG );
 	}
 
 	/**

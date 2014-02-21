@@ -72,5 +72,5 @@ public abstract class LucenePropertyHelper implements PropertyHelper {
 		// See DocumentBuilderHelper.processFieldsForProjection for a more complete logic esp around embedded objects
 	}
 
-	protected abstract FieldBridge getFieldBridge(String entityType, List<String> propertyPath);
+	public abstract FieldBridge getFieldBridge(String entityType, List<String> propertyPath);
 }
