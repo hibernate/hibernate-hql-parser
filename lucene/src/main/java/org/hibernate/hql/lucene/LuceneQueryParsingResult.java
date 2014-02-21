@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Sort;
 import org.hibernate.hql.ast.spi.EntityNamesResolver;
 
 /**
@@ -37,12 +38,14 @@ public class LuceneQueryParsingResult {
 	private final String targetEntityName;
 	private final Class<?> targetEntity;
 	private final List<String> projections;
+	private final Sort sort;
 
-	public LuceneQueryParsingResult(Query query, String targetEntityName, Class<?> targetEntity, List<String> projections) {
+	public LuceneQueryParsingResult(Query query, String targetEntityName, Class<?> targetEntity, List<String> projections, Sort sort) {
 		this.query = query;
 		this.targetEntityName = targetEntityName;
 		this.targetEntity = targetEntity;
 		this.projections = projections != null ? projections : Collections.<String>emptyList();
+		this.sort = sort;
 	}
 
 	/**
@@ -84,8 +87,18 @@ public class LuceneQueryParsingResult {
 		return projections;
 	}
 
+   /**
+    * Returns the optional Lucene sort specification.
+    *
+    * @return the {@link Sort} object or {@code null} if the query string does not specify sorting
+    */
+	public Sort getSort() {
+		return sort;
+	}
+
 	@Override
 	public String toString() {
-		return "LuceneQueryParsingResult [query=" + query + ", targetEntity=" + targetEntity + ", projections=" + projections + "]";
+		return "LuceneQueryParsingResult [query=" + query + ", targetEntity=" + targetEntity
+				+ ", projections=" + projections + ", sort=" + sort + "]";
 	}
 }
