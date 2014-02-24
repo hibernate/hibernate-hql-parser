@@ -35,6 +35,15 @@ public class MapBasedEntityNamesResolver implements EntityNamesResolver {
 
 	private final Map<String, Class<?>> entityNames;
 
+	public MapBasedEntityNamesResolver(Map<String, Class<?>> entityNames) {
+		this.entityNames = entityNames;
+	}
+
+	@Override
+	public Class<?> getClassFromName(String entityName) {
+		return entityNames.get( entityName );
+	}
+
 	public static MapBasedEntityNamesResolver forClasses(Class<?>... classes) {
 		Map<String, Class<?>> entityNames = new HashMap<String, Class<?>>();
 
@@ -44,14 +53,5 @@ public class MapBasedEntityNamesResolver implements EntityNamesResolver {
 		}
 
 		return new MapBasedEntityNamesResolver( entityNames );
-	}
-
-	public MapBasedEntityNamesResolver(Map<String, Class<?>> entityNames) {
-		this.entityNames = entityNames;
-	}
-
-	@Override
-	public Class<?> getClassFromName(String entityName) {
-		return entityNames.get( entityName );
 	}
 }
