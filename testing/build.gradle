@@ -41,6 +41,9 @@ compileJava {
     dependsOn generateAntlrTypes
 }
 
+// do not run checkstyle on ANTLR generated sources of the calculator sample code
+checkstyleTest.exclude '**/com/example/**'
+
 def pomName() {
     return "Hibernate HQL/JP-QL Parser Testing"
 }

@@ -57,7 +57,7 @@ public class JoinType implements Serializable {
 	 */
 	public static final JoinType FULL = new JoinType( "full" );
 
-	private static final HashMap INSTANCES = new HashMap();
+	private static final HashMap<String, JoinType> INSTANCES = new HashMap<String, JoinType>();
 	static {
 		INSTANCES.put( INNER.name, INNER );
 		INSTANCES.put( LEFT.name, LEFT );
