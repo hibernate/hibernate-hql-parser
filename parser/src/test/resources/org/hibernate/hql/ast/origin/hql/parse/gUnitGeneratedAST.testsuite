@@ -169,11 +169,11 @@ SELECT/FROM STATEMENT
   where :currentUser = user
       and PaymentStatus.UNPAID = isNull(payment.currentStatus.name, PaymentStatus.UNPAID)
   order by account.type.sortOrder, account.accountNumber, payment.dueDate>>  OK
-[testExamples1]
-"select new org.hibernate.test.S(s.count, s.address) from s in class Simple"  OK
-"select s.name, sysdate, trunc(s.pay), round(s.pay) from s in class Simple"  OK
-"select abs(round(s.pay)) from s in class Simple"  OK
-"select trunc(round(sysdate)) from s in class Simple"  OK
+//[testExamples1]
+//"select new org.hibernate.test.S(s.count, s.address) from s in class Simple"  OK
+//"select s.name, sysdate, trunc(s.pay), round(s.pay) from s in class Simple"  OK
+//"select abs(round(s.pay)) from s in class Simple"  OK
+//"select trunc(round(sysdate)) from s in class Simple"  OK
 [testMultipleActualParameters]
 "select round(s.pay, 2) from s"  OK
 [testMultipleFromClasses]
@@ -212,19 +212,19 @@ SELECT/FROM STATEMENT
 "from foo where foo.bar = 123 + foo.baz * foo.not"  OK
 "from foo where foo.bar like 'testzzz' || foo.baz or foo.bar in ('duh', 'gob')"  OK
 [testUnitTestHql]
-"select foo from foo in class org.hibernate.test.Foo, fee in class org.hibernate.test.Fee where foo.dependent = fee order by foo.string desc, foo.component.count asc, fee.id"  OK
-"select foo.foo, foo.dependent from foo in class org.hibernate.test.Foo order by foo.foo.string desc, foo.component.count asc, foo.dependent.id"  OK
-"select foo from foo in class org.hibernate.test.Foo order by foo.dependent.id, foo.dependent.fi"  OK
-"select one from one in class org.hibernate.test.One order by one.value asc"  OK
-"select many.one from many in class org.hibernate.test.Many order by many.one.value asc, many.one.id"  OK
+//"select foo from foo in class org.hibernate.test.Foo, fee in class org.hibernate.test.Fee where foo.dependent = fee order by foo.string desc, foo.component.count asc, fee.id"  OK
+//"select foo.foo, foo.dependent from foo in class org.hibernate.test.Foo order by foo.foo.string desc, foo.component.count asc, foo.dependent.id"  OK
+//"select foo from foo in class org.hibernate.test.Foo order by foo.dependent.id, foo.dependent.fi"  OK
+//"select one from one in class org.hibernate.test.One order by one.value asc"  OK
+//"select many.one from many in class org.hibernate.test.Many order by many.one.value asc, many.one.id"  OK
 "select foo.id from org.hibernate.test.Foo foo where foo.joinedProp = 'foo'"  OK
 "from org.hibernate.test.Foo foo inner join fetch foo.foo"  OK
 "from org.hibernate.test.Baz baz left outer join fetch baz.fooToGlarch"  OK
-"select foo.foo.foo.string from foo in class org.hibernate.test.Foo where foo.foo = 'bar'"  OK
-"select foo.foo.foo.foo.string from foo in class org.hibernate.test.Foo where foo.foo.foo = 'bar'"  OK
-"select foo.foo.foo.string from foo in class org.hibernate.test.Foo where foo.foo.foo.foo.string = 'bar'"  OK
-"select foo.string from foo in class org.hibernate.test.Foo where foo.foo.foo = 'bar' and foo.foo.foo.foo = 'baz'"  OK
-"select foo.string from foo in class org.hibernate.test.Foo where foo.foo.foo.foo.string = 'a' and foo.foo.string = 'b'"  OK
+//"select foo.foo.foo.string from foo in class org.hibernate.test.Foo where foo.foo = 'bar'"  OK
+//"select foo.foo.foo.foo.string from foo in class org.hibernate.test.Foo where foo.foo.foo = 'bar'"  OK
+//"select foo.foo.foo.string from foo in class org.hibernate.test.Foo where foo.foo.foo.foo.string = 'bar'"  OK
+//"select foo.string from foo in class org.hibernate.test.Foo where foo.foo.foo = 'bar' and foo.foo.foo.foo = 'baz'"  OK
+//"select foo.string from foo in class org.hibernate.test.Foo where foo.foo.foo.foo.string = 'a' and foo.foo.string = 'b'"  OK
 "from org.hibernate.test.Foo as foo where foo.component.glarch.name is not null"  OK
 "from org.hibernate.test.Foo as foo left outer join foo.component.glarch as glarch where glarch.name = 'foo'"  OK
 "from org.hibernate.test.Foo"  OK
@@ -233,96 +233,96 @@ SELECT/FROM STATEMENT
 "from org.hibernate.test.Baz baz left join baz.fooToGlarch, org.hibernate.test.Bar bar join bar.foo"  OK
 "from org.hibernate.test.Baz baz left join baz.fooToGlarch join baz.fooSet"  OK
 "from org.hibernate.test.Baz baz left join baz.fooToGlarch join fetch baz.fooSet foo left join fetch foo.foo"  OK
-"from foo in class org.hibernate.test.Foo where foo.string='osama bin laden' and foo.boolean = true order by foo.string asc, foo.component.count desc"  OK
-"from foo in class org.hibernate.test.Foo where foo.string='osama bin laden' order by foo.string asc, foo.component.count desc"  OK
-"select foo.foo from foo in class org.hibernate.test.Foo"  OK
-"from foo in class org.hibernate.test.Foo where foo.component.count is null order by foo.component.count"  OK
-"from foo in class org.hibernate.test.Foo where foo.component.name='foo'"  OK
-"select distinct foo.component.name, foo.component.name from foo in class org.hibernate.test.Foo where foo.component.name='foo'"  OK
-"select distinct foo.component.name, foo.id from foo in class org.hibernate.test.Foo where foo.component.name='foo'"  OK
-"from foo in class org.hibernate.test.Foo where foo.id=?"  OK
-"from foo in class org.hibernate.test.Foo where foo.key=?"  OK
-"select foo.foo from foo in class org.hibernate.test.Foo where foo.string='fizard'"  OK
-"from foo in class org.hibernate.test.Foo where foo.component.subcomponent.name='bar'"  OK
-"select foo.foo from foo in class org.hibernate.test.Foo where foo.foo.id=?"  OK
-"from foo in class org.hibernate.test.Foo where foo.foo = ?"  OK
-"from bar in class org.hibernate.test.Bar where bar.string='a string' or bar.string='a string'"  OK
-"select foo.component.name, elements(foo.component.importantDates) from foo in class org.hibernate.test.Foo where foo.foo.id=?"  OK
-"select max(elements(foo.component.importantDates)) from foo in class org.hibernate.test.Foo group by foo.id"  OK
-"select foo.foo.foo.foo from foo in class org.hibernate.test.Foo, foo2 in class org.hibernate.test.Foo where foo = foo2.foo and not not ( not foo.string='fizard' ) and foo2.string between 'a' and (foo.foo.string) and ( foo2.string in ( 'fiz', 'blah') or 1=1 )"  OK
-"from foo in class org.hibernate.test.Foo where foo.string='from BoogieDown  -tinsel town  =!@#$^&*())'"  OK
-"from foo in class org.hibernate.test.Foo where not foo.string='foo''bar'"  OK
-"from foo in class org.hibernate.test.Foo where foo.component.glarch.next is null"  OK
-"from bar in class org.hibernate.test.Bar where bar.baz.count=667 and bar.baz.count!=123 and not bar.baz.name='1-E-1'"  OK
-"from i in class org.hibernate.test.Bar where i.baz.name='Bazza'"  OK
-"select count(distinct foo.foo) from foo in class org.hibernate.test.Foo"  OK
-"select count(foo.foo.boolean) from foo in class org.hibernate.test.Foo"  OK
-"select count(*), foo.int from foo in class org.hibernate.test.Foo group by foo.int"  OK
-"select sum(foo.foo.int) from foo in class org.hibernate.test.Foo"  OK
-"select count(foo) from foo in class org.hibernate.test.Foo where foo.id=?"  OK
-"from foo in class org.hibernate.test.Foo where foo.boolean = ?"  OK
+//"from foo in class org.hibernate.test.Foo where foo.string='osama bin laden' and foo.boolean = true order by foo.string asc, foo.component.count desc"  OK
+//"from foo in class org.hibernate.test.Foo where foo.string='osama bin laden' order by foo.string asc, foo.component.count desc"  OK
+//"select foo.foo from foo in class org.hibernate.test.Foo"  OK
+//"from foo in class org.hibernate.test.Foo where foo.component.count is null order by foo.component.count"  OK
+//"from foo in class org.hibernate.test.Foo where foo.component.name='foo'"  OK
+//"select distinct foo.component.name, foo.component.name from foo in class org.hibernate.test.Foo where foo.component.name='foo'"  OK
+//"select distinct foo.component.name, foo.id from foo in class org.hibernate.test.Foo where foo.component.name='foo'"  OK
+//"from foo in class org.hibernate.test.Foo where foo.id=?"  OK
+//"from foo in class org.hibernate.test.Foo where foo.key=?"  OK
+//"select foo.foo from foo in class org.hibernate.test.Foo where foo.string='fizard'"  OK
+//"from foo in class org.hibernate.test.Foo where foo.component.subcomponent.name='bar'"  OK
+//"select foo.foo from foo in class org.hibernate.test.Foo where foo.foo.id=?"  OK
+//"from foo in class org.hibernate.test.Foo where foo.foo = ?"  OK
+//"from bar in class org.hibernate.test.Bar where bar.string='a string' or bar.string='a string'"  OK
+//"select foo.component.name, elements(foo.component.importantDates) from foo in class org.hibernate.test.Foo where foo.foo.id=?"  OK
+//"select max(elements(foo.component.importantDates)) from foo in class org.hibernate.test.Foo group by foo.id"  OK
+//"select foo.foo.foo.foo from foo in class org.hibernate.test.Foo, foo2 in class org.hibernate.test.Foo where foo = foo2.foo and not not ( not foo.string='fizard' ) and foo2.string between 'a' and (foo.foo.string) and ( foo2.string in ( 'fiz', 'blah') or 1=1 )"  OK
+//"from foo in class org.hibernate.test.Foo where foo.string='from BoogieDown  -tinsel town  =!@#$^&*())'"  OK
+//"from foo in class org.hibernate.test.Foo where not foo.string='foo''bar'"  OK
+//"from foo in class org.hibernate.test.Foo where foo.component.glarch.next is null"  OK
+//"from bar in class org.hibernate.test.Bar where bar.baz.count=667 and bar.baz.count!=123 and not bar.baz.name='1-E-1'"  OK
+//"from i in class org.hibernate.test.Bar where i.baz.name='Bazza'"  OK
+//"select count(distinct foo.foo) from foo in class org.hibernate.test.Foo"  OK
+//"select count(foo.foo.boolean) from foo in class org.hibernate.test.Foo"  OK
+//"select count(*), foo.int from foo in class org.hibernate.test.Foo group by foo.int"  OK
+//"select sum(foo.foo.int) from foo in class org.hibernate.test.Foo"  OK
+//"select count(foo) from foo in class org.hibernate.test.Foo where foo.id=?"  OK
+//"from foo in class org.hibernate.test.Foo where foo.boolean = ?"  OK
 "select new Foo(fo.x) from org.hibernate.test.Fo fo"  OK
 "select new Foo(fo.integer) from org.hibernate.test.Foo fo"  OK
 "select new Foo(fo.x) from org.hibernate.test.Foo fo"  OK
-"select foo.long, foo.component.name, foo, foo.foo from foo in class org.hibernate.test.Foo"  OK
-"select avg(foo.float), max(foo.component.name), count(distinct foo.id) from foo in class org.hibernate.test.Foo"  OK
-"select foo.long, foo.component, foo, foo.foo from foo in class org.hibernate.test.Foo"  OK
-"from o in class org.hibernate.test.MoreStuff"  OK
-"from o in class org.hibernate.test.Many"  OK
-"from o in class org.hibernate.test.Fee"  OK
-"from o in class org.hibernate.test.Qux"  OK
-"from o in class org.hibernate.test.Y"  OK
-"from o in class org.hibernate.test.Fumm"  OK
-"from o in class org.hibernate.test.X"  OK
-"from o in class org.hibernate.test.Simple"  OK
-"from o in class org.hibernate.test.Location"  OK
-"from o in class org.hibernate.test.Holder"  OK
-"from o in class org.hibernate.test.Part"  OK
-"from o in class org.hibernate.test.Baz"  OK
-"from o in class org.hibernate.test.Vetoer"  OK
-"from o in class org.hibernate.test.Sortable"  OK
-"from o in class org.hibernate.test.Contained"  OK
-"from o in class org.hibernate.test.Stuff"  OK
-"from o in class org.hibernate.test.Immutable"  OK
-"from o in class org.hibernate.test.Container"  OK
-"from o in class org.hibernate.test.X$XX"  OK
-"from o in class org.hibernate.test.One"  OK
-"from o in class org.hibernate.test.Foo"  OK
-"from o in class org.hibernate.test.Fo"  OK
-"from o in class org.hibernate.test.Glarch"  OK
-"from o in class org.hibernate.test.Fum"  OK
-"from n in class org.hibernate.test.Holder"  OK
-"from n in class org.hibernate.test.Baz"  OK
-"from n in class org.hibernate.test.Bar"  OK
-"from n in class org.hibernate.test.Glarch"  OK
-"from n in class org.hibernate.test.Holder where n.name is not null"  OK
-"from n in class org.hibernate.test.Baz where n.name is not null"  OK
-"from n in class org.hibernate.test.Bar where n.name is not null"  OK
-"from n in class org.hibernate.test.Glarch where n.name is not null"  OK
-"from n0 in class org.hibernate.test.Holder, n1 in class org.hibernate.test.Holder where n0.name = n1.name"  OK
-"from n0 in class org.hibernate.test.Baz, n1 in class org.hibernate.test.Holder where n0.name = n1.name"  OK
-"from n0 in class org.hibernate.test.Bar, n1 in class org.hibernate.test.Holder where n0.name = n1.name"  OK
-"from n0 in class org.hibernate.test.Glarch, n1 in class org.hibernate.test.Holder where n0.name = n1.name"  OK
-"from n0 in class org.hibernate.test.Holder, n1 in class org.hibernate.test.Baz where n0.name = n1.name"  OK
-"from n0 in class org.hibernate.test.Baz, n1 in class org.hibernate.test.Baz where n0.name = n1.name"  OK
-"from n0 in class org.hibernate.test.Bar, n1 in class org.hibernate.test.Baz where n0.name = n1.name"  OK
-"from n0 in class org.hibernate.test.Glarch, n1 in class org.hibernate.test.Baz where n0.name = n1.name"  OK
-"from n0 in class org.hibernate.test.Holder, n1 in class org.hibernate.test.Bar where n0.name = n1.name"  OK
-"from n0 in class org.hibernate.test.Baz, n1 in class org.hibernate.test.Bar where n0.name = n1.name"  OK
-"from n0 in class org.hibernate.test.Bar, n1 in class org.hibernate.test.Bar where n0.name = n1.name"  OK
-"from n0 in class org.hibernate.test.Glarch, n1 in class org.hibernate.test.Bar where n0.name = n1.name"  OK
-"from n0 in class org.hibernate.test.Holder, n1 in class org.hibernate.test.Glarch where n0.name = n1.name"  OK
-"from n0 in class org.hibernate.test.Baz, n1 in class org.hibernate.test.Glarch where n0.name = n1.name"  OK
-"from n0 in class org.hibernate.test.Bar, n1 in class org.hibernate.test.Glarch where n0.name = n1.name"  OK
-"from n0 in class org.hibernate.test.Glarch, n1 in class org.hibernate.test.Glarch where n0.name = n1.name"  OK
-"from n in class org.hibernate.test.Holder where n.name = :name"  OK
-"select baz.code, min(baz.count) from baz in class org.hibernate.test.Baz group by baz.code"  OK
-"selecT baz from baz in class org.hibernate.test.Baz where baz.stringDateMap['foo'] is not null or baz.stringDateMap['bar'] = ?"  OK
-"select baz from baz in class org.hibernate.test.Baz where baz.stringDateMap['now'] is not null"  OK
-"select baz from baz in class org.hibernate.test.Baz where baz.stringDateMap['now'] is not null and baz.stringDateMap['big bang'] < baz.stringDateMap['now']"  OK
+//"select foo.long, foo.component.name, foo, foo.foo from foo in class org.hibernate.test.Foo"  OK
+//"select avg(foo.float), max(foo.component.name), count(distinct foo.id) from foo in class org.hibernate.test.Foo"  OK
+//"select foo.long, foo.component, foo, foo.foo from foo in class org.hibernate.test.Foo"  OK
+//"from o in class org.hibernate.test.MoreStuff"  OK
+//"from o in class org.hibernate.test.Many"  OK
+//"from o in class org.hibernate.test.Fee"  OK
+//"from o in class org.hibernate.test.Qux"  OK
+//"from o in class org.hibernate.test.Y"  OK
+//"from o in class org.hibernate.test.Fumm"  OK
+//"from o in class org.hibernate.test.X"  OK
+//"from o in class org.hibernate.test.Simple"  OK
+//"from o in class org.hibernate.test.Location"  OK
+//"from o in class org.hibernate.test.Holder"  OK
+//"from o in class org.hibernate.test.Part"  OK
+//"from o in class org.hibernate.test.Baz"  OK
+//"from o in class org.hibernate.test.Vetoer"  OK
+//"from o in class org.hibernate.test.Sortable"  OK
+//"from o in class org.hibernate.test.Contained"  OK
+//"from o in class org.hibernate.test.Stuff"  OK
+//"from o in class org.hibernate.test.Immutable"  OK
+//"from o in class org.hibernate.test.Container"  OK
+//"from o in class org.hibernate.test.X$XX"  OK
+//"from o in class org.hibernate.test.One"  OK
+//"from o in class org.hibernate.test.Foo"  OK
+//"from o in class org.hibernate.test.Fo"  OK
+//"from o in class org.hibernate.test.Glarch"  OK
+//"from o in class org.hibernate.test.Fum"  OK
+//"from n in class org.hibernate.test.Holder"  OK
+//"from n in class org.hibernate.test.Baz"  OK
+//"from n in class org.hibernate.test.Bar"  OK
+//"from n in class org.hibernate.test.Glarch"  OK
+//"from n in class org.hibernate.test.Holder where n.name is not null"  OK
+//"from n in class org.hibernate.test.Baz where n.name is not null"  OK
+//"from n in class org.hibernate.test.Bar where n.name is not null"  OK
+//"from n in class org.hibernate.test.Glarch where n.name is not null"  OK
+//"from n0 in class org.hibernate.test.Holder, n1 in class org.hibernate.test.Holder where n0.name = n1.name"  OK
+//"from n0 in class org.hibernate.test.Baz, n1 in class org.hibernate.test.Holder where n0.name = n1.name"  OK
+//"from n0 in class org.hibernate.test.Bar, n1 in class org.hibernate.test.Holder where n0.name = n1.name"  OK
+//"from n0 in class org.hibernate.test.Glarch, n1 in class org.hibernate.test.Holder where n0.name = n1.name"  OK
+//"from n0 in class org.hibernate.test.Holder, n1 in class org.hibernate.test.Baz where n0.name = n1.name"  OK
+//"from n0 in class org.hibernate.test.Baz, n1 in class org.hibernate.test.Baz where n0.name = n1.name"  OK
+//"from n0 in class org.hibernate.test.Bar, n1 in class org.hibernate.test.Baz where n0.name = n1.name"  OK
+//"from n0 in class org.hibernate.test.Glarch, n1 in class org.hibernate.test.Baz where n0.name = n1.name"  OK
+//"from n0 in class org.hibernate.test.Holder, n1 in class org.hibernate.test.Bar where n0.name = n1.name"  OK
+//"from n0 in class org.hibernate.test.Baz, n1 in class org.hibernate.test.Bar where n0.name = n1.name"  OK
+//"from n0 in class org.hibernate.test.Bar, n1 in class org.hibernate.test.Bar where n0.name = n1.name"  OK
+//"from n0 in class org.hibernate.test.Glarch, n1 in class org.hibernate.test.Bar where n0.name = n1.name"  OK
+//"from n0 in class org.hibernate.test.Holder, n1 in class org.hibernate.test.Glarch where n0.name = n1.name"  OK
+//"from n0 in class org.hibernate.test.Baz, n1 in class org.hibernate.test.Glarch where n0.name = n1.name"  OK
+//"from n0 in class org.hibernate.test.Bar, n1 in class org.hibernate.test.Glarch where n0.name = n1.name"  OK
+//"from n0 in class org.hibernate.test.Glarch, n1 in class org.hibernate.test.Glarch where n0.name = n1.name"  OK
+//"from n in class org.hibernate.test.Holder where n.name = :name"  OK
+//"select baz.code, min(baz.count) from baz in class org.hibernate.test.Baz group by baz.code"  OK
+//"selecT baz from baz in class org.hibernate.test.Baz where baz.stringDateMap['foo'] is not null or baz.stringDateMap['bar'] = ?"  OK
+//"select baz from baz in class org.hibernate.test.Baz where baz.stringDateMap['now'] is not null"  OK
+//"select baz from baz in class org.hibernate.test.Baz where baz.stringDateMap['now'] is not null and baz.stringDateMap['big bang'] < baz.stringDateMap['now']"  OK
 "select index(date) from org.hibernate.test.Baz baz join baz.stringDateMap as date"  OK
 "select index(date) from org.hibernate.test.Baz baz join baz.stringDateMap date"  OK
-"from foo in class org.hibernate.test.Foo where foo.integer not between 1 and 5 and foo.string not in ('cde', 'abc') and foo.string is not null and foo.integer<=3"  OK
+//"from foo in class org.hibernate.test.Foo where foo.integer not between 1 and 5 and foo.string not in ('cde', 'abc') and foo.string is not null and foo.integer<=3"  OK
 "from org.hibernate.test.Baz baz inner join baz.collectionComponent.nested.foos foo where foo.string is null"  OK
 "from org.hibernate.test.Baz baz inner join baz.fooSet where '1' in (from baz.fooSet foo where foo.string is not null)"  OK
 "from org.hibernate.test.Baz baz where 'a' in elements(baz.collectionComponent.nested.foos) and 1.0 in elements(baz.collectionComponent.nested.floats)"  OK
@@ -383,13 +383,13 @@ SELECT/FROM STATEMENT
 "select bar from org.hibernate.test.Bar as bar where bar.x > ? or bar.short = 1 or bar.string = 'ff ? bb'"  OK
 "select bar from org.hibernate.test.Bar as bar where bar.string = ' ? ' or bar.string = '?'"  OK
 "from org.hibernate.test.Baz baz, baz.fooArray foo"  OK
-"from s in class org.hibernate.test.Stuff where s.foo.id = ? and s.id.id = ? and s.moreStuff.id.intId = ? and s.moreStuff.id.stringId = ?"  OK
-"from s in class org.hibernate.test.Stuff where s.foo.id = ? and s.id.id = ? and s.moreStuff.name = ?"  OK
-"from s in class org.hibernate.test.Stuff where s.foo.string is not null"  OK
-"from s in class org.hibernate.test.Stuff where s.foo > '0' order by s.foo"  OK
-"from ms in class org.hibernate.test.MoreStuff"  OK
-"from fee in class org.hibernate.test.Fee"  OK
-"select new Result(foo.string, foo.long, foo.integer) from foo in class org.hibernate.test.Foo"  OK
+//"from s in class org.hibernate.test.Stuff where s.foo.id = ? and s.id.id = ? and s.moreStuff.id.intId = ? and s.moreStuff.id.stringId = ?"  OK
+//"from s in class org.hibernate.test.Stuff where s.foo.id = ? and s.id.id = ? and s.moreStuff.name = ?"  OK
+//"from s in class org.hibernate.test.Stuff where s.foo.string is not null"  OK
+//"from s in class org.hibernate.test.Stuff where s.foo > '0' order by s.foo"  OK
+//"from ms in class org.hibernate.test.MoreStuff"  OK
+//"from fee in class org.hibernate.test.Fee"  OK
+//"select new Result(foo.string, foo.long, foo.integer) from foo in class org.hibernate.test.Foo"  OK
 "select new Result( baz.name, foo.long, count(elements(baz.fooArray)) ) from org.hibernate.test.Baz baz join baz.fooArray foo group by baz.name, foo.long"  OK
 "select new Result( baz.name, max(foo.long), count(foo) ) from org.hibernate.test.Baz baz join baz.fooArray foo group by baz.name"  OK
 "select max( elements(bar.baz.fooArray) ) from org.hibernate.test.Bar as bar"  OK
@@ -403,72 +403,72 @@ SELECT/FROM STATEMENT
 "select foo.string from org.hibernate.test.Bar bar left join bar.baz.fooSet foo where bar.string = foo.string"  OK
 "select baz.name from org.hibernate.test.Bar bar left join bar.baz baz left join baz.fooArray foo where baz.name = bar.string"  OK
 "select foo.string from org.hibernate.test.Bar bar left join bar.baz.fooArray foo where bar.string = foo.string"  OK
-"select foo from bar in class org.hibernate.test.Bar inner join bar.baz as baz inner join baz.fooSet as foo"  OK
-"select foo from bar in class org.hibernate.test.Bar inner join bar.baz.fooSet as foo"  OK
-"select foo from bar in class org.hibernate.test.Bar, bar.baz as baz, baz.fooSet as foo"  OK
-"select foo from bar in class org.hibernate.test.Bar, bar.baz.fooSet as foo"  OK
+//"select foo from bar in class org.hibernate.test.Bar inner join bar.baz as baz inner join baz.fooSet as foo"  OK
+//"select foo from bar in class org.hibernate.test.Bar inner join bar.baz.fooSet as foo"  OK
+//"select foo from bar in class org.hibernate.test.Bar, bar.baz as baz, baz.fooSet as foo"  OK
+//"select foo from bar in class org.hibernate.test.Bar, bar.baz.fooSet as foo"  OK
 "from org.hibernate.test.Bar bar join bar.baz.fooArray foo"  OK
-"from bar in class org.hibernate.test.Bar, foo in elements( bar.baz.fooArray )"  OK
-"select one.id, elements(one.manies) from one in class org.hibernate.test.One"  OK
-"select max( elements(one.manies) ) from one in class org.hibernate.test.One"  OK
-"select one, elements(one.manies) from one in class org.hibernate.test.One"  OK
-"select one, max(elements(one.manies)) from one in class org.hibernate.test.One group by one"  OK
-"select elements(baz.fooArray) from baz in class org.hibernate.test.Baz where baz.id=?"  OK
-"select indices(baz.fooArray) from baz in class org.hibernate.test.Baz where baz.id=?"  OK
-"select baz, max(elements(baz.timeArray)) from baz in class org.hibernate.test.Baz group by baz"  OK
-"select baz, baz.stringSet.size, count(distinct elements(baz.stringSet)), max(elements(baz.stringSet)) from baz in class org.hibernate.test.Baz group by baz"  OK
-"select max( elements(baz.timeArray) ) from baz in class org.hibernate.test.Baz where baz.id=?"  OK
-"select max(elements(baz.stringSet)) from baz in class org.hibernate.test.Baz where baz.id=?"  OK
-"select size(baz.stringSet) from baz in class org.hibernate.test.Baz where baz.id=?"  OK
+//"from bar in class org.hibernate.test.Bar, foo in elements( bar.baz.fooArray )"  OK
+//"select one.id, elements(one.manies) from one in class org.hibernate.test.One"  OK
+//"select max( elements(one.manies) ) from one in class org.hibernate.test.One"  OK
+//"select one, elements(one.manies) from one in class org.hibernate.test.One"  OK
+//"select one, max(elements(one.manies)) from one in class org.hibernate.test.One group by one"  OK
+//"select elements(baz.fooArray) from baz in class org.hibernate.test.Baz where baz.id=?"  OK
+//"select indices(baz.fooArray) from baz in class org.hibernate.test.Baz where baz.id=?"  OK
+//"select baz, max(elements(baz.timeArray)) from baz in class org.hibernate.test.Baz group by baz"  OK
+//"select baz, baz.stringSet.size, count(distinct elements(baz.stringSet)), max(elements(baz.stringSet)) from baz in class org.hibernate.test.Baz group by baz"  OK
+//"select max( elements(baz.timeArray) ) from baz in class org.hibernate.test.Baz where baz.id=?"  OK
+//"select max(elements(baz.stringSet)) from baz in class org.hibernate.test.Baz where baz.id=?"  OK
+//"select size(baz.stringSet) from baz in class org.hibernate.test.Baz where baz.id=?"  OK
 "from org.hibernate.test.Foo foo where foo.component.glarch.id is not null"  OK
-"from baz in class org.hibernate.test.Baz"  OK
-"select elements(baz.stringArray) from baz in class org.hibernate.test.Baz"  OK
-"select elements(baz.stringList) from baz in class org.hibernate.test.Baz"  OK
+//"from baz in class org.hibernate.test.Baz"  OK
+//"select elements(baz.stringArray) from baz in class org.hibernate.test.Baz"  OK
+//"select elements(baz.stringList) from baz in class org.hibernate.test.Baz"  OK
 "select count(*) from org.hibernate.test.Bar"  OK
-"select count(*) from b in class org.hibernate.test.Bar"  OK
-"from g in class org.hibernate.test.Glarch"  OK
-"select baz, baz from baz in class org.hibernate.test.Baz"  OK
-"select baz from baz in class org.hibernate.test.Baz order by baz"  OK
-"from bar in class org.hibernate.test.Bar"  OK
-"from f in class org.hibernate.test.Foo"  OK
-"from q in class org.hibernate.test.Qux"  OK
-"select foo from foo in class org.hibernate.test.Foo where foo.string='foo bar'"  OK
-"from foo in class org.hibernate.test.Foo order by foo.string, foo.date"  OK
-"from foo in class org.hibernate.test.Foo where foo.class='B'"  OK
-"from foo in class org.hibernate.test.Foo where foo.class=Bar"  OK
-"select bar from bar in class org.hibernate.test.Bar, foo in class org.hibernate.test.Foo where bar.string = foo.string and not bar=foo"  OK
-"from foo in class org.hibernate.test.Foo where foo.string='foo bar'"  OK
-"select foo from foo in class org.hibernate.test.Foo"  OK
-"from bar in class org.hibernate.test.Bar where bar.barString='bar bar'"  OK
-"from t in class org.hibernate.test.Trivial"  OK
-"from foo in class org.hibernate.test.Foo where foo.date = ?"  OK
-"from q in class org.hibernate.test.Qux where q.stuff is null"  OK
-"from q in class org.hibernate.test.Qux where q.stuff=?"  OK
-"from g in class org.hibernate.test.Glarch where g.version=2"  OK
-"from g in class org.hibernate.test.Glarch where g.next is not null"  OK
-"from g in class org.hibernate.test.Glarch order by g.order asc"  OK
-"from foo in class org.hibernate.test.Foo order by foo.string asc"  OK
-"select parent, child from parent in class org.hibernate.test.Foo, child in class org.hibernate.test.Foo where parent.foo = child"  OK
-"select count(distinct child.id), count(distinct parent.id) from parent in class org.hibernate.test.Foo, child in class org.hibernate.test.Foo where parent.foo = child"  OK
-"select child.id, parent.id, child.long from parent in class org.hibernate.test.Foo, child in class org.hibernate.test.Foo where parent.foo = child"  OK
-"select child.id, parent.id, child.long, child, parent.foo from parent in class org.hibernate.test.Foo, child in class org.hibernate.test.Foo where parent.foo = child"  OK
-"select parent, child from parent in class org.hibernate.test.Foo, child in class org.hibernate.test.Foo where parent.foo = child and parent.string='a string'"  OK
+//"select count(*) from b in class org.hibernate.test.Bar"  OK
+//"from g in class org.hibernate.test.Glarch"  OK
+//"select baz, baz from baz in class org.hibernate.test.Baz"  OK
+//"select baz from baz in class org.hibernate.test.Baz order by baz"  OK
+//"from bar in class org.hibernate.test.Bar"  OK
+//"from f in class org.hibernate.test.Foo"  OK
+//"from q in class org.hibernate.test.Qux"  OK
+//"select foo from foo in class org.hibernate.test.Foo where foo.string='foo bar'"  OK
+//"from foo in class org.hibernate.test.Foo order by foo.string, foo.date"  OK
+//"from foo in class org.hibernate.test.Foo where foo.class='B'"  OK
+//"from foo in class org.hibernate.test.Foo where foo.class=Bar"  OK
+//"select bar from bar in class org.hibernate.test.Bar, foo in class org.hibernate.test.Foo where bar.string = foo.string and not bar=foo"  OK
+//"from foo in class org.hibernate.test.Foo where foo.string='foo bar'"  OK
+//"select foo from foo in class org.hibernate.test.Foo"  OK
+//"from bar in class org.hibernate.test.Bar where bar.barString='bar bar'"  OK
+//"from t in class org.hibernate.test.Trivial"  OK
+//"from foo in class org.hibernate.test.Foo where foo.date = ?"  OK
+//"from q in class org.hibernate.test.Qux where q.stuff is null"  OK
+//"from q in class org.hibernate.test.Qux where q.stuff=?"  OK
+//"from g in class org.hibernate.test.Glarch where g.version=2"  OK
+//"from g in class org.hibernate.test.Glarch where g.next is not null"  OK
+//"from g in class org.hibernate.test.Glarch order by g.order asc"  OK
+//"from foo in class org.hibernate.test.Foo order by foo.string asc"  OK
+//"select parent, child from parent in class org.hibernate.test.Foo, child in class org.hibernate.test.Foo where parent.foo = child"  OK
+//"select count(distinct child.id), count(distinct parent.id) from parent in class org.hibernate.test.Foo, child in class org.hibernate.test.Foo where parent.foo = child"  OK
+//"select child.id, parent.id, child.long from parent in class org.hibernate.test.Foo, child in class org.hibernate.test.Foo where parent.foo = child"  OK
+//"select child.id, parent.id, child.long, child, parent.foo from parent in class org.hibernate.test.Foo, child in class org.hibernate.test.Foo where parent.foo = child"  OK
+//"select parent, child from parent in class org.hibernate.test.Foo, child in class org.hibernate.test.Foo where parent.foo = child and parent.string='a string'"  OK
 "from org.hibernate.test.Foo foo where foo.custom.s1 = 'one'"  OK
-"from im in class org.hibernate.test.Immutable where im = ?"  OK
-"from foo in class org.hibernate.test.Foo where foo.char='X'"  OK
-"select distinct elements(baz.stringArray) from baz in class org.hibernate.test.Baz"  OK
-"select elements(baz.fooArray) from baz in class org.hibernate.test.Baz"  OK
-"from foo in class org.hibernate.test.Fo"  OK
-"from foo in class org.hibernate.test.Foo where foo.dependent.qux.foo.string = 'foo2'"  OK
+//"from im in class org.hibernate.test.Immutable where im = ?"  OK
+//"from foo in class org.hibernate.test.Foo where foo.char='X'"  OK
+//"select distinct elements(baz.stringArray) from baz in class org.hibernate.test.Baz"  OK
+//"select elements(baz.fooArray) from baz in class org.hibernate.test.Baz"  OK
+//"from foo in class org.hibernate.test.Fo"  OK
+//"from foo in class org.hibernate.test.Foo where foo.dependent.qux.foo.string = 'foo2'"  OK
 "from org.hibernate.test.Bar bar where bar.object.id = ? and bar.object.class = ?"  OK
 "select one from org.hibernate.test.One one, org.hibernate.test.Bar bar where bar.object.id = one.id and bar.object.class = 'O'"  OK
-"from l in class org.hibernate.test.Location where l.countryCode = 'AU' and l.description='foo bar'"  OK
+//"from l in class org.hibernate.test.Location where l.countryCode = 'AU' and l.description='foo bar'"  OK
 "from org.hibernate.test.Bar bar"  OK
 "From org.hibernate.test.Bar bar"  OK
 "From org.hibernate.test.Foo foo"  OK
-"select fum.id from fum in class org.hibernate.test.Fum where not fum.fum='FRIEND'"  OK
-"from fum in class org.hibernate.test.Fum where not fum.fum='FRIEND'"  OK
-"from fo in class org.hibernate.test.Fo where fo.id.string like 'an instance of fo'"  OK
+//"select fum.id from fum in class org.hibernate.test.Fum where not fum.fum='FRIEND'"  OK
+//"from fum in class org.hibernate.test.Fum where not fum.fum='FRIEND'"  OK
+//"from fo in class org.hibernate.test.Fo where fo.id.string like 'an instance of fo'"  OK
 "from org.hibernate.test.Outer o where o.id.detailId = ?"  OK
 "from org.hibernate.test.Outer o where o.id.master.id.sup.dudu is not null"  OK
 "from org.hibernate.test.Outer o where o.id.master.id.sup.id.akey is not null"  OK
@@ -480,31 +480,31 @@ SELECT/FROM STATEMENT
 "from org.hibernate.test.Outer as o left join o.id.master m left join m.id.sup where o.bubu is not null"  OK
 "from org.hibernate.test.Outer as o left join o.id.master.id.sup s where o.bubu is not null"  OK
 "from org.hibernate.test.Outer as o left join o.id.master m left join o.id.master.id.sup s where o.bubu is not null"  OK
-"select fum1.fo from fum1 in class org.hibernate.test.Fum where fum1.fo.fum is not null"  OK
-"from fum1 in class org.hibernate.test.Fum where fum1.fo.fum is not null order by fum1.fo.fum"  OK
-"select elements(fum1.friends) from fum1 in class org.hibernate.test.Fum"  OK
-"from fum1 in class org.hibernate.test.Fum, fr in elements( fum1.friends )"  OK
+//"select fum1.fo from fum1 in class org.hibernate.test.Fum where fum1.fo.fum is not null"  OK
+//"from fum1 in class org.hibernate.test.Fum where fum1.fo.fum is not null order by fum1.fo.fum"  OK
+//"select elements(fum1.friends) from fum1 in class org.hibernate.test.Fum"  OK
+//"from fum1 in class org.hibernate.test.Fum, fr in elements( fum1.friends )"  OK
 "select new Jay(eye) from org.hibernate.test.Eye eye"  OK
 "from org.hibernate.test.Category cat where cat.name='new foo'"  OK
 "from org.hibernate.test.Category cat where cat.name='new sub'"  OK
 "from org.hibernate.test.Up up order by up.id2 asc"  OK
 "from org.hibernate.test.Down down"  OK
 "from org.hibernate.test.Up up"  OK
-"from m in class org.hibernate.test.Master"  OK
-"from s in class org.hibernate.test.Several"  OK
-"from s in class org.hibernate.test.Single"  OK
-"from d in class org.hibernate.test.Detail"  OK
-"from c in class org.hibernate.test.Category where c.name = org.hibernate.test.Category.ROOT_CATEGORY"  OK
-"select c from c in class org.hibernate.test.Container, s in class org.hibernate.test.Simple where c.oneToMany[2] = s"  OK
-"select c from c in class org.hibernate.test.Container, s in class org.hibernate.test.Simple where c.manyToMany[2] = s"  OK
-"select c from c in class org.hibernate.test.Container, s in class org.hibernate.test.Simple where s = c.oneToMany[2]"  OK
-"select c from c in class org.hibernate.test.Container, s in class org.hibernate.test.Simple where s = c.manyToMany[2]"  OK
-"select c from c in class org.hibernate.test.Container where c.oneToMany[0].name = 's'"  OK
-"select c from c in class org.hibernate.test.Container where c.manyToMany[0].name = 's'"  OK
-"select c from c in class org.hibernate.test.Container where 's' = c.oneToMany[2 - 2].name"  OK
-"select c from c in class org.hibernate.test.Container where 's' = c.manyToMany[(3+1)/4-1].name"  OK
-"select c from c in class org.hibernate.test.Container where c.manyToMany[ maxindex(c.manyToMany) ].count = 2"  OK
-"select c from c in class org.hibernate.test.Container where c.oneToMany[ c.manyToMany[0].count ].name = 's'"  OK
+//"from m in class org.hibernate.test.Master"  OK
+//"from s in class org.hibernate.test.Several"  OK
+//"from s in class org.hibernate.test.Single"  OK
+//"from d in class org.hibernate.test.Detail"  OK
+//"from c in class org.hibernate.test.Category where c.name = org.hibernate.test.Category.ROOT_CATEGORY"  OK
+//"select c from c in class org.hibernate.test.Container, s in class org.hibernate.test.Simple where c.oneToMany[2] = s"  OK
+//"select c from c in class org.hibernate.test.Container, s in class org.hibernate.test.Simple where c.manyToMany[2] = s"  OK
+//"select c from c in class org.hibernate.test.Container, s in class org.hibernate.test.Simple where s = c.oneToMany[2]"  OK
+//"select c from c in class org.hibernate.test.Container, s in class org.hibernate.test.Simple where s = c.manyToMany[2]"  OK
+//"select c from c in class org.hibernate.test.Container where c.oneToMany[0].name = 's'"  OK
+//"select c from c in class org.hibernate.test.Container where c.manyToMany[0].name = 's'"  OK
+//"select c from c in class org.hibernate.test.Container where 's' = c.oneToMany[2 - 2].name"  OK
+//"select c from c in class org.hibernate.test.Container where 's' = c.manyToMany[(3+1)/4-1].name"  OK
+//"select c from c in class org.hibernate.test.Container where c.manyToMany[ maxindex(c.manyToMany) ].count = 2"  OK
+//"select c from c in class org.hibernate.test.Container where c.oneToMany[ c.manyToMany[0].count ].name = 's'"  OK
 "select c from org.hibernate.test.Container c where c.manyToMany[ c.oneToMany[0].count ].name = 's'"  OK
 "select count(comp.name) from org.hibernate.test.Container c join c.components comp"  OK
 "from org.hibernate.test.Parent p left join fetch p.child"  OK
@@ -532,23 +532,23 @@ SELECT/FROM STATEMENT
 "from org.hibernate.test.Fum"  OK
 "from org.hibernate.test.Glarch g"  OK
 "from org.hibernate.test.Baz baz join baz.parts"  OK
-"from c in class org.hibernate.test.Child where c.parent.count=66"  OK
+//"from c in class org.hibernate.test.Child where c.parent.count=66"  OK
 "from org.hibernate.test.Parent p join p.child c where p.count=66"  OK
-"select c, c.parent from c in class org.hibernate.test.Child order by c.parent.count"  OK
-"select c, c.parent from c in class org.hibernate.test.Child where c.parent.count=66 order by c.parent.count"  OK
-"select c, c.parent, c.parent.count from c in class org.hibernate.test.Child order by c.parent.count"  OK
-"FROM p IN class org.hibernate.test.Parent WHERE p.count = ?"  OK
+//"select c, c.parent from c in class org.hibernate.test.Child order by c.parent.count"  OK
+//"select c, c.parent from c in class org.hibernate.test.Child where c.parent.count=66 order by c.parent.count"  OK
+//"select c, c.parent, c.parent.count from c in class org.hibernate.test.Child order by c.parent.count"  OK
+//"FROM p IN class org.hibernate.test.Parent WHERE p.count = ?"  OK
 "select count(*) from org.hibernate.test.Container as c join c.components as ce join ce.simple as s where ce.name='foo'"  OK
 "select c, s from org.hibernate.test.Container as c join c.components as ce join ce.simple as s where ce.name='foo'"  OK
-"from s in class org.hibernate.test.Simple"  OK
-"from m in class org.hibernate.test.Many"  OK
-"from c in class org.hibernate.test.Container"  OK
-"from o in class org.hibernate.test.Child"  OK
-"from o in class org.hibernate.test.Parent"  OK
-"from o in class org.hibernate.test.Circular"  OK
-"from c in class org.hibernate.test.C2 where 1=1 or 1=1"  OK
-"from b in class org.hibernate.test.B"  OK
-"from a in class org.hibernate.test.A"  OK
+//"from s in class org.hibernate.test.Simple"  OK
+//"from m in class org.hibernate.test.Many"  OK
+//"from c in class org.hibernate.test.Container"  OK
+//"from o in class org.hibernate.test.Child"  OK
+//"from o in class org.hibernate.test.Parent"  OK
+//"from o in class org.hibernate.test.Circular"  OK
+//"from c in class org.hibernate.test.C2 where 1=1 or 1=1"  OK
+//"from b in class org.hibernate.test.B"  OK
+//"from a in class org.hibernate.test.A"  OK
 "from org.hibernate.test.E e join e.reverse as b where b.count=1"  OK
 "from org.hibernate.test.E e join e.as as b where b.count=1"  OK
 "from org.hibernate.test.B"  OK
@@ -557,36 +557,36 @@ SELECT/FROM STATEMENT
 "from org.hibernate.test.E e, org.hibernate.test.A a where e.reverse = a.forward and a = ?"  OK
 "from org.hibernate.test.E e join fetch e.reverse"  OK
 "from org.hibernate.test.E e"  OK
-"select max(s.count) from s in class org.hibernate.test.Simple"  OK
-"select new org.hibernate.test.S(s.count, s.address) from s in class org.hibernate.test.Simple"  OK
-"select count(*) from s in class org.hibernate.test.Simple"  OK
-"from s in class org.hibernate.test.Simple where s.name=:name and s.count=:count"  OK
-"from s in class org.hibernate.test.Simple where s.name in (:several0_, :several1_)"  OK
-"from s in class org.hibernate.test.Simple where s.name in (:stuff0_, :stuff1_)"  OK
+//"select max(s.count) from s in class org.hibernate.test.Simple"  OK
+//"select new org.hibernate.test.S(s.count, s.address) from s in class org.hibernate.test.Simple"  OK
+//"select count(*) from s in class org.hibernate.test.Simple"  OK
+//"from s in class org.hibernate.test.Simple where s.name=:name and s.count=:count"  OK
+//"from s in class org.hibernate.test.Simple where s.name in (:several0_, :several1_)"  OK
+//"from s in class org.hibernate.test.Simple where s.name in (:stuff0_, :stuff1_)"  OK
 "from org.hibernate.test.Simple s where s.name=?"  OK
 "from org.hibernate.test.Simple s where s.name=:name"  OK
-"from s in class org.hibernate.test.Simple where upper( s.name ) ='SIMPLE 1'"  OK
-"from s in class org.hibernate.test.Simple where not( upper( s.name ) ='yada' or 1=2 or 'foo'='bar' or not('foo'='foo') or 'foo' like 'bar' )"  OK
-"from s in class org.hibernate.test.Simple where lower( s.name || ' foo' ) ='simple 1 foo'"  OK
-"from s in class org.hibernate.test.Simple where upper( s.other.name ) ='SIMPLE 2'"  OK
-"from s in class org.hibernate.test.Simple where not ( upper( s.other.name ) ='SIMPLE 2' )"  OK
-"select distinct s from s in class org.hibernate.test.Simple where ( ( s.other.count + 3 ) = (15*2)/2 and s.count = 69) or ( ( s.other.count + 2 ) / 7 ) = 2"  OK
-"select s from s in class org.hibernate.test.Simple where ( ( s.other.count + 3 ) = (15*2)/2 and s.count = 69) or ( ( s.other.count + 2 ) / 7 ) = 2 order by s.other.count"  OK
-"select sum(s.count) from s in class org.hibernate.test.Simple group by s.count having sum(s.count) > 10"  OK
-"select s.count from s in class org.hibernate.test.Simple group by s.count having s.count = 12"  OK
-"select s.id, s.count, count(t), max(t.date) from s in class org.hibernate.test.Simple, t in class org.hibernate.test.Simple where s.count = t.count group by s.id, s.count order by s.count"  OK
-"from s in class org.hibernate.test.Simple where s.name = ?"  OK
-"from s in class org.hibernate.test.Simple where s.name = ? and upper(s.name) = ?"  OK
-"from s in class org.hibernate.test.Simple where s.name = :foo and upper(s.name) = :bar or s.count=:count or s.count=:count + 1"  OK
-"select s.id from s in class org.hibernate.test.Simple"  OK
-"select all s, s.other from s in class org.hibernate.test.Simple where s = :s"  OK
-"from s in class org.hibernate.test.Simple where s.name in (:name_list0_, :name_list1_) and s.count > :count"  OK
+//"from s in class org.hibernate.test.Simple where upper( s.name ) ='SIMPLE 1'"  OK
+//"from s in class org.hibernate.test.Simple where not( upper( s.name ) ='yada' or 1=2 or 'foo'='bar' or not('foo'='foo') or 'foo' like 'bar' )"  OK
+//"from s in class org.hibernate.test.Simple where lower( s.name || ' foo' ) ='simple 1 foo'"  OK
+//"from s in class org.hibernate.test.Simple where upper( s.other.name ) ='SIMPLE 2'"  OK
+//"from s in class org.hibernate.test.Simple where not ( upper( s.other.name ) ='SIMPLE 2' )"  OK
+//"select distinct s from s in class org.hibernate.test.Simple where ( ( s.other.count + 3 ) = (15*2)/2 and s.count = 69) or ( ( s.other.count + 2 ) / 7 ) = 2"  OK
+//"select s from s in class org.hibernate.test.Simple where ( ( s.other.count + 3 ) = (15*2)/2 and s.count = 69) or ( ( s.other.count + 2 ) / 7 ) = 2 order by s.other.count"  OK
+//"select sum(s.count) from s in class org.hibernate.test.Simple group by s.count having sum(s.count) > 10"  OK
+//"select s.count from s in class org.hibernate.test.Simple group by s.count having s.count = 12"  OK
+//"select s.id, s.count, count(t), max(t.date) from s in class org.hibernate.test.Simple, t in class org.hibernate.test.Simple where s.count = t.count group by s.id, s.count order by s.count"  OK
+//"from s in class org.hibernate.test.Simple where s.name = ?"  OK
+//"from s in class org.hibernate.test.Simple where s.name = ? and upper(s.name) = ?"  OK
+//"from s in class org.hibernate.test.Simple where s.name = :foo and upper(s.name) = :bar or s.count=:count or s.count=:count + 1"  OK
+//"select s.id from s in class org.hibernate.test.Simple"  OK
+//"select all s, s.other from s in class org.hibernate.test.Simple where s = :s"  OK
+//"from s in class org.hibernate.test.Simple where s.name in (:name_list0_, :name_list1_) and s.count > :count"  OK
 "from org.hibernate.test.Simple s"  OK
 "from org.hibernate.test.Assignable"  OK
 "from org.hibernate.test.Category"  OK
 "from org.hibernate.test.A"  OK
-"from foo in class org.hibernate.test.Foo where foo.string=?"  OK
-"from foo in class org.hibernate.test.Foo"  OK
+//"from foo in class org.hibernate.test.Foo where foo.string=?"  OK
+//"from foo in class org.hibernate.test.Foo"  OK
 "from org.hibernate.test.Po po, org.hibernate.test.Lower low where low.mypo = po"  OK
 "from org.hibernate.test.Po po join po.set as sm where sm.amount > 0"  OK
 "from org.hibernate.test.Po po join po.top as low where low.foo = 'po'"  OK
@@ -606,44 +606,44 @@ SELECT/FROM STATEMENT
 "select s from org.hibernate.test.SubMulti as sm join sm.children as s where s.amount>-1 and s.name is null"  OK
 "select elements(sm.children) from org.hibernate.test.SubMulti as sm"  OK
 "select distinct sm from org.hibernate.test.SubMulti as sm join sm.children as s where s.amount>-1 and s.name is null"  OK
-"select distinct s from s in class org.hibernate.test.SubMulti where s.moreChildren[1].amount < 1.0"  OK
-"from s in class org.hibernate.test.TrivialClass where s.id = 2"  OK
-"select s.count from s in class org.hibernate.test.Top"  OK
-"from s in class org.hibernate.test.Lower where s.another.name='name'"  OK
-"from s in class org.hibernate.test.Lower where s.yetanother.name='name'"  OK
-"from s in class org.hibernate.test.Lower where s.yetanother.name='name' and s.yetanother.foo is null"  OK
-"from s in class org.hibernate.test.Top where s.count=1"  OK
-"select s.count from s in class org.hibernate.test.Top, ls in class org.hibernate.test.Lower where ls.another=s"  OK
-"select elements(ls.bag), elements(ls.set) from ls in class org.hibernate.test.Lower"  OK
-"from s in class org.hibernate.test.Lower"  OK
-"from s in class org.hibernate.test.Top"  OK
-"from sm in class org.hibernate.test.SubMulti"  OK
-"select s from s in class org.hibernate.test.Top where s.count>0"  OK
-"from m in class org.hibernate.test.Multi where m.count>0 and m.extraProp is not null"  OK
-"from m in class org.hibernate.test.Top where m.count>0 and m.name is not null"  OK
-"from m in class org.hibernate.test.Lower where m.other is not null"  OK
-"from m in class org.hibernate.test.Multi where m.other.id = 1"  OK
-"from m in class org.hibernate.test.SubMulti where m.amount > 0.0"  OK
-"from m in class org.hibernate.test.Multi"  OK
-"from m in class org.hibernate.test.Multi where m.class = SubMulti"  OK
-"from m in class org.hibernate.test.Top where m.class = Multi"  OK
-"from ls in class org.hibernate.test.Lower"  OK
-"from ls in class org.hibernate.test.Lower, s in elements(ls.bag) where s.id is not null"  OK
-"from ls in class org.hibernate.test.Lower, s in elements(ls.set) where s.id is not null"  OK
-"from o in class org.hibernate.test.Top"  OK
-"from o in class org.hibernate.test.Po"  OK
+//"select distinct s from s in class org.hibernate.test.SubMulti where s.moreChildren[1].amount < 1.0"  OK
+//"from s in class org.hibernate.test.TrivialClass where s.id = 2"  OK
+//"select s.count from s in class org.hibernate.test.Top"  OK
+//"from s in class org.hibernate.test.Lower where s.another.name='name'"  OK
+//"from s in class org.hibernate.test.Lower where s.yetanother.name='name'"  OK
+//"from s in class org.hibernate.test.Lower where s.yetanother.name='name' and s.yetanother.foo is null"  OK
+//"from s in class org.hibernate.test.Top where s.count=1"  OK
+//"select s.count from s in class org.hibernate.test.Top, ls in class org.hibernate.test.Lower where ls.another=s"  OK
+//"select elements(ls.bag), elements(ls.set) from ls in class org.hibernate.test.Lower"  OK
+//"from s in class org.hibernate.test.Lower"  OK
+//"from s in class org.hibernate.test.Top"  OK
+//"from sm in class org.hibernate.test.SubMulti"  OK
+//"select s from s in class org.hibernate.test.Top where s.count>0"  OK
+//"from m in class org.hibernate.test.Multi where m.count>0 and m.extraProp is not null"  OK
+//"from m in class org.hibernate.test.Top where m.count>0 and m.name is not null"  OK
+//"from m in class org.hibernate.test.Lower where m.other is not null"  OK
+//"from m in class org.hibernate.test.Multi where m.other.id = 1"  OK
+//"from m in class org.hibernate.test.SubMulti where m.amount > 0.0"  OK
+//"from m in class org.hibernate.test.Multi"  OK
+//"from m in class org.hibernate.test.Multi where m.class = SubMulti"  OK
+//"from m in class org.hibernate.test.Top where m.class = Multi"  OK
+//"from ls in class org.hibernate.test.Lower"  OK
+//"from ls in class org.hibernate.test.Lower, s in elements(ls.bag) where s.id is not null"  OK
+//"from ls in class org.hibernate.test.Lower, s in elements(ls.set) where s.id is not null"  OK
+//"from o in class org.hibernate.test.Top"  OK
+//"from o in class org.hibernate.test.Po"  OK
 "from ChildMap cm where cm.parent is not null"  OK
 "from ParentMap cm where cm.child is not null"  OK
 "from org.hibernate.test.Componentizable"  OK
 [testUnnamedParameter]
 "select foo, bar from org.hibernate.test.Foo foo left outer join foo.foo bar where foo = ?"  OK
-[testInElements]
-"from bar in class org.hibernate.test.Bar, foo in elements(bar.baz.fooArray)"  OK
-"from org.hibernate.test.Bar bar, foo in elements(bar.baz.fooArray)"  OK
+//[testInElements]
+//"from bar in class org.hibernate.test.Bar, foo in elements(bar.baz.fooArray)"  OK
+//"from org.hibernate.test.Bar bar, foo in elements(bar.baz.fooArray)"  OK
 [testDotElements]
-"select distinct foo from baz in class org.hibernate.test.Baz, foo in elements(baz.fooArray)"  OK
-"select foo from baz in class org.hibernate.test.Baz, foo in elements(baz.fooSet)"  OK
-"select foo from baz in class org.hibernate.test.Baz, foo in elements(baz.fooArray)"  OK
+//"select distinct foo from baz in class org.hibernate.test.Baz, foo in elements(baz.fooArray)"  OK
+//"select foo from baz in class org.hibernate.test.Baz, foo in elements(baz.fooSet)"  OK
+//"select foo from baz in class org.hibernate.test.Baz, foo in elements(baz.fooArray)"  OK
 "from org.hibernate.test.Baz baz where 'b' in elements(baz.collectionComponent.nested.foos) and 1.0 in elements(baz.collectionComponent.nested.floats)"  OK
 [testNot]
 "from eg.Cat cat where not ( cat.kittens.size < 1 )"  OK
@@ -656,13 +656,13 @@ SELECT/FROM STATEMENT
 "from eg.Cat cat where not  not ( not cat.kittens.size <= 1 )"  OK
 [testOtherSyntax]
 "select bar from org.hibernate.test.Bar bar order by ((bar.x - :valueX)*(bar.x - :valueX))"  OK
-"from bar in class org.hibernate.test.Bar, foo in elements(bar.baz.fooSet)"  OK
-"from one in class org.hibernate.test.One, many in elements(one.manies) where one.id = 1 and many.id = 1"  OK
+//"from bar in class org.hibernate.test.Bar, foo in elements(bar.baz.fooSet)"  OK
+//"from one in class org.hibernate.test.One, many in elements(one.manies) where one.id = 1 and many.id = 1"  OK
 "from org.hibernate.test.Inner _inner join _inner.middles middle"  OK
-"FROM m IN class org.hibernate.test.Master WHERE NOT EXISTS ( FROM d IN elements(m.details) WHERE NOT d.i=5 )"  OK
-"FROM m IN class org.hibernate.test.Master WHERE NOT 5 IN ( SELECT d.i FROM d IN elements(m.details) )"  OK
-"SELECT m FROM m IN class org.hibernate.test.Master, d IN elements(m.details) WHERE d.i=5"  OK
-"SELECT m.id FROM m IN class org.hibernate.test.Master, d IN elements(m.details) WHERE d.i=5"  OK
+//"FROM m IN class org.hibernate.test.Master WHERE NOT EXISTS ( FROM d IN elements(m.details) WHERE NOT d.i=5 )"  OK
+//"FROM m IN class org.hibernate.test.Master WHERE NOT 5 IN ( SELECT d.i FROM d IN elements(m.details) )"  OK
+//"SELECT m FROM m IN class org.hibernate.test.Master, d IN elements(m.details) WHERE d.i=5"  OK
+//"SELECT m.id FROM m IN class org.hibernate.test.Master, d IN elements(m.details) WHERE d.i=5"  OK
 //I'm not sure about these... [jsd]
 //"select bar.string, foo.string from bar in class org.hibernate.test.Bar inner join bar.baz as baz inner join elements(baz.fooSet) as foo where baz.name = 'name'"  OK
 //"select bar.string, foo.string from bar in class org.hibernate.test.Bar, bar.baz as baz, elements(baz.fooSet) as foo where baz.name = 'name'"  OK
