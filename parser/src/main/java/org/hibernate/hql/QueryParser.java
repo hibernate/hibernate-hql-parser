@@ -94,6 +94,8 @@ public class QueryParser {
 	}
 
 	private String getUnconsumedTokens(CommonTokenStream tokens) {
+		// ensure we've buffered all tokens from the underlying TokenSource
+		tokens.fill();
 		if ( tokens.index() == tokens.size() - 1 ) {
 			return null;
 		}
@@ -102,7 +104,7 @@ public class QueryParser {
 
 		for ( Token endToken : (List<Token>) tokens.getTokens( tokens.index(), tokens.size() - 1 ) ) {
 			// Ignore <EOF> tokens as they might be inserted by the parser
-			if ( !"<EOF>".equals( endToken.getText() ) ) {
+			if ( endToken.getType() != Token.EOF ) {
 				nonEofEndingTokens.append( endToken.getText() );
 			}
 		}
