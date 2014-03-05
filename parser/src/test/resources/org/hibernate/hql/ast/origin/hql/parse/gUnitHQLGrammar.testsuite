@@ -666,8 +666,8 @@ SELECT/FROM STATEMENT
 "from bar in class org.hibernate.test.Bar, foo in elements(bar.baz.fooSet)"  OK
 "from one in class org.hibernate.test.One, many in elements(one.manies) where one.id = 1 and many.id = 1"  OK
 "from org.hibernate.test.Inner _inner join _inner.middles middle"  OK
-"FROM m IN class org.hibernate.test.Master WHERE NOT EXISTS ( FROM d IN elements(m.details) WHERE NOT d.i=5 )"  OK
-"FROM m IN class org.hibernate.test.Master WHERE NOT 5 IN ( SELECT d.i FROM d IN elements(m.details) )"  OK
+// HQLPARSER-41 "FROM m IN class org.hibernate.test.Master WHERE NOT EXISTS ( FROM d IN elements(m.details) WHERE NOT d.i=5 )"  OK
+// HQLPARSER-41 "FROM m IN class org.hibernate.test.Master WHERE NOT 5 IN ( SELECT d.i FROM d IN elements(m.details) )"  OK
 "SELECT m FROM m IN class org.hibernate.test.Master, d IN elements(m.details) WHERE d.i=5"  OK
 "SELECT m.id FROM m IN class org.hibernate.test.Master, d IN elements(m.details) WHERE d.i=5"  OK
 //I'm not sure about these... [jsd]
