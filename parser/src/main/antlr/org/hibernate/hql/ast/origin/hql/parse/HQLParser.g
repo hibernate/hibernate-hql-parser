@@ -412,9 +412,9 @@ outerJoinType
 persisterSpaceRoot
 options{
 backtrack=true;
-}	:	mainEntityPersisterReference
+}	:	hibernateLegacySyntax
 	|	jpaCollectionReference
-	|	hibernateLegacySyntax
+	|	mainEntityPersisterReference
 	;
 
 mainEntityPersisterReference
