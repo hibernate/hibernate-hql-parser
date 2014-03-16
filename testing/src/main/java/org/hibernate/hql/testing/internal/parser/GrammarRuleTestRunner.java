@@ -74,7 +74,7 @@ public class GrammarRuleTestRunner {
 	 */
 	public ParsingResult run() throws Throwable {
 		Lexer lexer = getLexer();
-		ParsingResult parsingResult = null;
+		ParsingResult parsingResult;
 
 		if ( grammarRuleTestGroup.getRuleType() == RuleType.LEXER ) {
 			Method rule = lexer.getClass().getMethod( "m" + grammarRuleTestGroup.getName() );

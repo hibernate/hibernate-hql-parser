@@ -66,5 +66,5 @@ public abstract class LucenePropertyHelper implements PropertyHelper {
 		}
 	}
 
-	protected abstract FieldBridge getFieldBridge(String entityType, List<String> propertyPath);
+	public abstract FieldBridge getFieldBridge(String entityType, List<String> propertyPath);
 }

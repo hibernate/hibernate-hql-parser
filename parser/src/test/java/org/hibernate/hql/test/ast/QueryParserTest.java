@@ -56,7 +56,7 @@ public class QueryParserTest {
 
 		@Override
 		public Iterator<AstProcessor> iterator() {
-			return Collections.<AstProcessor> emptyList().iterator();
+			return Collections.<AstProcessor>emptyList().iterator();
 		}
 
 		@Override
