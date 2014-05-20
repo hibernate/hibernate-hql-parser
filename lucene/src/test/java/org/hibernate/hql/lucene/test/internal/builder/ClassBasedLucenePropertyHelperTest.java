@@ -30,7 +30,7 @@ import org.hibernate.hql.ast.spi.EntityNamesResolver;
 import org.hibernate.hql.lucene.internal.builder.ClassBasedLucenePropertyHelper;
 import org.hibernate.hql.lucene.test.internal.builder.model.IndexedEntity;
 import org.hibernate.hql.lucene.testutil.MapBasedEntityNamesResolver;
-import org.hibernate.search.test.util.SearchFactoryHolder;
+import org.hibernate.search.testsupport.junit.SearchFactoryHolder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

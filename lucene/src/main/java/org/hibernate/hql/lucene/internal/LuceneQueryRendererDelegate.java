@@ -33,9 +33,9 @@ import org.hibernate.hql.ast.spi.SingleEntityQueryBuilder;
 import org.hibernate.hql.ast.spi.SingleEntityQueryRendererDelegate;
 import org.hibernate.hql.lucene.LuceneQueryParsingResult;
 import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
-import org.hibernate.search.ProjectionConstants;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.builtin.NumericFieldBridge;
+import org.hibernate.search.engine.ProjectionConstants;
 
 /**
  * Renderer delegate which creates Lucene queries targeting a single entity or a projection of the same.
