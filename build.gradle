@@ -16,8 +16,14 @@ allprojects {
         mavenCentral()
         mavenLocal()
 
-        mavenRepo name: 'jboss-public', url: rootProject.jbossPublicUrl
-        mavenRepo name: 'jboss-snapshots', url: rootProject.jbossSnaphotsUrl
+        maven {
+            name 'jboss-public'
+            url rootProject.jbossPublicUrl
+        }
+        maven {
+            name 'jboss-snapshots'
+            url rootProject.jbossSnaphotsUrl
+        }
     }
 }
 
@@ -26,8 +32,14 @@ buildscript {
         mavenCentral()
         mavenLocal()
 
-        mavenRepo name: 'jboss-public', url: 'http://repository.jboss.org/nexus/content/groups/public/'
-        mavenRepo name: 'jboss-snapshots', url: 'https://repository.jboss.org/nexus/content/repositories/snapshots/'
+        maven {
+            name 'jboss-public'
+            url 'http://repository.jboss.org/nexus/content/groups/public/'
+        }
+        maven {
+            name 'jboss-snapshots' 
+            url 'https://repository.jboss.org/nexus/content/repositories/snapshots/'
+        }
     }
     dependencies {
         classpath 'org.hibernate.build.gradle:gradle-maven-publish-auth:2.0.1'
@@ -35,7 +47,7 @@ buildscript {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.9'
+    gradleVersion = '2.1'
 }
 
 subprojects { subProject ->
