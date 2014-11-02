@@ -33,7 +33,7 @@ import org.hibernate.search.engine.metadata.impl.EmbeddedTypeMetadata;
 import org.hibernate.search.engine.metadata.impl.PropertyMetadata;
 import org.hibernate.search.engine.metadata.impl.TypeMetadata;
 import org.hibernate.search.engine.spi.EntityIndexBinding;
-import org.hibernate.search.spi.SearchFactoryIntegrator;
+import org.hibernate.search.spi.SearchIntegrator;
 
 /**
  * Provides functionality for dealing with Lucene-mapped properties of indexed Java types.
@@ -44,10 +44,10 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 
 	private static final Log log = LoggerFactory.make();
 
-	private final SearchFactoryIntegrator searchFactory;
+	private final SearchIntegrator searchFactory;
 	private final EntityNamesResolver entityNames;
 
-	public ClassBasedLucenePropertyHelper(SearchFactoryIntegrator searchFactory, EntityNamesResolver entityNames) {
+	public ClassBasedLucenePropertyHelper(SearchIntegrator searchFactory, EntityNamesResolver entityNames) {
 		this.searchFactory = searchFactory;
 		this.entityNames = entityNames;
 	}
@@ -184,7 +184,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 		return getIndexBinding( searchFactory, type );
 	}
 
-	private EntityIndexBinding getIndexBinding(SearchFactoryIntegrator searchFactory, Class<?> type) {
+	private EntityIndexBinding getIndexBinding(SearchIntegrator searchFactory, Class<?> type) {
 		EntityIndexBinding entityIndexBinding = searchFactory.getIndexBinding( type );
 
 		if ( entityIndexBinding == null ) {

@@ -34,7 +34,7 @@ import org.hibernate.hql.lucene.internal.ClassBasedLuceneQueryResolverDelegate;
 import org.hibernate.hql.lucene.internal.LuceneQueryRendererDelegate;
 import org.hibernate.hql.lucene.test.model.IndexedEntity;
 import org.hibernate.hql.lucene.testutil.MapBasedEntityNamesResolver;
-import org.hibernate.search.spi.SearchFactoryIntegrator;
+import org.hibernate.search.spi.SearchIntegrator;
 import org.hibernate.search.testsupport.junit.SearchFactoryHolder;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class ClassBasedLuceneQueryParsingTest extends LuceneQueryParsingTestBase
 
 	@Override
 	protected LuceneProcessingChain setUpLuceneProcessingChain(Map<String, Object> namedParameters) {
-		SearchFactoryIntegrator searchFactory = factoryHolder.getSearchFactory();
+		SearchIntegrator searchFactory = factoryHolder.getSearchFactory();
 		EntityNamesResolver nameResolver = MapBasedEntityNamesResolver.forClasses( IndexedEntity.class );
 
 		return new LuceneProcessingChain.Builder( searchFactory, nameResolver )

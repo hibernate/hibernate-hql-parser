@@ -36,14 +36,15 @@ import org.hibernate.hql.lucene.spi.FieldBridgeProvider;
 import org.hibernate.hql.lucene.test.model.GenericValueHolder;
 import org.hibernate.hql.lucene.test.model.IndexedEntity;
 import org.hibernate.search.bridge.FieldBridge;
+import org.hibernate.search.bridge.builtin.DefaultStringBridge;
 import org.hibernate.search.bridge.builtin.NumericFieldBridge;
 import org.hibernate.search.bridge.builtin.StringBridge;
-import org.hibernate.search.bridge.builtin.impl.DefaultStringBridge;
 import org.hibernate.search.bridge.builtin.impl.NullEncodingFieldBridge;
 import org.hibernate.search.bridge.builtin.impl.NullEncodingTwoWayFieldBridge;
 import org.hibernate.search.bridge.builtin.impl.String2FieldBridgeAdaptor;
 import org.hibernate.search.bridge.builtin.impl.TwoWayString2FieldBridgeAdaptor;
-import org.hibernate.search.spi.SearchFactoryIntegrator;
+import org.hibernate.search.engine.spi.SearchFactoryImplementor;
+import org.hibernate.search.spi.SearchIntegrator;
 import org.hibernate.search.testsupport.junit.SearchFactoryHolder;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,7 +62,7 @@ public class UntypedLuceneQueryParsingTest extends LuceneQueryParsingTestBase {
 
 	@Override
 	protected LuceneProcessingChain setUpLuceneProcessingChain(Map<String, Object> namedParameters) {
-		SearchFactoryIntegrator searchFactory = factoryHolder.getSearchFactory();
+		SearchIntegrator searchFactory = factoryHolder.getSearchFactory();
 		EntityNamesResolver nameResolver = new ConstantEntityNamesResolver();
 
 		return new LuceneProcessingChain.Builder( searchFactory, nameResolver )

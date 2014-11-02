@@ -24,7 +24,7 @@
 ext {
     antlr3Version = "3.4"
     antlr4Version = "4.0"
-    hibernateSearchVersion = "5.0.0.Alpha4"
+    hibernateSearchVersion = "5.0.0.Beta3"
 
     libraries = [
         //Antlr

@@ -39,7 +39,7 @@ import org.hibernate.hql.lucene.internal.builder.FieldBridgeProviderBasedLuceneP
 import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
 import org.hibernate.hql.lucene.internal.builder.predicate.LucenePredicateFactory;
 import org.hibernate.hql.lucene.spi.FieldBridgeProvider;
-import org.hibernate.search.spi.SearchFactoryIntegrator;
+import org.hibernate.search.spi.SearchIntegrator;
 
 /**
  * AST processing chain for creating Lucene queries from HQL queries.
@@ -59,11 +59,11 @@ public class LuceneProcessingChain implements AstProcessingChain<LuceneQueryPars
 	 */
 	public static class Builder {
 
-		private final SearchFactoryIntegrator searchFactory;
+		private final SearchIntegrator searchFactory;
 		private final EntityNamesResolver entityNames;
 		private Map<String, Object> namedParameters;
 
-		public Builder(SearchFactoryIntegrator searchFactory, EntityNamesResolver entityNames) {
+		public Builder(SearchIntegrator searchFactory, EntityNamesResolver entityNames) {
 			this.searchFactory = searchFactory;
 			this.entityNames = entityNames;
 		}
@@ -115,7 +115,7 @@ public class LuceneProcessingChain implements AstProcessingChain<LuceneQueryPars
 			return new LuceneProcessingChain( resolverProcessor, rendererProcessor, rendererDelegate );
 		}
 
-		private static LuceneQueryRendererDelegate getRendererDelegate(SearchFactoryIntegrator searchFactory, FieldBridgeProvider fieldBridgeProvider, EntityNamesResolver entityNames, Map<String, Object> namedParameters, LucenePropertyHelper propertyHelper) {
+		private static LuceneQueryRendererDelegate getRendererDelegate(SearchIntegrator searchFactory, FieldBridgeProvider fieldBridgeProvider, EntityNamesResolver entityNames, Map<String, Object> namedParameters, LucenePropertyHelper propertyHelper) {
 			SingleEntityQueryBuilder<Query> queryBuilder = SingleEntityQueryBuilder.getInstance(
 					new LucenePredicateFactory( searchFactory.buildQueryBuilder(), entityNames, fieldBridgeProvider ),
 					propertyHelper
