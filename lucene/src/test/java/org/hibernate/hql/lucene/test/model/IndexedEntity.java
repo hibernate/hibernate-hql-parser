@@ -28,7 +28,6 @@ import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
-import org.hibernate.search.annotations.NumericField;
 
 /**
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.
@@ -39,7 +38,7 @@ public class IndexedEntity {
 	private String id;
 	private String name;
 	private long position;
-	private int size;
+	private String text;
 	private String title;
 	private Author author;
 
@@ -61,8 +60,7 @@ public class IndexedEntity {
 		this.name = name;
 	}
 
-	@Field(analyze = Analyze.NO)
-	@NumericField
+	@Field
 	public long getPosition() {
 		return position;
 	}
@@ -71,14 +69,13 @@ public class IndexedEntity {
 		this.position = position;
 	}
 
-	@Field(analyze = Analyze.YES)
-	@NumericField
-	public int getSize() {
-		return size;
+	@Field
+	public String getText() {
+		return text;
 	}
 
-	public void setSize(int size) {
-		this.size = size;
+	public void setText(String text) {
+		this.text = text;
 	}
 
 	@Field(name = "title", analyze = Analyze.NO)

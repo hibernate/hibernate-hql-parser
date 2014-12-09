@@ -43,7 +43,6 @@ import org.hibernate.search.bridge.builtin.impl.NullEncodingFieldBridge;
 import org.hibernate.search.bridge.builtin.impl.NullEncodingTwoWayFieldBridge;
 import org.hibernate.search.bridge.builtin.impl.String2FieldBridgeAdaptor;
 import org.hibernate.search.bridge.builtin.impl.TwoWayString2FieldBridgeAdaptor;
-import org.hibernate.search.engine.spi.SearchFactoryImplementor;
 import org.hibernate.search.spi.SearchIntegrator;
 import org.hibernate.search.testsupport.junit.SearchFactoryHolder;
 import org.junit.Rule;

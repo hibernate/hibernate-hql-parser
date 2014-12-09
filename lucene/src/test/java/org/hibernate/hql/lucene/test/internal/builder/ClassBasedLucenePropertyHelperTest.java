@@ -84,14 +84,6 @@ public class ClassBasedLucenePropertyHelperTest {
 	}
 
 	@Test
-	public void shouldConvertDateProperty() {
-		Calendar calendar = Calendar.getInstance( TimeZone.getTimeZone( "GMT" ) );
-		calendar.clear();
-		calendar.set( 2012, 8, 25 );
-		assertThat( convertToPropertyType( IndexedEntity.class, "date", "20120925" ) ).isEqualTo( calendar.getTime() );
-	}
-
-	@Test
 	public void shouldRecognizeAnalyzedField() {
 		assertThat( propertyHelper.isAnalyzed( IndexedEntity.class, "description" ) ).isTrue();
 	}

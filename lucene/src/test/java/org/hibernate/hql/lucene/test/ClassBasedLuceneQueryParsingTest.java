@@ -81,7 +81,7 @@ public class ClassBasedLuceneQueryParsingTest extends LuceneQueryParsingTestBase
 		expectedException.expect( ParsingException.class );
 		expectedException.expectMessage( "HQL100003" );
 
-		parseQuery( "from IndexedEntity e where e.size = 10" );
+		parseQuery( "from IndexedEntity e where e.text = 'foo'" );
 	}
 
 	@Test

@@ -99,17 +99,6 @@ public class LuceneQueryBuilderTest {
 	}
 
 	@Test
-	public void shouldBuildDateEqualsQuery() {
-		Query query = queryBuilder
-				.setEntityType( "IndexedEntity" )
-				.addComparisonPredicate( Arrays.asList( "date" ), Type.EQUALS, "201209251130" )
-				.build();
-
-		//Only "day" resolution expected as per the field's configuration
-		assertThat( query.toString() ).isEqualTo( "date:20120925" );
-	}
-
-	@Test
 	public void shouldBuildDateEqualsQueryForTypedDate() {
 		Calendar calendar = Calendar.getInstance( TimeZone.getTimeZone( "GMT" ) );
 		calendar.set( 2012, 8, 25 );

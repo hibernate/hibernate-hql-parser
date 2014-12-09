@@ -21,15 +21,15 @@
 package org.hibernate.hql.lucene.test.internal.builder.model;
 
 import java.util.Date;
-
 import javax.persistence.Id;
 
 import org.hibernate.search.annotations.Analyze;
-import org.hibernate.search.annotations.DateBridge;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.NumericField;
-import org.hibernate.search.annotations.Resolution;
+import org.hibernate.search.annotations.Parameter;
+import org.hibernate.search.bridge.builtin.StringEncodingDateBridge;
 
 /**
  * @author Gunnar Morling
@@ -115,8 +115,7 @@ public class IndexedEntity {
 		this.d = d;
 	}
 
-	@Field(analyze = Analyze.NO)
-	@DateBridge(resolution = Resolution.DAY)
+	@Field(analyze = Analyze.NO, bridge = @FieldBridge(impl = StringEncodingDateBridge.class, params = { @Parameter(name = "resolution", value = "DAY") }))
 	public Date getDate() {
 		return date;
 	}
