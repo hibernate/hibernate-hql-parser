@@ -30,21 +30,24 @@ import org.jboss.logging.MessageLogger;
  *
  * @author Gunnar Morling
  */
-@MessageLogger(projectCode = "HQLLUCN")
+@MessageLogger(projectCode = "HQL")
 public interface Log extends BasicLogger {
 
-	@Message(id = 1, value = "The type %s is not an indexed entity.")
+	// All parser components use the same project prefix HQL. We need to make sure that there is no id conflict
+	int HQL_LUCENE__START_ID = 100000;
+
+	@Message(id = HQL_LUCENE__START_ID + 1, value = "The type %s is not an indexed entity.")
 	IllegalArgumentException getNoIndexedEntityException(String typeName);
 
-	@Message(id = 2, value = "The type %s has no indexed property named %s.")
+	@Message(id = HQL_LUCENE__START_ID + 2, value = "The type %s has no indexed property named %s.")
 	ParsingException getNoSuchPropertyException(String typeName, String propertyName);
 
-	@Message(id = 3, value = "No queries can be applied to property %2$s in type %1$s since the property is analyzed.")
+	@Message(id = HQL_LUCENE__START_ID + 3, value = "No queries can be applied to property %2$s in type %1$s since the property is analyzed.")
 	ParsingException getQueryOnAnalyzedPropertyNotSupportedException(String typeName, String propertyName);
 
-	@Message(id = 4, value = "Unknown alias: %s.")
+	@Message(id = HQL_LUCENE__START_ID + 4, value = "Unknown alias: %s.")
 	ParsingException getUnknownAliasException(String unknownAlias);
 
-	@Message(id = 5, value = "Property %2$s can not be selected from type %1$s since it is an embedded entity.")
+	@Message(id = HQL_LUCENE__START_ID + 5, value = "Property %2$s can not be selected from type %1$s since it is an embedded entity.")
 	ParsingException getProjectionOfCompleteEmbeddedEntitiesNotSupportedException(String typeName, String propertyPath);
 }

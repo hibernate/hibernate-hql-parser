@@ -57,7 +57,7 @@ public abstract class LuceneQueryParsingTestBase {
 	@Test
 	public void shouldRaiseExceptionDueToUnknownAlias() {
 		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000004" );
+		expectedException.expectMessage( "HQL100004" );
 
 		parseQuery( "from IndexedEntity e where a.name = 'same'" );
 	}

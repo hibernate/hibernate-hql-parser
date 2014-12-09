@@ -63,7 +63,7 @@ public class ClassBasedLuceneQueryParsingTest extends LuceneQueryParsingTestBase
 	@Test
 	public void shouldRaiseExceptionDueToUnknownQualifiedProperty() {
 		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000002" );
+		expectedException.expectMessage( "HQL100002" );
 
 		parseQuery( "from IndexedEntity e where e.foobar = 'same'" );
 	}
@@ -71,7 +71,7 @@ public class ClassBasedLuceneQueryParsingTest extends LuceneQueryParsingTestBase
 	@Test
 	public void shouldRaiseExceptionDueToUnknownUnqualifiedProperty() {
 		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000002" );
+		expectedException.expectMessage( "HQL100002" );
 
 		parseQuery( "from IndexedEntity e where foobar = 'same'" );
 	}
@@ -79,7 +79,7 @@ public class ClassBasedLuceneQueryParsingTest extends LuceneQueryParsingTestBase
 	@Test
 	public void shouldRaiseExceptionDueToAnalyzedPropertyInFromClause() {
 		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000003" );
+		expectedException.expectMessage( "HQL100003" );
 
 		parseQuery( "from IndexedEntity e where e.size = 10" );
 	}
@@ -87,7 +87,7 @@ public class ClassBasedLuceneQueryParsingTest extends LuceneQueryParsingTestBase
 	@Test
 	public void shouldRaiseExceptionDueToUnknownPropertyInSelectClause() {
 		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000002" );
+		expectedException.expectMessage( "HQL100002" );
 
 		parseQuery( "select e.foobar from IndexedEntity e" );
 	}
@@ -95,7 +95,7 @@ public class ClassBasedLuceneQueryParsingTest extends LuceneQueryParsingTestBase
 	@Test
 	public void shouldRaiseExceptionDueToUnknownPropertyInEmbeddedSelectClause() {
 		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000002" );
+		expectedException.expectMessage( "HQL100002" );
 
 		parseQuery( "select e.author.foo from IndexedEntity e" );
 	}
@@ -103,7 +103,7 @@ public class ClassBasedLuceneQueryParsingTest extends LuceneQueryParsingTestBase
 	@Test
 	public void shouldRaiseExceptionDueToSelectionOfCompleteEmbeddedEntity() {
 		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000005" );
+		expectedException.expectMessage( "HQL100005" );
 
 		parseQuery( "select e.author from IndexedEntity e" );
 	}
@@ -111,7 +111,7 @@ public class ClassBasedLuceneQueryParsingTest extends LuceneQueryParsingTestBase
 	@Test
 	public void shouldRaiseExceptionDueToUnqualifiedSelectionOfCompleteEmbeddedEntity() {
 		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLLUCN000005" );
+		expectedException.expectMessage( "HQL100005" );
 
 		parseQuery( "select author from IndexedEntity e" );
 	}
@@ -155,7 +155,7 @@ public class ClassBasedLuceneQueryParsingTest extends LuceneQueryParsingTestBase
 	@Test
 	public void shouldRaiseExceptionDueToUnrecognizedSortDirection() {
 		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLPARSER000006" );
+		expectedException.expectMessage( "HQL000006" );
 
 		parseQuery( "select e from IndexedEntity e where e.name = 'same' order by e.title DESblah, e.name ASC" );
 	}
