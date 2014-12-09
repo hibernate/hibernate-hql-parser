@@ -46,7 +46,7 @@ public class QueryParserTest {
 	@TestForIssue(jiraKey = "HQLPARSER-26")
 	public void shouldRaiseExceptionDueToUnconsumedTokens() {
 		expectedException.expect( ParsingException.class );
-		expectedException.expectMessage( "HQLPARSER000006" );
+		expectedException.expectMessage( "HQL000006" );
 
 		QueryParser queryParser = new QueryParser();
 		queryParser.parseQuery( "FROM IndexedEntity u WHERE u.name = 'John' blah blah blah", new NoOpProcessingChain() );

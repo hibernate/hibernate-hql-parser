@@ -35,7 +35,7 @@ import org.jboss.logging.MessageLogger;
  *
  * @author Gunnar Morling
  */
-@MessageLogger(projectCode = "HQLPARSER")
+@MessageLogger(projectCode = "HQL")
 public interface Log extends BasicLogger {
 
 	@Message(id = 1, value = "The query %s is not valid.")
