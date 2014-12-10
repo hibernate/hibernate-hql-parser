@@ -20,11 +20,22 @@
  */
 package org.hibernate.hql.lucene.internal.builder;
 
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
+import org.apache.lucene.document.DateTools;
+import org.hibernate.hql.ParsingException;
 import org.hibernate.hql.ast.spi.PropertyHelper;
 import org.hibernate.search.bridge.FieldBridge;
+import org.hibernate.search.bridge.TwoWayStringBridge;
+import org.hibernate.search.bridge.builtin.NumericEncodingCalendarBridge;
+import org.hibernate.search.bridge.builtin.NumericEncodingDateBridge;
 import org.hibernate.search.bridge.builtin.NumericFieldBridge;
+import org.hibernate.search.bridge.builtin.StringEncodingCalendarBridge;
+import org.hibernate.search.bridge.builtin.StringEncodingDateBridge;
+import org.hibernate.search.bridge.builtin.impl.NullEncodingTwoWayFieldBridge;
 import org.hibernate.search.bridge.builtin.impl.TwoWayString2FieldBridgeAdaptor;
 
 /**
@@ -46,10 +57,21 @@ public abstract class LucenePropertyHelper implements PropertyHelper {
 	 */
 	@Override
 	public Object convertToPropertyType(String entityType, List<String> propertyPath, String value) {
-		final FieldBridge bridge = getFieldBridge( entityType, propertyPath );
+		final FieldBridge bridge = getFieldBridge( entityType, propertyPath);
+		return convertToPropertyType(entityType, propertyPath, value, bridge);
+	}
 
-		if ( bridge instanceof TwoWayString2FieldBridgeAdaptor ) {
+	private Object convertToPropertyType(String entityType, List<String> propertyPath, String value, FieldBridge bridge) {
+		//Order matters! Some types are subclasses of others
+		//TODO expose something in Hibernate Search so that we can avoid this horrible code
+		if ( bridge instanceof NullEncodingTwoWayFieldBridge ) {
+			return convertToPropertyType(entityType, propertyPath, value, ( (NullEncodingTwoWayFieldBridge) bridge ).unwrap() );
+		}
+		else if ( bridge instanceof TwoWayString2FieldBridgeAdaptor ) {
 			return ( (TwoWayString2FieldBridgeAdaptor) bridge ).unwrap().stringToObject( value );
+		}
+		else if ( bridge instanceof TwoWayStringBridge ) {
+			return ( (TwoWayStringBridge) bridge ).stringToObject( value );
 		}
 		else if ( bridge instanceof NumericFieldBridge ) {
 			NumericFieldBridge numericBridge = (NumericFieldBridge) bridge;
@@ -61,8 +83,27 @@ public abstract class LucenePropertyHelper implements PropertyHelper {
 				default: return value;
 			}
 		}
+		else if ( bridge instanceof StringEncodingCalendarBridge || bridge instanceof NumericEncodingCalendarBridge ) {
+			Date date = parseDate( value );
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime( date );
+			return calendar;
+		}
+		else if ( bridge instanceof StringEncodingDateBridge || bridge instanceof NumericEncodingDateBridge ) {
+			return parseDate( value );
+		}
+
 		else {
 			return value;
+		}
+	}
+
+	private Date parseDate(String value) {
+		try {
+			return DateTools.stringToDate( value );
+		}
+		catch (ParseException e) {
+			throw new ParsingException( e );
 		}
 	}
 
