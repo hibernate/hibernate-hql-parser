@@ -58,14 +58,14 @@ public abstract class LucenePropertyHelper implements PropertyHelper {
 	@Override
 	public Object convertToPropertyType(String entityType, List<String> propertyPath, String value) {
 		final FieldBridge bridge = getFieldBridge( entityType, propertyPath);
-		return convertToPropertyType(entityType, propertyPath, value, bridge);
+		return convertToPropertyType( entityType, propertyPath, value, bridge );
 	}
 
 	private Object convertToPropertyType(String entityType, List<String> propertyPath, String value, FieldBridge bridge) {
 		//Order matters! Some types are subclasses of others
 		//TODO expose something in Hibernate Search so that we can avoid this horrible code
 		if ( bridge instanceof NullEncodingTwoWayFieldBridge ) {
-			return convertToPropertyType(entityType, propertyPath, value, ( (NullEncodingTwoWayFieldBridge) bridge ).unwrap() );
+			return convertToPropertyType( entityType, propertyPath, value, ( (NullEncodingTwoWayFieldBridge) bridge ).unwrap() );
 		}
 		else if ( bridge instanceof TwoWayString2FieldBridgeAdaptor ) {
 			return ( (TwoWayString2FieldBridgeAdaptor) bridge ).unwrap().stringToObject( value );
