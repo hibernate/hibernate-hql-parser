@@ -71,16 +71,19 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 
 	protected Class<?> targetType;
 
-	protected final SingleEntityQueryBuilder<Q> builder;
-
 	protected PropertyPath propertyPath;
+
+	protected final SingleEntityQueryBuilder<Q> builder;
 
 	protected final List<String> projections = new ArrayList<String>();
 
 	/**
 	 * Persister space: keep track of aliases and entity names.
 	 */
-	private final Map<String, String> aliasToEntityType = new HashMap<String, String>();
+	protected final Map<String, String> aliasToEntityType = new HashMap<String, String>();
+	protected final Map<String, PropertyPath> aliasToPropertyPath = new HashMap<String, PropertyPath>();
+
+	protected String alias;
 
 	private final Map<String, Object> namedParameters;
 
@@ -116,6 +119,13 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 		}
 	}
 
+	public void registerEmbeddedAlias(String alias, PropertyPath propertyPath) {
+		PropertyPath put = aliasToPropertyPath.put( alias, propertyPath );
+		if ( put != null ) {
+			throw new UnsupportedOperationException( "Alias reuse currently not supported: alias " + alias + " already assigned to type " + put );
+		}
+	}
+
 	private void setTargetType(String entityName) {
 		Class<?> targetedType = entityNames.getClassFromName( entityName );
 		if ( targetedType == null ) {
@@ -135,17 +145,12 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 
 	@Override
 	public boolean isUnqualifiedPropertyReference() {
-		return true; // TODO - very likely always true for our supported use cases
+		return true;
 	}
 
 	@Override
 	public boolean isPersisterReferenceAlias() {
-		if ( aliasToEntityType.size() == 1 ) {
-			return true; // should be safe
-		}
-		else {
-			throw new UnsupportedOperationException( "Unexpected use case: not implemented yet?" );
-		}
+		return aliasToEntityType.containsKey( alias );
 	}
 
 	@Override
@@ -154,7 +159,8 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 			Tree assosiationFetchTree,
 			Tree propertyFetchTree,
 			Tree alias) {
-		throw new UnsupportedOperationException( "Not yet implemented" );
+		status = Status.DEFINING_FROM;
+		this.alias = alias.getText();
 	}
 
 	@Override
@@ -170,6 +176,7 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 	@Override
 	public void popStrategy() {
 		status = null;
+		this.alias = null;
 	}
 
 	@Override
@@ -228,13 +235,15 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 
 	private void addComparisonPredicate(String comparativePredicate, Type comparisonType) {
 		Object comparisonValue = fromNamedQuery( comparativePredicate );
-		builder.addComparisonPredicate( propertyPath.getNodeNamesWithoutAlias(), comparisonType, comparisonValue );
+		List<String> property = resolveAlias( propertyPath );
+		builder.addComparisonPredicate( property, comparisonType, comparisonValue );
 	}
 
 	@Override
 	public void predicateIn(List<String> list) {
 		List<Object> values = fromNamedQuery( list );
-		builder.addInPredicate( propertyPath.getNodeNamesWithoutAlias(), values );
+		List<String> property = resolveAlias( propertyPath );
+		builder.addInPredicate( property, values );
 	}
 
 	@Override
@@ -242,18 +251,21 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 		Object lowerComparisonValue = fromNamedQuery( lower );
 		Object upperComparisonValue = fromNamedQuery( upper );
 
-		builder.addRangePredicate( propertyPath.getNodeNamesWithoutAlias(), lowerComparisonValue, upperComparisonValue );
+		List<String> property = resolveAlias( propertyPath );
+		builder.addRangePredicate( property, lowerComparisonValue, upperComparisonValue );
 	}
 
 	@Override
 	public void predicateLike(String patternValue, Character escapeCharacter) {
 		Object pattern = fromNamedQuery( patternValue );
-		builder.addLikePredicate( propertyPath.getNodeNamesWithoutAlias(), (String) pattern, escapeCharacter );
+		List<String> property = resolveAlias( propertyPath );
+		builder.addLikePredicate( property, (String) pattern, escapeCharacter );
 	}
 
 	@Override
 	public void predicateIsNull() {
-		builder.addIsNullPredicate( propertyPath.getNodeNamesWithoutAlias() );
+		List<String> property = resolveAlias( propertyPath );
+		builder.addIsNullPredicate( property );
 	}
 
 	@Override
@@ -297,4 +309,36 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 
 	@Override
 	public abstract R getResult();
+
+	protected List<String> resolveAlias(PropertyPath path) {
+		if ( path.getFirstNode().isAlias() ) {
+			String alias = path.getFirstNode().getName();
+			if ( aliasToEntityType.containsKey( alias ) ) {
+				// Alias for entity
+				return path.getNodeNamesWithoutAlias();
+			}
+			else if ( aliasToPropertyPath.containsKey( alias ) ) {
+				// Alias for embedded
+				PropertyPath propertyPath = aliasToPropertyPath.get( alias );
+				List<String> resolvedAlias = resolveAlias( propertyPath );
+				resolvedAlias.addAll( path.getNodeNamesWithoutAlias() );
+				return resolvedAlias;
+			}
+			else {
+				// Alias not found
+				aliasNotFound( alias );
+			}
+		}
+		// It does not start with an alias
+		return path.getNodeNamesWithoutAlias();
+	}
+
+	@Override
+	public void registerJoinAlias(Tree alias, PropertyPath path) {
+		if ( !aliasToPropertyPath.containsKey( alias ) ) {
+			aliasToPropertyPath.put( alias.getText(), path );
+		}
+	}
+
+	public abstract void aliasNotFound(String alias);
 }

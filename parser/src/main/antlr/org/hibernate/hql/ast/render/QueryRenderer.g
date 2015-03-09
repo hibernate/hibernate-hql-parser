@@ -159,7 +159,7 @@ persisterSpaceRoot
 joins
 	:	^(PROPERTY_JOIN jt=joinType ft=FETCH? an=ALIAS_NAME pf=PROP_FETCH?
 		{	delegate.pushFromStrategy($jt.joinType, $ft, $pf, $an );	}
-		(collectionExpression|propertyReference) withClause?)
+		(collectionExpression|joinPropertyReference[$an]) withClause?)
 		{	delegate.popStrategy();	}
 	|	^(PERSISTER_JOIN joinType persisterSpaceRoot onClause?)
 	;
@@ -517,8 +517,12 @@ propertyReference
 	:	^(PROPERTY_REFERENCE propertyReferencePath)
 	;
 
+joinPropertyReference[Tree alias]
+	: ^(PATH propertyReferencePath) { delegate.registerJoinAlias( $alias, ( (PropertyPathTree) $PATH ).getPropertyPath() ); }
+	;
+
 propertyReferencePath
-	: 	{delegate.isUnqualifiedPropertyReference()}? unqualifiedPropertyReference
+	: {delegate.isUnqualifiedPropertyReference()}? unqualifiedPropertyReference
 	|	pathedPropertyReference
 	|	terminalIndexOperation
 	;
