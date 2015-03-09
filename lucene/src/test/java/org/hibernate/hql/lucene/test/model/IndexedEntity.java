@@ -20,7 +20,11 @@
  */
 package org.hibernate.hql.lucene.test.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.CascadeType;
+import javax.persistence.ElementCollection;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
@@ -41,6 +45,8 @@ public class IndexedEntity {
 	private String text;
 	private String title;
 	private Author author;
+	private List<ContactDetail> contactDetails = new ArrayList<ContactDetail>();
+	private List<ContactDetail> alternativeContactDetails = new ArrayList<ContactDetail>();
 
 	@Id
 	public String getId() {
@@ -95,5 +101,25 @@ public class IndexedEntity {
 
 	public void setAuthor(Author author) {
 		this.author = author;
+	}
+
+	@ElementCollection
+	@IndexedEmbedded
+	public List<ContactDetail> getContactDetails() {
+		return contactDetails;
+	}
+
+	public void setContactDetails(List<ContactDetail> contactDetails) {
+		this.contactDetails = contactDetails;
+	}
+
+	@ElementCollection
+	@IndexedEmbedded
+	public List<ContactDetail> getAlternativeContactDetails() {
+		return alternativeContactDetails;
+	}
+
+	public void setAlternativeContactDetails(List<ContactDetail> alternativeContactDetails) {
+		this.alternativeContactDetails = alternativeContactDetails;
 	}
 }

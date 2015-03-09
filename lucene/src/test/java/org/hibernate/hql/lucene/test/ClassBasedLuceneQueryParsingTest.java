@@ -153,6 +153,91 @@ public class ClassBasedLuceneQueryParsingTest extends LuceneQueryParsingTestBase
 	}
 
 	@Test
+	public void shouldBeAbleToJoinOnCollectionOfEmbedded() {
+		LuceneQueryParsingResult parsingResult = parseQuery( "select d.email from IndexedEntity e JOIN e.contactDetails d" );
+
+		assertThat( parsingResult.getQuery().toString() ).isEqualTo( "*:*" );
+		assertThat( parsingResult.getProjections() ).containsOnly( "contactDetails.email" );
+	}
+
+	@Test
+	public void shouldBeAbleToJoinOnCollectionOfEmbeddedWithEmbedded() {
+		LuceneQueryParsingResult parsingResult = parseQuery( "select d.email from IndexedEntity e JOIN e.contactDetails d WHERE d.address.postCode='EA123'" );
+
+		assertThat( parsingResult.getQuery().toString() ).isEqualTo( "contactDetails.address.postCode:EA123" );
+		assertThat( parsingResult.getProjections() ).containsOnly( "contactDetails.email" );
+	}
+
+	@Test
+	public void shouldBeAbleToJoinOnCollectionOfEmbeddedWithEmbeddedAndUseInOperator() {
+		LuceneQueryParsingResult parsingResult = parseQuery( "select d.email from IndexedEntity e JOIN e.contactDetails d WHERE d.address.postCode IN ('EA123')" );
+
+		assertThat( parsingResult.getQuery().toString() ).isEqualTo( "contactDetails.address.postCode:EA123" );
+		assertThat( parsingResult.getProjections() ).containsOnly( "contactDetails.email" );
+	}
+
+	@Test
+	public void shouldBeAbleToJoinOnCollectionOfEmbeddedWithEmbeddedAndUseBetweenOperator() {
+		LuceneQueryParsingResult parsingResult = parseQuery( "select d.email from IndexedEntity e JOIN e.contactDetails d WHERE d.address.postCode BETWEEN '0000' AND 'ZZZZ'" );
+
+		assertThat( parsingResult.getQuery().toString() ).isEqualTo( "contactDetails.address.postCode:[0000 TO ZZZZ]" );
+		assertThat( parsingResult.getProjections() ).containsOnly( "contactDetails.email" );
+	}
+
+	@Test
+	public void shouldBeAbleToJoinOnCollectionOfEmbeddedWithEmbeddedAndUseGreaterOperator() {
+		LuceneQueryParsingResult parsingResult = parseQuery( "select d.email from IndexedEntity e JOIN e.contactDetails d WHERE d.address.postCode > '0000'" );
+
+		assertThat( parsingResult.getQuery().toString() ).isEqualTo( "contactDetails.address.postCode:{0000 TO *]" );
+		assertThat( parsingResult.getProjections() ).containsOnly( "contactDetails.email" );
+	}
+
+	@Test
+	public void shouldBeAbleToJoinOnCollectionOfEmbeddedWithEmbeddedAndUseLikeOperator() {
+		LuceneQueryParsingResult parsingResult = parseQuery( "select d.email from IndexedEntity e JOIN e.contactDetails d WHERE d.address.postCode LIKE 'EA1%'" );
+
+		assertThat( parsingResult.getQuery().toString() ).isEqualTo( "contactDetails.address.postCode:EA1*" );
+		assertThat( parsingResult.getProjections() ).containsOnly( "contactDetails.email" );
+	}
+
+	@Test
+	public void shouldBeAbleToProjectUnqualifiedField() {
+		LuceneQueryParsingResult parsingResult = parseQuery( "SELECT name, text FROM IndexedEntity e JOIN e.contactDetails d" );
+
+		assertThat( parsingResult.getQuery().toString() ).isEqualTo( "*:*" );
+		assertThat( parsingResult.getProjections() ).containsOnly( "name", "text" );
+	}
+
+	@Test
+	public void shouldBeAbleToProjectUnqualifiedFieldAndQualifiedField() {
+		LuceneQueryParsingResult parsingResult = parseQuery( "SELECT name, text, d.email FROM IndexedEntity e JOIN e.contactDetails d" );
+
+		assertThat( parsingResult.getQuery().toString() ).isEqualTo( "*:*" );
+		assertThat( parsingResult.getProjections() ).containsOnly( "name", "text", "contactDetails.email" );
+	}
+
+	@Test
+	public void shouldBeAbleToProjectQualifiedField() {
+		LuceneQueryParsingResult parsingResult = parseQuery( "SELECT e.name, e.text, d.email FROM IndexedEntity e JOIN e.contactDetails d" );
+
+		assertThat( parsingResult.getQuery().toString() ).isEqualTo( "*:*" );
+		assertThat( parsingResult.getProjections() ).containsOnly( "name", "text", "contactDetails.email" );
+	}
+
+	@Test
+	public void shouldBeAbleToJoinOnCollectionOfEmbeddedWithTwoEmbeddedCollections() {
+		LuceneQueryParsingResult parsingResult = parseQuery(
+				" SELECT d.email " +
+				" FROM IndexedEntity e " +
+						" JOIN e.contactDetails d " +
+						" JOIN e.alternativeContactDetails a" +
+				" WHERE d.address.postCode='EA123' AND a.email='mail@mail.af'" );
+
+		assertThat( parsingResult.getQuery().toString() ).isEqualTo( "+contactDetails.address.postCode:EA123 +alternativeContactDetails.email:mail@mail.af" );
+		assertThat( parsingResult.getProjections() ).containsOnly( "contactDetails.email" );
+	}
+
+	@Test
 	public void shouldRaiseExceptionDueToUnrecognizedSortDirection() {
 		expectedException.expect( ParsingException.class );
 		expectedException.expectMessage( "HQL000006" );

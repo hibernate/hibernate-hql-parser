@@ -119,6 +119,8 @@ public class UntypedLuceneQueryParsingTest extends LuceneQueryParsingTestBase {
 			indexedEntityBridges.put( "title", new TwoWayString2FieldBridgeAdaptor( new StringBridge() ) );
 			indexedEntityBridges.put( "author", new NullEncodingFieldBridge( new String2FieldBridgeAdaptor( DefaultStringBridge.INSTANCE ), "_null_" ) );
 			indexedEntityBridges.put( "author.name", new TwoWayString2FieldBridgeAdaptor( new StringBridge() ) );
+			indexedEntityBridges.put( "contactDetails.email", new TwoWayString2FieldBridgeAdaptor( new StringBridge() ) );
+			indexedEntityBridges.put( "contactDetails.address.alternatives.postCode", new TwoWayString2FieldBridgeAdaptor( new StringBridge() ) );
 
 			bridgesByType.put( "IndexedEntity", indexedEntityBridges );
 		}
