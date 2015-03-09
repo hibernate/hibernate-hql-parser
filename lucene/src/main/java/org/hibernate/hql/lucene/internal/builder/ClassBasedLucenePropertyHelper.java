@@ -99,8 +99,9 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 			}
 		}
 
-		return metadata.getPropertyMetadataForProperty( propertyPath[propertyPath.length - 1] ) != null
-				|| getEmbeddedTypeMetadata( metadata.getEmbeddedTypeMetadata(), propertyPath[propertyPath.length - 1] ) != null;
+		PropertyMetadata propertyMetadataForProperty = metadata.getPropertyMetadataForProperty( propertyPath[propertyPath.length - 1] );
+		boolean b = getEmbeddedTypeMetadata( metadata.getEmbeddedTypeMetadata(), propertyPath[propertyPath.length - 1] ) != null;
+		return propertyMetadataForProperty != null || b;
 	}
 
 	private TypeMetadata getLeafTypeMetadata(Class<?> type, String... propertyPath) {

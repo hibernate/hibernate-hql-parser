@@ -33,6 +33,8 @@ import org.hibernate.hql.ast.spi.SingleEntityQueryBuilder;
 import org.hibernate.hql.ast.spi.SingleEntityQueryRendererDelegate;
 import org.hibernate.hql.lucene.LuceneQueryParsingResult;
 import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
+import org.hibernate.hql.lucene.internal.logging.Log;
+import org.hibernate.hql.lucene.internal.logging.LoggerFactory;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.builtin.NumericFieldBridge;
 import org.hibernate.search.engine.ProjectionConstants;
@@ -43,6 +45,8 @@ import org.hibernate.search.engine.ProjectionConstants;
  * @author Gunnar Morling
  */
 public class LuceneQueryRendererDelegate extends SingleEntityQueryRendererDelegate<Query, LuceneQueryParsingResult> {
+
+	private static final Log log = LoggerFactory.make();
 
 	private final LucenePropertyHelper propertyHelper;
 
@@ -98,11 +102,26 @@ public class LuceneQueryRendererDelegate extends SingleEntityQueryRendererDelega
 				projections.add( ProjectionConstants.THIS );
 			}
 			else {
-				projections.add( propertyPath.asStringPathWithoutAlias() );
+				List<String> names = resolveAlias( propertyPath );
+				projections.add( join( names ) );
 			}
 		}
 		else {
 			this.propertyPath = propertyPath;
 		}
+	}
+
+	private String join(List<String> names) {
+		StringBuilder projection = new StringBuilder();
+		for ( String name : names ) {
+			projection.append( "." );
+			projection.append( name );
+		}
+		return projection.substring( 1 );
+	}
+
+	@Override
+	public void aliasNotFound(String alias) {
+		throw log.getUnknownAliasException( alias );
 	}
 }

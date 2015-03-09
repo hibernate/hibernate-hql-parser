@@ -21,6 +21,7 @@
 package org.hibernate.hql.lucene.internal;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.antlr.runtime.tree.Tree;
@@ -46,6 +47,9 @@ public class UntypedLuceneQueryResolverDelegate implements QueryResolverDelegate
 	 * Persister space: keep track of aliases and entity names.
 	 */
 	private final Map<String, String> aliasToEntityType = new HashMap<String, String>();
+	private final Map<String, PropertyPath> aliasToPropertyPath = new HashMap<String, PropertyPath>();
+
+	private String alias;
 
 	@Override
 	public void registerPersisterSpace(Tree entityName, Tree alias) {
@@ -87,7 +91,17 @@ public class UntypedLuceneQueryResolverDelegate implements QueryResolverDelegate
 		String entityNameForAlias = aliasToEntityType.get( root.getText() );
 
 		if ( entityNameForAlias == null ) {
-			throw log.getUnknownAliasException( root.getText() );
+		PropertyPath propertyPath = aliasToPropertyPath.get( root.getText() );
+			if ( propertyPath == null ) {
+				throw log.getUnknownAliasException( root.getText() );
+			}
+			List<String> nodeNamesWithoutAlias = propertyPath.getNodeNamesWithoutAlias();
+			StringBuilder builder = new StringBuilder();
+			for ( String name : nodeNamesWithoutAlias ) {
+				builder.append( "." );
+				builder.append( name );
+			}
+			return new PathedPropertyReference( builder.substring( 1 ), null, false );
 		}
 
 		return new PathedPropertyReference( root.getText(), null, true );
@@ -121,7 +135,7 @@ public class UntypedLuceneQueryResolverDelegate implements QueryResolverDelegate
 
 	@Override
 	public void pushFromStrategy(JoinType joinType, Tree assosiationFetchTree, Tree propertyFetchTree, Tree alias) {
-		throw new UnsupportedOperationException( "Not implemented yet" );
+		this.alias = alias.getText();
 	}
 
 	@Override
@@ -131,11 +145,18 @@ public class UntypedLuceneQueryResolverDelegate implements QueryResolverDelegate
 
 	@Override
 	public void popStrategy() {
-		//nothing to do
+		alias = null;
 	}
 
 	@Override
 	public void propertyPathCompleted(PropertyPath path) {
 		//nothing to do
+	}
+
+	@Override
+	public void registerJoinAlias(Tree alias, PropertyPath path) {
+		if ( !path.getNodes().isEmpty() && !aliasToPropertyPath.containsKey( alias ) ) {
+			aliasToPropertyPath.put( alias.getText(), path );
+		}
 	}
 }
