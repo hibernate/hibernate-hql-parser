@@ -160,9 +160,14 @@ persisterSpaceRoot
 joins
 	:	^(PROPERTY_JOIN jt=joinType ft=FETCH? an=ALIAS_NAME pf=PROP_FETCH?
 		{	delegate.pushFromStrategy($jt.joinType, $ft, $pf, $an );	}
-		(collectionExpression|propertyReference) withClause?)
+		(joinProperty[$an]) withClause?)
 		{	delegate.popStrategy();	}
 	|	^(PERSISTER_JOIN joinType persisterSpaceRoot onClause?)
+	;
+
+joinProperty [Tree an]
+	: collectionExpression
+	| joinPropertyReference[$an]
 	;
 
 withClause
@@ -519,6 +524,11 @@ entityName
 
 propertyReference
 	:	^(PROPERTY_REFERENCE propertyReferencePath)
+	;
+
+joinPropertyReference [Tree an]
+	@after {delegate.registerJoinAlias($an, $ret.retPath); }
+	: ^(PATH ret=propertyReferencePath) -> ^(PATH<node=PropertyPathTree>[$PATH, $ret.retPath] propertyReferencePath)
 	;
 
 propertyReferencePath returns [PropertyPath retPath]

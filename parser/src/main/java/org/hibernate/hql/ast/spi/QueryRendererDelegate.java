@@ -35,6 +35,8 @@ public interface QueryRendererDelegate<T> {
 
 	void registerPersisterSpace(Tree entityName, Tree alias);
 
+	void registerJoinAlias(Tree alias, PropertyPath path);
+
 	boolean isUnqualifiedPropertyReference();
 
 	boolean isPersisterReferenceAlias();

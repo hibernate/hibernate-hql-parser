@@ -34,6 +34,8 @@ public interface QueryResolverDelegate {
 
 	void registerPersisterSpace(Tree entityName, Tree alias);
 
+	void registerJoinAlias(Tree alias, PropertyPath path);
+
 	boolean isUnqualifiedPropertyReference();
 
 	PathedPropertyReferenceSource normalizeUnqualifiedPropertyReference(Tree property);
