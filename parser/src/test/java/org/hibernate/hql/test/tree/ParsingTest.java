@@ -21,7 +21,6 @@
 package org.hibernate.hql.test.tree;
 
 import org.junit.Assert;
-
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
@@ -85,6 +84,20 @@ public class ParsingTest {
 		//generated alias:
 		assertTreeParsed( null, "from com.acme.EntityName e where e.name = 'Jack Daniel''s Old No. 7'",
 			"(QUERY (QUERY_SPEC (SELECT_FROM (from (PERSISTER_SPACE (ENTITY_PERSISTER_REF com.acme.EntityName e))) (SELECT (SELECT_LIST (SELECT_ITEM e)))) (where (= (PATH (. e name)) (CONST_STRING_VALUE Jack Daniel's Old No. 7)))))");
+	}
+
+	@Test
+	public void testJoinOnEmbedded() {
+		//generated alias:
+		assertTreeParsed( null, " SELECT e.author.name  FROM IndexedEntity e JOIN e.contactDetails d  JOIN e.alternativeContactDetails a WHERE d.address.postCode='EA123' AND a.email='mail@mail.af'",
+			"(QUERY (QUERY_SPEC (SELECT_FROM (FROM (PERSISTER_SPACE (ENTITY_PERSISTER_REF IndexedEntity e) (property-join INNER d (PATH (. e contactDetails))) (property-join INNER a (PATH (. e alternativeContactDetails))))) (SELECT (SELECT_LIST (SELECT_ITEM (PATH (. (. e author) name)))))) (WHERE (AND (= (PATH (. (. d address) postCode)) (CONST_STRING_VALUE EA123)) (= (PATH (. a email)) (CONST_STRING_VALUE mail@mail.af))))))");
+	}
+
+	@Test
+	public void testProjectionOnEmbeddedAndUnquilifiedProperties() {
+		//generated alias:
+		assertTreeParsed( null, " SELECT name, text, e.author.name  FROM IndexedEntity e JOIN e.contactDetails d",
+			"(QUERY (QUERY_SPEC (SELECT_FROM (FROM (PERSISTER_SPACE (ENTITY_PERSISTER_REF IndexedEntity e) (property-join INNER d (PATH (. e contactDetails))))) (SELECT (SELECT_LIST (SELECT_ITEM (PATH name)) (SELECT_ITEM (PATH text)) (SELECT_ITEM (PATH (. (. e author) name))))))))");
 	}
 
 	private void assertTreeParsed(ParserContext context, String input, String treeExpectation) {
