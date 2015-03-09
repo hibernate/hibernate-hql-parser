@@ -390,7 +390,7 @@ qualifiedJoin
 	|	propertyFetch? withClause?
 	)
 	-> {isEntityReference}? ^(PERSISTER_JOIN[$join_key.start,"persister-join"] nonCrossJoinType ^(ENTITY_PERSISTER_REF ENTITY_NAME<EntityNameTree>[$path.start, $path.text, entityNames] aliasClause?) ^(on_key logicalExpression))
-	-> ^(PROPERTY_JOIN[$join_key.start, "property-join"] nonCrossJoinType fetch_key? aliasClause? propertyFetch? ^(PROPERTY_REFERENCE path) withClause?)
+	-> ^(PROPERTY_JOIN[$join_key.start, "property-join"] nonCrossJoinType fetch_key? aliasClause? propertyFetch? ^(PATH path) withClause?)
 	;
 
 withClause
