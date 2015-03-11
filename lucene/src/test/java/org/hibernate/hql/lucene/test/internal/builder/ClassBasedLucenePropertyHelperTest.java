@@ -23,8 +23,6 @@ package org.hibernate.hql.lucene.test.internal.builder;
 import static org.fest.assertions.Assertions.assertThat;
 
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.TimeZone;
 
 import org.hibernate.hql.ast.spi.EntityNamesResolver;
 import org.hibernate.hql.lucene.internal.builder.ClassBasedLucenePropertyHelper;

@@ -340,5 +340,11 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 		}
 	}
 
+	/**
+	 * What to do when a mentioned alias is not found.
+	 * An example usage is to throw a custom exception.
+	 *
+	 * @param alias the name of the alias which wasn't recognised
+	 */
 	public abstract void aliasNotFound(String alias);
 }

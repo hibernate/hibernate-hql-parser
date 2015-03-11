@@ -54,12 +54,11 @@ public class ContactDetail {
 		this.phoneNumber = phoneNumber;
 	}
 
-	@IndexedEmbedded	
+	@IndexedEmbedded
 	public ContactAddress getAddress() {
 		return address;
 	}
 
-	
 	public void setAddress(ContactAddress address) {
 		this.address = address;
 	}
