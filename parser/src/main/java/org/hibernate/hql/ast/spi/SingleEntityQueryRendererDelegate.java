@@ -30,6 +30,8 @@ import org.antlr.runtime.tree.Tree;
 import org.hibernate.hql.ast.common.JoinType;
 import org.hibernate.hql.ast.origin.hql.resolve.path.PropertyPath;
 import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
+import org.hibernate.hql.internal.logging.Log;
+import org.hibernate.hql.internal.logging.LoggerFactory;
 
 /**
  * This extends the ANTLR generated AST walker to transform a parsed tree
@@ -50,6 +52,8 @@ import org.hibernate.hql.ast.spi.predicate.ComparisonPredicate.Type;
  * @author Gunnar Morling
  */
 public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRendererDelegate<R> {
+
+	private static final Log log = LoggerFactory.make();
 
 	protected static final String SORT_ASC_SPEC = "asc";
 
@@ -346,5 +350,8 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 	 *
 	 * @param alias the name of the alias which wasn't recognised
 	 */
-	public abstract void aliasNotFound(String alias);
+	public void aliasNotFound(String alias) {
+		throw log.getUnknownAliasException( alias );
+	}
+
 }

@@ -119,9 +119,4 @@ public class LuceneQueryRendererDelegate extends SingleEntityQueryRendererDelega
 		}
 		return projection.substring( 1 );
 	}
-
-	@Override
-	public void aliasNotFound(String alias) {
-		throw log.getUnknownAliasException( alias );
-	}
 }
