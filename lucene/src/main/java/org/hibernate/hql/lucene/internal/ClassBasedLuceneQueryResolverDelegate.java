@@ -71,6 +71,7 @@ public class ClassBasedLuceneQueryResolverDelegate implements QueryResolverDeleg
 	 * Persister space: keep track of aliases and entity names.
 	 */
 	private final Map<String, String> aliasToEntityType = new HashMap<String, String>();
+	private final Map<String, PropertyPath> aliasToPropertyPath = new HashMap<String, PropertyPath>();
 
 	private Status status;
 
@@ -82,6 +83,7 @@ public class ClassBasedLuceneQueryResolverDelegate implements QueryResolverDeleg
 	private final ClassBasedLucenePropertyHelper propertyHelper;
 
 	private Class<?> targetType = null;
+	private String alias;
 
 	public ClassBasedLuceneQueryResolverDelegate(ClassBasedLucenePropertyHelper propertyHelper, EntityNamesResolver entityNames) {
 		this.entityNames = entityNames;
@@ -129,17 +131,34 @@ public class ClassBasedLuceneQueryResolverDelegate implements QueryResolverDeleg
 
 	@Override
 	public boolean isPersisterReferenceAlias() {
-		if ( aliasToEntityType.size() == 1 ) {
-			return true; // should be safe
-		}
-		else {
-			throw new UnsupportedOperationException( "Unexpected use case: not implemented yet?" );
-		}
+		return aliasToEntityType.containsKey( alias );
 	}
 
 	@Override
 	public PathedPropertyReferenceSource normalizeUnqualifiedRoot(Tree identifier382) {
-		throw new UnsupportedOperationException( "Not yet implemented" );
+		if ( aliasToEntityType.containsKey( identifier382.getText() ) ) {
+			return normalizeQualifiedRoot( identifier382 );
+		}
+		if ( aliasToPropertyPath.containsKey( identifier382.getText() ) ) {
+			PropertyPath propertyPath = aliasToPropertyPath.get( identifier382.getText() );
+			if (propertyPath == null ) {
+				throw log.getUnknownAliasException( identifier382.getText() );
+			}
+			HSearchTypeDescriptor sourceType = (HSearchTypeDescriptor) propertyPath.getNodes().get( 0 ).getType();
+			List<String> resolveAlias = resolveAlias( propertyPath );
+
+			PathedPropertyReference property = new PathedPropertyReference(
+					identifier382.getText(),
+					new HSearchEmbeddedEntityTypeDescriptor(
+							sourceType.getIndexedEntityType(),
+							resolveAlias,
+							propertyHelper
+					),
+					true
+			);
+			return property;
+		}
+		throw log.getUnknownAliasException( identifier382.getText() );
 	}
 
 	@Override
@@ -169,7 +188,7 @@ public class ClassBasedLuceneQueryResolverDelegate implements QueryResolverDeleg
 			throw log.getNoSuchPropertyException( sourceType.toString(), propertyName.getText() );
 		}
 
-		List<String> newPath = new LinkedList<String>( path.getNodeNamesWithoutAlias() );
+		List<String> newPath = resolveAlias( path );
 		newPath.add( propertyName.getText() );
 
 		PathedPropertyReference property = new PathedPropertyReference(
@@ -205,11 +224,34 @@ public class ClassBasedLuceneQueryResolverDelegate implements QueryResolverDeleg
 	@Override
 	public PathedPropertyReferenceSource normalizePropertyPathTerminus(PropertyPath path, Tree propertyNameNode) {
 		// receives the property name on a specific entity reference _source_
-		return normalizeProperty( (HSearchTypeDescriptor) path.getLastNode().getType(), path.getNodeNamesWithoutAlias(), propertyNameNode.getText() );
+		HSearchTypeDescriptor type = (HSearchTypeDescriptor) path.getLastNode().getType();
+		return normalizeProperty( type, path.getNodeNamesWithoutAlias(), propertyNameNode.getText() );
+	}
+
+	private List<String> resolveAlias(PropertyPath path) {
+		if ( path.getFirstNode().isAlias() ) {
+			String alias = path.getFirstNode().getName();
+			if ( aliasToEntityType.containsKey( alias ) ) {
+				// Alias for entity
+				return path.getNodeNamesWithoutAlias();
+			}
+			else if ( aliasToPropertyPath.containsKey( alias ) ) {
+				// Alias for embedded
+				PropertyPath propertyPath = aliasToPropertyPath.get( alias );
+				List<String> resolvedAlias = resolveAlias( propertyPath );
+				resolvedAlias.addAll( path.getNodeNamesWithoutAlias() );
+				return resolvedAlias;
+			}
+			else {
+				// Alias not found
+				throw log.getUnknownAliasException( alias );
+			}
+		}
+		// It does not start with an alias
+		return path.getNodeNamesWithoutAlias();
 	}
 
 	private PathedPropertyReferenceSource normalizeProperty(HSearchTypeDescriptor type, List<String> path, String propertyName) {
-
 		if ( !type.hasProperty( propertyName ) ) {
 			throw log.getNoSuchPropertyException( type.toString(), propertyName );
 		}
@@ -242,7 +284,8 @@ public class ClassBasedLuceneQueryResolverDelegate implements QueryResolverDeleg
 			Tree assosiationFetchTree,
 			Tree propertyFetchTree,
 			Tree alias) {
-		throw new UnsupportedOperationException( "Not yet implemented" );
+		status = Status.DEFINING_FROM;
+		this.alias = alias.getText();
 	}
 
 	@Override
@@ -253,6 +296,7 @@ public class ClassBasedLuceneQueryResolverDelegate implements QueryResolverDeleg
 	@Override
 	public void popStrategy() {
 		status = null;
+		this.alias = null;
 	}
 
 	@Override
@@ -264,6 +308,13 @@ public class ClassBasedLuceneQueryResolverDelegate implements QueryResolverDeleg
 					type.getIndexedEntityType().getCanonicalName(),
 					path.asStringPathWithoutAlias()
 			);
+		}
+	}
+
+	@Override
+	public void registerJoinAlias(Tree alias, PropertyPath path) {
+		if ( !path.getNodes().isEmpty() && !aliasToPropertyPath.containsKey( alias ) ) {
+			aliasToPropertyPath.put( alias.getText(), path );
 		}
 	}
 }

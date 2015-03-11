@@ -353,6 +353,23 @@ public abstract class LuceneQueryParsingTestBase {
 				"-name:_null_ *:*" );
 	}
 
+	@Test
+	public void shouldCreateCollectionOfEmbeddedableQuery() {
+		assertLuceneQuery(
+				"select e from IndexedEntity e JOIN e.contactDetails d WHERE d.email = 'mym@il.it' ",
+				"contactDetails.email:mym@il.it" );
+	}
+
+	@Test
+	public void shouldCreateCollectionOfEmbeddedableInEmbeddedQuery() {
+		assertLuceneQuery(
+				"SELECT e FROM IndexedEntity e "
+						+ " JOIN e.contactDetails d"
+						+ " JOIN d.address.alternatives as a "
+				+ "WHERE a.postCode = '28921' ",
+				"contactDetails.address.alternatives.postCode:28921" );
+	}
+
 	private void assertLuceneQuery(String queryString, String expectedLuceneQuery) {
 		assertLuceneQuery( queryString, null, expectedLuceneQuery );
 	}

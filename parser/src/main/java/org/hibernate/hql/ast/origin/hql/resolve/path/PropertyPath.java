@@ -34,15 +34,7 @@ import org.hibernate.hql.internal.util.Strings;
  */
 public class PropertyPath {
 
-	private final LinkedList<PathedPropertyReferenceSource> path;
-
-	public PropertyPath() {
-		path = new LinkedList<PathedPropertyReferenceSource>();
-	}
-
-	public PropertyPath(PropertyPath path) {
-		this.path = path.path;
-	}
+	private final LinkedList<PathedPropertyReferenceSource> path = new LinkedList<PathedPropertyReferenceSource>();
 
 	public void appendNode(PathedPropertyReferenceSource property) {
 		path.add( property );
@@ -50,6 +42,10 @@ public class PropertyPath {
 
 	public PathedPropertyReferenceSource getLastNode() {
 		return path.getLast();
+	}
+
+	public PathedPropertyReferenceSource getFirstNode() {
+		return path.getFirst();
 	}
 
 	public List<PathedPropertyReferenceSource> getNodes() {

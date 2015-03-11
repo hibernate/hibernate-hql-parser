@@ -55,4 +55,7 @@ public interface Log extends BasicLogger {
 
 	@Message(id = 6, value = "The query %s is not valid; Found unconsumed token(s): %s.")
 	ParsingException getInvalidQuerySyntaxDueToUnconsumedTokensException(String query, String unconsumedTokens);
+
+	@Message(id = 7, value = "Unknown alias: %s.")
+	ParsingException getUnknownAliasException(String unknownAlias);
 }
