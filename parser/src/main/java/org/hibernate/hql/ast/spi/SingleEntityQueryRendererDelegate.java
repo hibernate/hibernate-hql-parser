@@ -53,9 +53,9 @@ import org.hibernate.hql.internal.logging.LoggerFactory;
  */
 public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRendererDelegate<R> {
 
-	private static final Log log = LoggerFactory.make();
-
 	protected static final String SORT_ASC_SPEC = "asc";
+
+	private static final Log log = LoggerFactory.make();
 
 	/**
 	 * States which this object can have during tree walking
