@@ -3,7 +3,7 @@ apply plugin: 'idea'
 apply from: "./libraries.gradle"
 
 ext {
-    projectVersion = '1.2.0.Alpha1'
+    projectVersion = '1.2.0.Alpha2'
     javaLanguageLevel = '1.6'
 
     jbossPublicUrl = 'http://repository.jboss.org/nexus/content/groups/public/'
