@@ -20,9 +20,9 @@
  */
 package org.hibernate.hql.lucene.internal.builder;
 
+import java.lang.reflect.Method;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
@@ -30,6 +30,7 @@ import org.hibernate.hql.ast.spi.EntityNamesResolver;
 import org.hibernate.hql.lucene.internal.logging.Log;
 import org.hibernate.hql.lucene.internal.logging.LoggerFactory;
 import org.hibernate.search.bridge.FieldBridge;
+import org.hibernate.search.engine.metadata.impl.DocumentFieldMetadata;
 import org.hibernate.search.engine.metadata.impl.EmbeddedTypeMetadata;
 import org.hibernate.search.engine.metadata.impl.PropertyMetadata;
 import org.hibernate.search.engine.metadata.impl.TypeMetadata;
@@ -67,7 +68,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 		PropertyMetadata metadata = getLeafTypeMetadata( type, propertyPathAsArray ).getPropertyMetadataForProperty( propertyPathAsArray[propertyPathAsArray.length - 1] );
 
 		// TODO Consider properties with several fields
-		return metadata.getFieldMetadata().iterator().next().getFieldBridge();
+		return getFieldMetadata( metadata ).iterator().next().getFieldBridge();
 	}
 
 	private Class<?> getType(String typeName) {
@@ -93,7 +94,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 		TypeMetadata metadata = entityIndexBinding.getDocumentBuilder().getMetadata();
 
 		for ( int i = 0; i < propertyPath.length - 1; i++ ) {
-			Set<EmbeddedTypeMetadata> embeddedTypeMetadata = metadata.getEmbeddedTypeMetadata();
+			Iterable<EmbeddedTypeMetadata> embeddedTypeMetadata = getEmbeddedTypeMetadata( metadata );
 			metadata = getEmbeddedTypeMetadata( embeddedTypeMetadata, propertyPath[i] );
 			if ( metadata == null ) {
 				return false;
@@ -101,7 +102,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 		}
 
 		PropertyMetadata propertyMetadataForProperty = metadata.getPropertyMetadataForProperty( propertyPath[propertyPath.length - 1] );
-		boolean b = getEmbeddedTypeMetadata( metadata.getEmbeddedTypeMetadata(), propertyPath[propertyPath.length - 1] ) != null;
+		boolean b = getEmbeddedTypeMetadata( getEmbeddedTypeMetadata( metadata ), propertyPath[propertyPath.length - 1] ) != null;
 		return propertyMetadataForProperty != null || b;
 	}
 
@@ -110,7 +111,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 		TypeMetadata leafTypeMetadata = entityIndexBinding.getDocumentBuilder().getMetadata();
 
 		for ( int i = 0; i < propertyPath.length; i++ ) {
-			Set<EmbeddedTypeMetadata> embeddedTypeMetadata = leafTypeMetadata.getEmbeddedTypeMetadata();
+			Iterable<EmbeddedTypeMetadata> embeddedTypeMetadata = getEmbeddedTypeMetadata( leafTypeMetadata );
 			TypeMetadata metadata = getEmbeddedTypeMetadata( embeddedTypeMetadata, propertyPath[i] );
 			if ( metadata != null ) {
 				leafTypeMetadata = metadata;
@@ -120,7 +121,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 		return leafTypeMetadata;
 	}
 
-	private EmbeddedTypeMetadata getEmbeddedTypeMetadata(Set<EmbeddedTypeMetadata> embeddedTypeMetadata, String name) {
+	private EmbeddedTypeMetadata getEmbeddedTypeMetadata(Iterable<EmbeddedTypeMetadata> embeddedTypeMetadata, String name) {
 		for ( EmbeddedTypeMetadata metadata : embeddedTypeMetadata ) {
 			if ( metadata.getEmbeddedFieldName().equals( name ) ) {
 				return metadata;
@@ -143,7 +144,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 
 		TypeMetadata metadata = getLeafTypeMetadata( type, propertyPath );
 
-		Index index = metadata.getPropertyMetadataForProperty( propertyPath[propertyPath.length - 1] ).getFieldMetadata().iterator().next().getIndex();
+		Index index = getFieldMetadata( metadata.getPropertyMetadataForProperty( propertyPath[propertyPath.length - 1] ) ).iterator().next().getIndex();
 		return EnumSet.of( Field.Index.ANALYZED, Field.Index.ANALYZED_NO_NORMS ).contains( index );
 	}
 
@@ -168,7 +169,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 		TypeMetadata metadata = entityIndexBinding.getDocumentBuilder().getMetadata();
 
 		for ( int i = 0; i < propertyPath.length; i++ ) {
-			Set<EmbeddedTypeMetadata> embeddedTypeMetadata = metadata.getEmbeddedTypeMetadata();
+			Iterable<EmbeddedTypeMetadata> embeddedTypeMetadata = getEmbeddedTypeMetadata( metadata );
 			metadata = getEmbeddedTypeMetadata( embeddedTypeMetadata, propertyPath[i] );
 			if ( metadata == null ) {
 				break;
@@ -194,5 +195,53 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 		}
 
 		return entityIndexBinding;
+	}
+
+	private Iterable<EmbeddedTypeMetadata> getEmbeddedTypeMetadata(TypeMetadata metadata) {
+		return HsearchWorkaround.getEmbeddedTypeMetadata( metadata );
+	}
+
+	private Iterable<DocumentFieldMetadata> getFieldMetadata(PropertyMetadata metadata) {
+		return HsearchWorkaround.getFieldMetadata( metadata );
+	}
+
+	// TODO HQLPARSER-61 Remove once we are on HSEARCH 5.3.0.Beta2; Due to signature changes in
+	// getEmbeddedTypeMetadata() and getFieldMetadata() we cannot compile against HSEARCH 5.3.0.Beta1 (which is needed
+	// for ISPN use) and run against HSEARCH 5.2 at OGM runtime; Therefore the methods are invoked through reflection
+	// until the signatures have been reverted in HSEARCH 5.3.0.Beta2
+	private static class HsearchWorkaround {
+
+		private static final Method GET_EMBEDDED_TYPE_METADATA;
+		private static final Method GET_FIELD_METADATA;
+
+		static {
+			try {
+				GET_EMBEDDED_TYPE_METADATA = TypeMetadata.class.getMethod( "getEmbeddedTypeMetadata" );
+				GET_FIELD_METADATA = PropertyMetadata.class.getMethod( "getFieldMetadata" );
+			}
+			catch (Exception e) {
+				throw new RuntimeException( e );
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		private static Iterable<EmbeddedTypeMetadata> getEmbeddedTypeMetadata(TypeMetadata metadata) {
+			try {
+				return (Iterable<EmbeddedTypeMetadata>) GET_EMBEDDED_TYPE_METADATA.invoke( metadata );
+			}
+			catch (Exception e) {
+				throw new RuntimeException( e );
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		public static Iterable<DocumentFieldMetadata> getFieldMetadata(PropertyMetadata metadata) {
+			try {
+				return (Iterable<DocumentFieldMetadata>) GET_FIELD_METADATA.invoke( metadata );
+			}
+			catch (Exception e) {
+				throw new RuntimeException( e );
+			}
+		}
 	}
 }
