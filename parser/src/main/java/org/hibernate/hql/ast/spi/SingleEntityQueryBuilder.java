@@ -80,10 +80,7 @@ public class SingleEntityQueryBuilder<Q> {
 	}
 
 	public SingleEntityQueryBuilder<Q> addComparisonPredicate(List<String> propertyPath, Type comparisonType, Object value) {
-		Object typedValue = value instanceof String ?
-				propertyHelper.convertToPropertyType( entityType, propertyPath, (String) value ) :
-				value;
-
+		Object typedValue = propertyHelper.convertToBackendType( entityType, propertyPath, value );
 		pushPredicate( predicateFactory.getComparisonPredicate( entityType, comparisonType, propertyPath, typedValue ) );
 
 		return this;
@@ -94,13 +91,8 @@ public class SingleEntityQueryBuilder<Q> {
 	}
 
 	public SingleEntityQueryBuilder<Q> addRangePredicate(List<String> propertyPath, Object lower, Object upper) {
-		Object lowerValue = lower instanceof String ?
-				propertyHelper.convertToPropertyType( entityType, propertyPath, (String) lower ) :
-				lower;
-
-		Object upperValue = upper instanceof String ?
-				propertyHelper.convertToPropertyType( entityType, propertyPath, (String) upper ) :
-				upper;
+		Object lowerValue = propertyHelper.convertToBackendType( entityType, propertyPath, lower );
+		Object upperValue = propertyHelper.convertToBackendType( entityType, propertyPath, upper );
 
 		pushPredicate( predicateFactory.getRangePredicate( entityType, propertyPath, lowerValue, upperValue ) );
 
@@ -111,11 +103,7 @@ public class SingleEntityQueryBuilder<Q> {
 		List<Object> typedElements = new ArrayList<Object>( elements.size() );
 
 		for ( Object element : elements ) {
-			Object typedElement = element instanceof String ?
-					propertyHelper.convertToPropertyType( entityType, propertyPath, (String) element ) :
-					element;
-
-			typedElements.add( typedElement );
+			typedElements.add( propertyHelper.convertToBackendType( entityType, propertyPath, element ) );
 		}
 
 		pushPredicate( predicateFactory.getInPredicate( entityType, propertyPath, typedElements ) );

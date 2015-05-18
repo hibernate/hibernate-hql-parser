@@ -46,6 +46,14 @@ import org.hibernate.search.bridge.builtin.impl.TwoWayString2FieldBridgeAdaptor;
  */
 public abstract class LucenePropertyHelper implements PropertyHelper {
 
+	@Override
+	public Object convertToBackendType(String entityType, List<String> propertyPath, Object value) {
+		return value;
+	}
+
+	// TODO It does not really make sense to use the field bridge here as it'd e.g. apply encoding options geared
+	// towards storing the value in the index; Rather the value should be converted applying the JP-QL literal
+	// conversion rules
 	/**
 	 * Returns the given value converted into the type of the given property as determined via the field bridge of the
 	 * property.
