@@ -22,7 +22,6 @@ package org.hibernate.hql.lucene.internal.builder;
 
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
@@ -93,7 +92,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 		TypeMetadata metadata = entityIndexBinding.getDocumentBuilder().getMetadata();
 
 		for ( int i = 0; i < propertyPath.length - 1; i++ ) {
-			Set<EmbeddedTypeMetadata> embeddedTypeMetadata = metadata.getEmbeddedTypeMetadata();
+			Iterable<EmbeddedTypeMetadata> embeddedTypeMetadata = metadata.getEmbeddedTypeMetadata();
 			metadata = getEmbeddedTypeMetadata( embeddedTypeMetadata, propertyPath[i] );
 			if ( metadata == null ) {
 				return false;
@@ -110,7 +109,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 		TypeMetadata leafTypeMetadata = entityIndexBinding.getDocumentBuilder().getMetadata();
 
 		for ( int i = 0; i < propertyPath.length; i++ ) {
-			Set<EmbeddedTypeMetadata> embeddedTypeMetadata = leafTypeMetadata.getEmbeddedTypeMetadata();
+			Iterable<EmbeddedTypeMetadata> embeddedTypeMetadata = leafTypeMetadata.getEmbeddedTypeMetadata();
 			TypeMetadata metadata = getEmbeddedTypeMetadata( embeddedTypeMetadata, propertyPath[i] );
 			if ( metadata != null ) {
 				leafTypeMetadata = metadata;
@@ -120,7 +119,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 		return leafTypeMetadata;
 	}
 
-	private EmbeddedTypeMetadata getEmbeddedTypeMetadata(Set<EmbeddedTypeMetadata> embeddedTypeMetadata, String name) {
+	private EmbeddedTypeMetadata getEmbeddedTypeMetadata(Iterable<EmbeddedTypeMetadata> embeddedTypeMetadata, String name) {
 		for ( EmbeddedTypeMetadata metadata : embeddedTypeMetadata ) {
 			if ( metadata.getEmbeddedFieldName().equals( name ) ) {
 				return metadata;
@@ -168,7 +167,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 		TypeMetadata metadata = entityIndexBinding.getDocumentBuilder().getMetadata();
 
 		for ( int i = 0; i < propertyPath.length; i++ ) {
-			Set<EmbeddedTypeMetadata> embeddedTypeMetadata = metadata.getEmbeddedTypeMetadata();
+			Iterable<EmbeddedTypeMetadata> embeddedTypeMetadata = metadata.getEmbeddedTypeMetadata();
 			metadata = getEmbeddedTypeMetadata( embeddedTypeMetadata, propertyPath[i] );
 			if ( metadata == null ) {
 				break;
