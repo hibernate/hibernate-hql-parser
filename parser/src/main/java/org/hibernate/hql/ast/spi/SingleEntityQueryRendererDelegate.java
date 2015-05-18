@@ -96,7 +96,10 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 	 */
 	private final EntityNamesResolver entityNames;
 
-	public SingleEntityQueryRendererDelegate(EntityNamesResolver entityNames, SingleEntityQueryBuilder<Q> builder, Map<String, Object> namedParameters) {
+	private final PropertyHelper propertyHelper;
+
+	public SingleEntityQueryRendererDelegate(PropertyHelper propertyHelper, EntityNamesResolver entityNames, SingleEntityQueryBuilder<Q> builder, Map<String, Object> namedParameters) {
+		this.propertyHelper = propertyHelper;
 		this.entityNames = entityNames;
 		this.namedParameters = namedParameters != null ? namedParameters : Collections.<String, Object>emptyMap();
 		this.builder = builder;
@@ -238,7 +241,7 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 	}
 
 	private void addComparisonPredicate(String comparativePredicate, Type comparisonType) {
-		Object comparisonValue = fromNamedQuery( comparativePredicate );
+		Object comparisonValue = parameterValue( comparativePredicate );
 		List<String> property = resolveAlias( propertyPath );
 		builder.addComparisonPredicate( property, comparisonType, comparisonValue );
 	}
@@ -252,8 +255,8 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 
 	@Override
 	public void predicateBetween(String lower, String upper) {
-		Object lowerComparisonValue = fromNamedQuery( lower );
-		Object upperComparisonValue = fromNamedQuery( upper );
+		Object lowerComparisonValue = parameterValue( lower );
+		Object upperComparisonValue = parameterValue( upper );
 
 		List<String> property = resolveAlias( propertyPath );
 		builder.addRangePredicate( property, lowerComparisonValue, upperComparisonValue );
@@ -261,7 +264,7 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 
 	@Override
 	public void predicateLike(String patternValue, Character escapeCharacter) {
-		Object pattern = fromNamedQuery( patternValue );
+		Object pattern = parameterValue( patternValue );
 		List<String> property = resolveAlias( propertyPath );
 		builder.addLikePredicate( property, (String) pattern, escapeCharacter );
 	}
@@ -287,12 +290,25 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
     */
 	protected abstract void addSortField(PropertyPath propertyPath, String collateName, boolean isAscending);
 
-	private Object fromNamedQuery(String comparativePredicate) {
+	private Object parameterValue(String comparativePredicate) {
+		// It's a named parameter; Value given via setParameter(), taking that as is
 		if ( comparativePredicate.startsWith( ":" ) ) {
 			return namedParameters.get( comparativePredicate.substring( 1 ) );
 		}
+		// It's a value given in JP-QL; Convert the literal value
 		else {
-			return comparativePredicate;
+			List<String> path = new ArrayList<String>();
+			path.addAll( propertyPath.getNodeNamesWithoutAlias() );
+
+			PropertyPath fullPath = propertyPath;
+
+			// create the complete path in case it's a join
+			while ( fullPath.getFirstNode().isAlias() && aliasToPropertyPath.containsKey( fullPath.getFirstNode().getName() ) ) {
+				fullPath = aliasToPropertyPath.get( fullPath.getFirstNode().getName() );
+				path.addAll( 0, fullPath.getNodeNamesWithoutAlias() );
+			}
+
+			return propertyHelper.convertToPropertyType( targetTypeName, path, comparativePredicate );
 		}
 	}
 
@@ -300,7 +316,7 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 		List<Object> elements = new ArrayList<Object>( list.size() );
 
 		for ( String string : list ) {
-			elements.add( fromNamedQuery( string ) );
+			elements.add( parameterValue( string ) );
 		}
 
 		return elements;
