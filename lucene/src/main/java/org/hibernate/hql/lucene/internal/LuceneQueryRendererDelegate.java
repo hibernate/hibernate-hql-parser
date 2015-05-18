@@ -53,7 +53,7 @@ public class LuceneQueryRendererDelegate extends SingleEntityQueryRendererDelega
 	private List<SortField> sortFields;
 
 	public LuceneQueryRendererDelegate(EntityNamesResolver entityNames, SingleEntityQueryBuilder<Query> builder, Map<String, Object> namedParameters, LucenePropertyHelper propertyHelper) {
-		super( entityNames, builder, namedParameters );
+		super( propertyHelper, entityNames, builder, namedParameters );
 		this.propertyHelper = propertyHelper;
 	}
 

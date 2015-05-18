@@ -30,7 +30,7 @@ import java.util.List;
 public interface PropertyHelper {
 
 	/**
-	 * Converts the given string value into the actual type of the given property.
+	 * Converts the given string value specified via JP-QL into the actual type of the given property.
 	 *
 	 * @param entityType the entity type owning the property
 	 * @param propertyPath the path from the entity to the property (will only contain more than one element in case the
@@ -39,4 +39,15 @@ public interface PropertyHelper {
 	 * @return the property value, converted into the actual type of the given entity property
 	 */
 	Object convertToPropertyType(String entityType, List<String> propertyPath, String value);
+
+	/**
+	 * Converts the given property value into the type expected by the query backend.
+	 *
+	 * @param entityType the entity type owning the property
+	 * @param propertyPath the path from the entity to the property (will only contain more than one element in case the
+	 * entity is hosted on an embedded entity).
+	 * @param value the value of the property
+	 * @return the property value, converted into the type expected by the query backend
+	 */
+	Object convertToBackendType(String entityType, List<String> propertyPath, Object value);
 }

@@ -82,7 +82,7 @@ public class LuceneQueryBuilderTest {
 	public void shouldBuildLongEqualsQuery() {
 		Query query = queryBuilder
 			.setEntityType( "IndexedEntity" )
-			.addComparisonPredicate( Arrays.asList( "l" ), Type.EQUALS, "10" )
+			.addComparisonPredicate( Arrays.asList( "l" ), Type.EQUALS, 10 )
 			.build();
 
 		assertThat( query.toString() ).isEqualTo( "l:[10 TO 10]" );
@@ -92,7 +92,7 @@ public class LuceneQueryBuilderTest {
 	public void shouldBuildDoubleEqualsQuery() {
 		Query query = queryBuilder
 				.setEntityType( "IndexedEntity" )
-				.addComparisonPredicate( Arrays.asList( "d" ), Type.EQUALS, "10.0" )
+				.addComparisonPredicate( Arrays.asList( "d" ), Type.EQUALS, 10.0 )
 				.build();
 
 		assertThat( query.toString() ).isEqualTo( "d:[10.0 TO 10.0]" );
@@ -134,7 +134,7 @@ public class LuceneQueryBuilderTest {
 	public void shouldBuildRangeQuery() {
 		Query query = queryBuilder
 			.setEntityType( "IndexedEntity" )
-			.addRangePredicate( "i", "1", "10" )
+			.addRangePredicate( "i", 1, 10 )
 			.build();
 
 		assertThat( query.toString() ).isEqualTo( "i:[1 TO 10]" );
@@ -146,7 +146,7 @@ public class LuceneQueryBuilderTest {
 			.setEntityType( "IndexedEntity" )
 			.pushAndPredicate()
 				.addComparisonPredicate( Arrays.asList( "name" ), Type.EQUALS, "foobar" )
-				.addComparisonPredicate( Arrays.asList( "i" ), Type.EQUALS, "1" )
+				.addComparisonPredicate( Arrays.asList( "i" ), Type.EQUALS, 1 )
 			.build();
 
 		assertThat( query.toString() ).isEqualTo( "+name:foobar +i:[1 TO 1]" );
@@ -158,7 +158,7 @@ public class LuceneQueryBuilderTest {
 			.setEntityType( "IndexedEntity" )
 			.pushOrPredicate()
 				.addComparisonPredicate( Arrays.asList( "name" ), Type.EQUALS, "foobar" )
-				.addComparisonPredicate( Arrays.asList( "i" ), Type.EQUALS, "1" )
+				.addComparisonPredicate( Arrays.asList( "i" ), Type.EQUALS, 1 )
 			.build();
 
 		assertThat( query.toString() ).isEqualTo( "name:foobar i:[1 TO 1]" );
@@ -182,9 +182,9 @@ public class LuceneQueryBuilderTest {
 			.pushAndPredicate()
 				.pushOrPredicate()
 					.addComparisonPredicate( Arrays.asList( "name" ), Type.EQUALS, "foobar" )
-					.addComparisonPredicate( Arrays.asList( "i" ), Type.EQUALS, "1" )
+					.addComparisonPredicate( Arrays.asList( "i" ), Type.EQUALS, 1 )
 					.popBooleanPredicate()
-				.addComparisonPredicate( Arrays.asList( "l" ), Type.EQUALS, "10" )
+				.addComparisonPredicate( Arrays.asList( "l" ), Type.EQUALS, 10 )
 			.build();
 
 		assertThat( query.toString() ).isEqualTo( "+(name:foobar i:[1 TO 1]) +l:[10 TO 10]" );
