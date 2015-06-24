@@ -20,7 +20,7 @@
  */
 package org.hibernate.hql.test.tree;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
