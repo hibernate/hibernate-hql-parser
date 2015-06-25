@@ -58,7 +58,8 @@ public class LuceneQueryRendererDelegate extends SingleEntityQueryRendererDelega
 	}
 
 	@Override
-	protected void addSortField(PropertyPath propertyPath, String collationName, boolean isAscending) {
+	protected void addSortField(PropertyPath propertyPath, String collateName, boolean isAscending) {
+		// collateName is ignored
 		if ( sortFields == null ) {
 			sortFields = new ArrayList<SortField>( 5 );
 		}
@@ -114,7 +115,7 @@ public class LuceneQueryRendererDelegate extends SingleEntityQueryRendererDelega
 	private String join(List<String> names) {
 		StringBuilder projection = new StringBuilder();
 		for ( String name : names ) {
-			projection.append( "." );
+			projection.append( '.' );
 			projection.append( name );
 		}
 		return projection.substring( 1 );

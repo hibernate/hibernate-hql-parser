@@ -58,4 +58,13 @@ public interface Log extends BasicLogger {
 
 	@Message(id = 7, value = "Unknown alias: %s.")
 	ParsingException getUnknownAliasException(String unknownAlias);
+
+	@Message(id = 8, value = "Cannot have aggregate functions in GROUP BY clause : %s.")
+	ParsingException getNoAggregationsInGroupByClauseException(String aggregationType);
+
+	@Message(id = 9, value = "Cannot have aggregate functions in WHERE clause : %s.")
+	ParsingException getNoAggregationsInWhereClauseException(String aggregationType);
+
+	@Message(id = 10, value = "%s aggregation can only be applied to property references.")
+	ParsingException getAggregationCanOnlyBeAppliedToPropertyReferencesException(String aggregationType);
 }

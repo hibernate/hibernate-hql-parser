@@ -523,7 +523,7 @@ entityName
 	;
 
 propertyReference
-	:	^(PROPERTY_REFERENCE propertyReferencePath)
+	:	^(PROPERTY_REFERENCE ret=propertyReferencePath) -> ^(PROPERTY_REFERENCE<node=PropertyPathTree>[$PROPERTY_REFERENCE, $ret.retPath] propertyReferencePath)
 	;
 
 joinPropertyReference [Tree an]
