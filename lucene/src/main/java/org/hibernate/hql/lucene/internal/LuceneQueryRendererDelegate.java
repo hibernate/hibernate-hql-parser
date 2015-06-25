@@ -33,6 +33,8 @@ import org.hibernate.hql.ast.spi.SingleEntityQueryBuilder;
 import org.hibernate.hql.ast.spi.SingleEntityQueryRendererDelegate;
 import org.hibernate.hql.lucene.LuceneQueryParsingResult;
 import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
+import org.hibernate.hql.lucene.internal.logging.Log;
+import org.hibernate.hql.lucene.internal.logging.LoggerFactory;
 import org.hibernate.search.ProjectionConstants;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.builtin.DoubleNumericFieldBridge;
@@ -47,6 +49,8 @@ import org.hibernate.search.bridge.builtin.LongNumericFieldBridge;
  */
 public class LuceneQueryRendererDelegate extends SingleEntityQueryRendererDelegate<Query, LuceneQueryParsingResult> {
 
+	private static final Log log = LoggerFactory.make();
+
 	private final LucenePropertyHelper propertyHelper;
 
 	private List<SortField> sortFields;
@@ -57,7 +61,8 @@ public class LuceneQueryRendererDelegate extends SingleEntityQueryRendererDelega
 	}
 
 	@Override
-	protected void addSortField(PropertyPath propertyPath, String collationName, boolean isAscending) {
+	protected void addSortField(PropertyPath propertyPath, String collateName, boolean isAscending) {
+		// collateName is ignored
 		if ( sortFields == null ) {
 			sortFields = new ArrayList<SortField>( 5 );
 		}

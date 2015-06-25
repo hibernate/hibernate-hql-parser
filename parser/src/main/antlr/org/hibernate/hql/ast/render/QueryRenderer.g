@@ -42,6 +42,7 @@ package org.hibernate.hql.ast.render;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.hibernate.hql.ast.common.JoinType;
+import org.hibernate.hql.ast.origin.hql.resolve.path.AggregationPropertyPath;
 import org.hibernate.hql.ast.origin.hql.resolve.path.PathedPropertyReferenceSource;
 import org.hibernate.hql.ast.spi.QueryRendererDelegate;
 import org.hibernate.hql.ast.tree.PropertyPathTree;
@@ -121,19 +122,19 @@ querySpec
 	;
 
 whereClause
-	:	^(WHERE searchCondition)
+	:	{ delegate.pushWhereStrategy(); } ^(WHERE searchCondition) { delegate.popStrategy(); }
 	;
 
 groupByClause
-	:	^(GROUP_BY groupingValue+)
+	:	{ delegate.pushGroupByStrategy(); } ^(GROUP_BY groupingValue+) { delegate.popStrategy(); }
 	;
 
 groupingValue
-	:	^(GROUPING_VALUE valueExpression COLLATE?)
+	:	^(GROUPING_VALUE valueExpression COLLATE?) { delegate.groupingValue( $COLLATE.text ); }
 	;
 
 havingClause
-	:	^(HAVING searchCondition)
+	:	{ delegate.pushHavingStrategy(); } ^(HAVING searchCondition) { delegate.popStrategy(); }
 	;
 
 selectFrom
@@ -286,7 +287,7 @@ valueExpressionPrimary
 	|	ALIAS_REF //ID COLUMN, full property column list
 	|	^(DOT_CLASS path) // crazy
 	|	^(JAVA_CONSTANT path) //It will generate at SQL a parameter element (?) -> 'cos we do not need to care about char escaping
-	|	^(PATH propertyReferencePath) { delegate.setPropertyPath( ( (PropertyPathTree)$PATH ).getPropertyPath() ); }
+	|	^(PATH propertyReferencePath) { delegate.setPropertyReferencePath( ( (PropertyPathTree)$PATH ).getPropertyPath() ); }
 	;
 
 caseExpression
@@ -314,11 +315,12 @@ function
 	;
 
 setFunction
-	:	^(SUM numericValueExpression)
-	|	^(AVG numericValueExpression)
-	|	^(MAX numericValueExpression)
-	|	^(MIN numericValueExpression)
-	|	^(COUNT (ASTERISK | (DISTINCT|ALL) countFunctionArguments))
+@after { delegate.deactivateAggregation(); }
+	:	^(SUM { delegate.activateAggregation(AggregationPropertyPath.Type.SUM); } numericValueExpression)
+	|	^(AVG { delegate.activateAggregation(AggregationPropertyPath.Type.AVG); } numericValueExpression)
+	|	^(MAX { delegate.activateAggregation(AggregationPropertyPath.Type.MAX); } numericValueExpression)
+	|	^(MIN { delegate.activateAggregation(AggregationPropertyPath.Type.MIN); } numericValueExpression)
+	|	^(COUNT (ASTERISK { delegate.activateAggregation( AggregationPropertyPath.Type.COUNT ); } | (DISTINCT { delegate.activateAggregation( AggregationPropertyPath.Type.COUNT_DISTINCT ); } | ALL { delegate.activateAggregation( AggregationPropertyPath.Type.COUNT ); }) countFunctionArguments))
 	;
 
 standardFunction
@@ -514,7 +516,7 @@ entityName
 	;
 
 propertyReference
-	:	^(PROPERTY_REFERENCE propertyReferencePath)
+	:	^(PROPERTY_REFERENCE propertyReferencePath) { delegate.setPropertyReferencePath( ( (PropertyPathTree)$PROPERTY_REFERENCE ).getPropertyPath() ); }
 	;
 
 propertyReferencePath

@@ -24,12 +24,14 @@ import java.util.List;
 
 import org.antlr.runtime.tree.Tree;
 import org.hibernate.hql.ast.common.JoinType;
+import org.hibernate.hql.ast.origin.hql.resolve.path.AggregationPropertyPath;
 import org.hibernate.hql.ast.origin.hql.resolve.path.PropertyPath;
 
 /**
  * Defines hooks for implementing custom logic when walking the parse tree of a JPQL query.
  *
  * @author Gunnar Morling
+ * @author Adrian Nistor
  */
 public interface QueryRendererDelegate<T> {
 
@@ -42,6 +44,12 @@ public interface QueryRendererDelegate<T> {
 	void pushFromStrategy(JoinType joinType, Tree assosiationFetchTree, Tree propertyFetchTree, Tree alias);
 
 	void pushSelectStrategy();
+
+	void pushWhereStrategy();
+
+	void pushGroupByStrategy();
+
+	void pushHavingStrategy();
 
 	void pushOrderByStrategy();
 
@@ -75,6 +83,16 @@ public interface QueryRendererDelegate<T> {
 
 	void predicateIsNull();
 
+	void activateAggregation(AggregationPropertyPath.Type aggregationType);
+
+	void deactivateAggregation();
+
+	/**
+	 *
+	 * @param collateName optional collation name
+	 */
+	void groupingValue(String collateName);
+
    /**
     * Sets the sort direction, either "asc" or "desc", for the current property. The property was already
     * specified by {@link #setPropertyPath(PropertyPath)}
@@ -91,8 +109,10 @@ public interface QueryRendererDelegate<T> {
 	 */
 	T getResult();
 
+	void setPropertyReferencePath(PropertyPath propertyPath);
+
 	/**
-	 * Sets a property path representing one property in the SELECT or WHERE clause of a given query.
+	 * Sets a property path representing one property in the SELECT, GROUP BY, WHERE or HAVING clause of a given query.
 	 *
 	 * @param propertyPath the property path to set
 	 */

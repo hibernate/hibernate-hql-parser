@@ -27,21 +27,30 @@ import java.util.List;
 import org.hibernate.hql.internal.util.Strings;
 
 /**
- * Reprents a path of properties represented by {@link PathedPropertyReferenceSource}s used in a SELECT or WHERE clause,
- * e.g. {@code foo.bar.baz}.
+ * Represents a path of properties (e.g. {@code foo.bar.baz}) represented by {@link PathedPropertyReferenceSource}s used
+ * in a SELECT, GROUP BY, WHERE or HAVING clause.
  *
  * @author Gunnar Morling
  */
 public class PropertyPath {
 
-	private final LinkedList<PathedPropertyReferenceSource> path;
+	protected final LinkedList<PathedPropertyReferenceSource> path;
 
+	/**
+	 * Creates an empty path.
+	 */
 	public PropertyPath() {
 		path = new LinkedList<PathedPropertyReferenceSource>();
 	}
 
-	public PropertyPath(PropertyPath path) {
-		this.path = path.path;
+	/**
+	 * Creates a copy of a given path.
+	 *
+	 * @param other the path to copy; can be {@code null}
+	 */
+	public PropertyPath(PropertyPath other) {
+		path = other != null ? new LinkedList<PathedPropertyReferenceSource>( other.path )
+				: new LinkedList<PathedPropertyReferenceSource>();
 	}
 
 	public void appendNode(PathedPropertyReferenceSource property) {
@@ -50,6 +59,10 @@ public class PropertyPath {
 
 	public PathedPropertyReferenceSource getLastNode() {
 		return path.getLast();
+	}
+
+	public PathedPropertyReferenceSource getFirstNode() {
+		return path.getFirst();
 	}
 
 	public List<PathedPropertyReferenceSource> getNodes() {

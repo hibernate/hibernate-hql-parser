@@ -21,7 +21,7 @@
 package org.hibernate.hql.ast.spi;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
@@ -90,7 +90,7 @@ public final class SingleEntityQueryBuilder<Q> {
 	}
 
 	public SingleEntityQueryBuilder<Q> addRangePredicate(String property, Object lower, Object upper) {
-		return addRangePredicate( Arrays.asList( property ), lower, upper );
+		return addRangePredicate( Collections.singletonList( property ), lower, upper );
 	}
 
 	public SingleEntityQueryBuilder<Q> addRangePredicate(List<String> propertyPath, Object lower, Object upper) {
