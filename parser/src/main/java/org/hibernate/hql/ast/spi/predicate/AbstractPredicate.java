@@ -34,7 +34,7 @@ public abstract class AbstractPredicate<Q> implements Predicate<Q> {
 
 	private final Type type;
 
-	public AbstractPredicate(Type type) {
+	protected AbstractPredicate(Type type) {
 		this.type = type;
 	}
 
