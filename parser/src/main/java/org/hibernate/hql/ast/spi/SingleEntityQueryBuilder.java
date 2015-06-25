@@ -40,7 +40,7 @@ import org.hibernate.hql.ast.spi.predicate.RootPredicate;
  * @param <Q> the type of query created by this builder
  * @author Gunnar Morling
  */
-public class SingleEntityQueryBuilder<Q> {
+public final class SingleEntityQueryBuilder<Q> {
 
 	private final PredicateFactory<Q> predicateFactory;
 	private final PropertyHelper propertyHelper;

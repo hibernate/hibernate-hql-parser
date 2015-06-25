@@ -34,12 +34,12 @@ public interface Predicate<Q> {
 	 *
 	 * @author Gunnar Morling
 	 */
-	public enum Type {
+	enum Type {
 		ROOT(true), CONJUNCTION(true), DISJUNCTION(true), NEGATION(true), COMPARISON(false), RANGE(false), IN(false), LIKE(false), IS_NULL(false);
 
 		private final boolean isParent;
 
-		private Type(boolean isParent) {
+		Type(boolean isParent) {
 			this.isParent = isParent;
 		}
 
