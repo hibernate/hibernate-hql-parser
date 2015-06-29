@@ -155,7 +155,7 @@ public class UntypedLuceneQueryResolverDelegate implements QueryResolverDelegate
 
 	@Override
 	public void registerJoinAlias(Tree alias, PropertyPath path) {
-		if ( !path.getNodes().isEmpty() && !aliasToPropertyPath.containsKey( alias ) ) {
+		if ( !path.getNodes().isEmpty() && !aliasToPropertyPath.containsKey( alias.getText() ) ) {
 			aliasToPropertyPath.put( alias.getText(), path );
 		}
 	}
