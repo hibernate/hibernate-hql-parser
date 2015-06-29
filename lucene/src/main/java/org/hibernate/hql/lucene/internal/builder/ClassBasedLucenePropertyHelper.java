@@ -72,7 +72,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 	private Class<?> getType(String typeName) {
 		Class<?> type = entityNames.getClassFromName( typeName );
 		if ( type == null ) {
-			throw new IllegalStateException( "Unknown entity name " + type );
+			throw new IllegalStateException( "Unknown entity name " + typeName );
 		}
 
 		return type;
