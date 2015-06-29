@@ -355,7 +355,7 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 
 	@Override
 	public void registerJoinAlias(Tree alias, PropertyPath path) {
-		if ( !aliasToPropertyPath.containsKey( alias ) ) {
+		if ( !aliasToPropertyPath.containsKey( alias.getText() ) ) {
 			aliasToPropertyPath.put( alias.getText(), path );
 		}
 	}
