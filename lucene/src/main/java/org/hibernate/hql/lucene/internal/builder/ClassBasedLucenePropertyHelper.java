@@ -26,8 +26,10 @@ import java.util.List;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
 import org.hibernate.hql.ast.spi.EntityNamesResolver;
+import org.hibernate.hql.internal.util.Strings;
 import org.hibernate.hql.lucene.internal.logging.Log;
 import org.hibernate.hql.lucene.internal.logging.LoggerFactory;
+import org.hibernate.hql.lucene.spi.FieldBridgeProvider;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.engine.metadata.impl.EmbeddedTypeMetadata;
 import org.hibernate.search.engine.metadata.impl.PropertyMetadata;
@@ -46,14 +48,24 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 
 	private final SearchIntegrator searchFactory;
 	private final EntityNamesResolver entityNames;
+	private final FieldBridgeProvider fieldBridgeProvider;
 
 	public ClassBasedLucenePropertyHelper(SearchIntegrator searchFactory, EntityNamesResolver entityNames) {
+		this( searchFactory, entityNames, null );
+	}
+
+	public ClassBasedLucenePropertyHelper(SearchIntegrator searchFactory, EntityNamesResolver entityNames, FieldBridgeProvider fieldBridgeProvider) {
 		this.searchFactory = searchFactory;
 		this.entityNames = entityNames;
+		this.fieldBridgeProvider = fieldBridgeProvider;
 	}
 
 	@Override
 	public FieldBridge getFieldBridge(String entityType, List<String> propertyPath) {
+		if (fieldBridgeProvider != null) {
+			return fieldBridgeProvider.getFieldBridge( entityType, Strings.join( propertyPath, "." ) );
+		}
+
 		Class<?> type = getType( entityType );
 		String[] propertyPathAsArray = propertyPath.toArray( new String[propertyPath.size()] );
 
@@ -64,6 +76,11 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 		}
 
 		PropertyMetadata metadata = getLeafTypeMetadata( type, propertyPathAsArray ).getPropertyMetadataForProperty( propertyPathAsArray[propertyPathAsArray.length - 1] );
+
+		if (metadata == null) {
+			// not a leaf
+			return null;
+		}
 
 		// TODO Consider properties with several fields
 		return metadata.getFieldMetadata().iterator().next().getFieldBridge();

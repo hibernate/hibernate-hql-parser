@@ -102,13 +102,23 @@ public class LuceneProcessingChain implements AstProcessingChain<LuceneQueryPars
 		 * @return a Lucene processing chain for parsing queries targeted at Java class-based entities
 		 */
 		public LuceneProcessingChain buildProcessingChainForClassBasedEntities() {
-			ClassBasedLucenePropertyHelper propertyHelper = new ClassBasedLucenePropertyHelper( searchFactory, entityNames );
+			return buildProcessingChainForClassBasedEntities( null );
+		}
+
+		/**
+		 * Builds a processing chain for parsing queries targeted at Java class-based entities.
+		 *
+		 * @param fieldBridgeProvider a custom FieldBridgeProvider to be used instead of the defaults
+		 * @return a Lucene processing chain for parsing queries targeted at Java class-based entities
+		 */
+		public LuceneProcessingChain buildProcessingChainForClassBasedEntities(FieldBridgeProvider fieldBridgeProvider) {
+			ClassBasedLucenePropertyHelper propertyHelper = new ClassBasedLucenePropertyHelper( searchFactory, entityNames, fieldBridgeProvider );
 
 			QueryResolverProcessor resolverProcessor = new QueryResolverProcessor(
 					new ClassBasedLuceneQueryResolverDelegate( propertyHelper, entityNames )
 					);
 
-			LuceneQueryRendererDelegate rendererDelegate = getRendererDelegate( searchFactory, null, entityNames, namedParameters, propertyHelper );
+			LuceneQueryRendererDelegate rendererDelegate = getRendererDelegate( searchFactory, fieldBridgeProvider, entityNames, namedParameters, propertyHelper );
 
 			QueryRendererProcessor rendererProcessor = new QueryRendererProcessor( rendererDelegate );
 
