@@ -101,6 +101,16 @@ public class UntypedLuceneQueryParsingTest extends LuceneQueryParsingTestBase {
 		assertThat( sort.getSort()[1].getType() ).isEqualTo( SortField.Type.LONG );
 	}
 
+	@Test
+	public void shouldBuildSortForNullEncoding() {
+		LuceneQueryParsingResult parsingResult = parseQuery( "select e from IndexedEntity e order by e.code DESC" );
+		Sort sort = parsingResult.getSort();
+		assertThat( sort ).isNotNull();
+		assertThat( sort.getSort().length ).isEqualTo( 1 );
+		assertThat( sort.getSort()[0].getField() ).isEqualTo( "code" );
+		assertThat( sort.getSort()[0].getType() ).isEqualTo( SortField.Type.LONG );
+	}
+
 	/**
 	 * A {@link FieldBridgeProvider} which returns fields for a dynamic entity equivalent to {@link IndexedEntity}.
 	 *
@@ -116,6 +126,7 @@ public class UntypedLuceneQueryParsingTest extends LuceneQueryParsingTestBase {
 			indexedEntityBridges.put( "id", new TwoWayString2FieldBridgeAdaptor( new StringBridge() ) );
 			indexedEntityBridges.put( "name", new NullEncodingTwoWayFieldBridge( new TwoWayString2FieldBridgeAdaptor( new StringBridge() ), "_null_" ) );
 			indexedEntityBridges.put( "position", NumericFieldBridge.LONG_FIELD_BRIDGE );
+			indexedEntityBridges.put( "code", new NullEncodingTwoWayFieldBridge( NumericFieldBridge.LONG_FIELD_BRIDGE, "_null_" ) );
 			indexedEntityBridges.put( "title", new TwoWayString2FieldBridgeAdaptor( new StringBridge() ) );
 			indexedEntityBridges.put( "author", new NullEncodingFieldBridge( new String2FieldBridgeAdaptor( DefaultStringBridge.INSTANCE ), "_null_" ) );
 			indexedEntityBridges.put( "author.name", new TwoWayString2FieldBridgeAdaptor( new StringBridge() ) );

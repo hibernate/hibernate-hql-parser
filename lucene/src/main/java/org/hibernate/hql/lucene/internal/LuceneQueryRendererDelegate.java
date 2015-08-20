@@ -33,8 +33,11 @@ import org.hibernate.hql.ast.spi.SingleEntityQueryBuilder;
 import org.hibernate.hql.ast.spi.SingleEntityQueryRendererDelegate;
 import org.hibernate.hql.lucene.LuceneQueryParsingResult;
 import org.hibernate.hql.lucene.internal.builder.LucenePropertyHelper;
+import org.hibernate.hql.lucene.internal.logging.Log;
+import org.hibernate.hql.lucene.internal.logging.LoggerFactory;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.builtin.NumericFieldBridge;
+import org.hibernate.search.bridge.builtin.impl.NullEncodingTwoWayFieldBridge;
 import org.hibernate.search.engine.ProjectionConstants;
 
 /**
@@ -43,6 +46,8 @@ import org.hibernate.search.engine.ProjectionConstants;
  * @author Gunnar Morling
  */
 public class LuceneQueryRendererDelegate extends SingleEntityQueryRendererDelegate<Query, LuceneQueryParsingResult> {
+
+	private static final Log log = LoggerFactory.make();
 
 	private final LucenePropertyHelper propertyHelper;
 
@@ -54,13 +59,17 @@ public class LuceneQueryRendererDelegate extends SingleEntityQueryRendererDelega
 	}
 
 	@Override
-	protected void addSortField(PropertyPath propertyPath, String collationName, boolean isAscending) {
+	protected void addSortField(PropertyPath propertyPath, String collateName, boolean isAscending) {
+		// collateName is ignored
 		if ( sortFields == null ) {
 			sortFields = new ArrayList<SortField>( 5 );
 		}
 
 		SortField.Type sortType = SortField.Type.STRING;
 		FieldBridge fieldBridge = propertyHelper.getFieldBridge( targetTypeName, propertyPath.getNodeNamesWithoutAlias() );
+		if ( fieldBridge instanceof NullEncodingTwoWayFieldBridge ) {
+			fieldBridge = ( (NullEncodingTwoWayFieldBridge) fieldBridge ).unwrap();
+		}
 		// Determine sort type based on FieldBridgeType. SortField.BYTE and SortField.SHORT are not covered!
 		if ( fieldBridge instanceof NumericFieldBridge ) {
 			NumericFieldBridge numericBridge = (NumericFieldBridge) fieldBridge;

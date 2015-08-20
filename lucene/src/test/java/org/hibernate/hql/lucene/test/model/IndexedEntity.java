@@ -38,6 +38,7 @@ public class IndexedEntity {
 	private String id;
 	private String name;
 	private long position;
+	private long code;
 	private String text;
 	private String title;
 	private Author author;
@@ -63,6 +64,11 @@ public class IndexedEntity {
 	@Field
 	public long getPosition() {
 		return position;
+	}
+
+	@Field(analyze = Analyze.NO, indexNullAs = Field.DEFAULT_NULL_TOKEN)
+	public long getCode() {
+		return code;
 	}
 
 	public void setPosition(long position) {
