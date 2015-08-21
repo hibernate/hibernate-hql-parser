@@ -41,6 +41,7 @@ import org.hibernate.search.bridge.builtin.DoubleNumericFieldBridge;
 import org.hibernate.search.bridge.builtin.FloatNumericFieldBridge;
 import org.hibernate.search.bridge.builtin.IntegerNumericFieldBridge;
 import org.hibernate.search.bridge.builtin.LongNumericFieldBridge;
+import org.hibernate.search.bridge.builtin.impl.NullEncodingTwoWayFieldBridge;
 
 /**
  * Renderer delegate which creates Lucene queries targeting a single entity or a projection of the same.
@@ -69,6 +70,9 @@ public class LuceneQueryRendererDelegate extends SingleEntityQueryRendererDelega
 
 		int sortType = SortField.STRING;
 		FieldBridge fieldBridge = propertyHelper.getFieldBridge( targetTypeName, propertyPath.getNodeNamesWithoutAlias() );
+		if ( fieldBridge instanceof NullEncodingTwoWayFieldBridge ) {
+			fieldBridge = ( (NullEncodingTwoWayFieldBridge) fieldBridge ).unwrap();
+		}
 		// Determine sort type based on FieldBridgeType. SortField.BYTE and SortField.SHORT are not covered!
 		if ( fieldBridge instanceof IntegerNumericFieldBridge ) {
 			sortType = SortField.INT;
