@@ -33,11 +33,10 @@ public class TestingParserContext extends DefaultParsingContext implements Parse
 	private final HashMap<String,List> knownEntities = new HashMap<String,List>();
 
 	public TestingParserContext(String... validEntities) {
-		for (int i = 0; i < validEntities.length; i++) {
-			String entityName = validEntities[i];
-			ArrayList implementors = new ArrayList();
-			implementors.add( entityName );
-			knownEntities.put( validEntities[i], implementors );
+		for (String entityName : validEntities) {
+			ArrayList<String> implementors = new ArrayList<String>();
+			implementors.add(entityName);
+			knownEntities.put(entityName, implementors);
 		}
 	}
 

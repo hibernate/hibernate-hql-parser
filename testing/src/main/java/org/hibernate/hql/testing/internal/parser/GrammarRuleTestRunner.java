@@ -182,7 +182,9 @@ public class GrammarRuleTestRunner {
 
 		StringBuilder nonEofEndingTokens = new StringBuilder();
 
-		for ( Token endToken : (List<Token>) tokens.getTokens( tokens.index(), tokens.size() - 1 ) ) {
+		@SuppressWarnings("unchecked")
+		List<Token> unconsumed = (List<Token>) tokens.getTokens(tokens.index(), tokens.size() - 1);
+		for ( Token endToken : unconsumed ) {
 			// Ignore <EOF> tokens as they might be inserted by the parser
 			if ( endToken.getType() != Token.EOF ) {
 				nonEofEndingTokens.append( endToken.getText() );

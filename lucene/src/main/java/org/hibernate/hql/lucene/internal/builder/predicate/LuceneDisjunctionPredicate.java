@@ -41,7 +41,6 @@ public class LuceneDisjunctionPredicate extends DisjunctionPredicate<Query> {
 
 	@Override
 	public Query getQuery() {
-		@SuppressWarnings("rawtypes")
 		BooleanJunction<BooleanJunction> booleanJunction = builder.bool();
 
 		for ( Predicate<Query> predicate : children ) {
