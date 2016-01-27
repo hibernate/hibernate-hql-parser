@@ -9,7 +9,7 @@ There is much to do and many tests to be ported from the existing parser or adde
 by sending pull requests, commenting the code on github directly or by by using the mailing list or IRC chat channels:
 
 * [Mailing list](http://hibernate.org/community/mailinglists)
-* [IRC](http://hibernate.org/community/irc)
+* irc://irc.freenode.net/#hibernate
 
 ### Bug Reports:
 
