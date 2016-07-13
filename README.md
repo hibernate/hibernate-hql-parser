@@ -13,7 +13,7 @@ by sending pull requests, commenting the code on github directly or by by using 
 
 ### Bug Reports:
 
-* [Hibernate JIRA](https://hibernate.onjira.com) (preferred)
+* [Hibernate JIRA](https://hibernate.atlassian.net/projects/HQLPARSER/issues) (preferred)
 * [Mailing list](http://hibernate.org/community/mailinglists)
 
 ### Building
