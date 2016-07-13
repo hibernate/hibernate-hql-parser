@@ -18,3 +18,18 @@ IDENTIFIER:
 FLOATING_POINT_LITERAL:
 ".12e+10" OK
 ".12e+-10" FAIL
+
+NULL:
+"null" OK
+"NULL" OK
+"NuLl" OK
+
+FALSE:
+"false" OK
+"FALSE" OK
+"FaLse" OK
+
+TRUE:
+"true" OK
+"TRUE" OK
+"TrUe" OK

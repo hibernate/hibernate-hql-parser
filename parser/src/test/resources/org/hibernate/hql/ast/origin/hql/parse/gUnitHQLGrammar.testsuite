@@ -1550,6 +1550,10 @@ SELECT/FROM STATEMENT
 "from Animal x where (select max(a.bodyWeight) from Animal a) between 0 and 100"  OK
 //
 "from Animal x where (x.name, x.bodyWeight) = ('cat', 20)"  OK
+[HQLPARSER-71]
+"select p from pppoe_test p where p.sourceIP=:source_ip and p.login>:logentrytime and (p.logout>:logentrytime OR p.logout IS NULL)" OK
+"select a from Animal a where TrUE" OK
+"select a from Animal a where FALSE" OK
 
 [DELETE STATEMENT]
 "delete Animal where mother is not null"  OK
