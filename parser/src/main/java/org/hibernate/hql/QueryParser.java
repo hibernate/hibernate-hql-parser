@@ -103,7 +103,7 @@ public class QueryParser {
 		StringBuilder nonEofEndingTokens = new StringBuilder();
 
 		@SuppressWarnings("unchecked")
-		List<Token> unconsumed = (List<Token>) tokens.getTokens(tokens.index(), tokens.size() - 1);
+		List<Token> unconsumed = (List<Token>) tokens.getTokens( tokens.index(), tokens.size() - 1 );
 		for ( Token endToken : unconsumed ) {
 			// Ignore <EOF> tokens as they might be inserted by the parser
 			if ( endToken.getType() != Token.EOF ) {
