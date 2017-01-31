@@ -83,7 +83,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 		}
 
 		// TODO Consider properties with several fields
-		return metadata.getFieldMetadata().iterator().next().getFieldBridge();
+		return metadata.getFieldMetadataSet().iterator().next().getFieldBridge();
 	}
 
 	private Class<?> getType(String typeName) {
