@@ -28,15 +28,15 @@ import java.util.List;
 import org.apache.lucene.document.DateTools;
 import org.hibernate.hql.ParsingException;
 import org.hibernate.hql.ast.spi.PropertyHelper;
+import org.hibernate.hql.internal.util.Strings;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.TwoWayStringBridge;
 import org.hibernate.search.bridge.builtin.NumericEncodingCalendarBridge;
 import org.hibernate.search.bridge.builtin.NumericEncodingDateBridge;
-import org.hibernate.search.bridge.builtin.NumericFieldBridge;
 import org.hibernate.search.bridge.builtin.StringEncodingCalendarBridge;
 import org.hibernate.search.bridge.builtin.StringEncodingDateBridge;
-import org.hibernate.search.bridge.builtin.impl.NullEncodingTwoWayFieldBridge;
-import org.hibernate.search.bridge.util.impl.TwoWayString2FieldBridgeAdaptor;
+import org.hibernate.search.bridge.util.impl.BridgeAdaptor;
+import org.hibernate.search.metadata.NumericFieldSettingsDescriptor.NumericEncodingType;
 
 /**
  * Provides functionality for dealing with Lucene-mapped properties.
@@ -70,39 +70,53 @@ public abstract class LucenePropertyHelper implements PropertyHelper {
 	}
 
 	private Object convertToPropertyType(String entityType, List<String> propertyPath, String value, FieldBridge bridge) {
-		//Order matters! Some types are subclasses of others
 		//TODO expose something in Hibernate Search so that we can avoid this horrible code
-		if ( bridge instanceof NullEncodingTwoWayFieldBridge ) {
-			return convertToPropertyType( entityType, propertyPath, value, ( (NullEncodingTwoWayFieldBridge) bridge ).unwrap( NullEncodingTwoWayFieldBridge.class ) );
-		}
-		else if ( bridge instanceof TwoWayString2FieldBridgeAdaptor ) {
-			return ( (TwoWayString2FieldBridgeAdaptor) bridge ).unwrap( TwoWayStringBridge.class ).stringToObject( value );
-		}
-		else if ( bridge instanceof TwoWayStringBridge ) {
-			return ( (TwoWayStringBridge) bridge ).stringToObject( value );
-		}
-		else if ( bridge instanceof NumericFieldBridge ) {
-			NumericFieldBridge numericBridge = (NumericFieldBridge) bridge;
-			switch ( numericBridge ) {
-				case INT_FIELD_BRIDGE : return Integer.valueOf( value );
-				case LONG_FIELD_BRIDGE : return Long.valueOf( value );
-				case FLOAT_FIELD_BRIDGE : return Float.valueOf( value );
-				case DOUBLE_FIELD_BRIDGE : return Double.valueOf( value );
-				default: return value;
+		if ( bridge instanceof BridgeAdaptor ) {
+			TwoWayStringBridge twoWayBridge = ( (BridgeAdaptor) bridge ).unwrap( TwoWayStringBridge.class );
+			if ( twoWayBridge != null ) {
+				return twoWayBridge.stringToObject( value );
 			}
 		}
-		else if ( bridge instanceof StringEncodingCalendarBridge || bridge instanceof NumericEncodingCalendarBridge ) {
-			Date date = parseDate( value );
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime( date );
-			return calendar;
+
+		if ( bridge instanceof TwoWayStringBridge ) {
+			return ( (TwoWayStringBridge) bridge ).stringToObject( value );
 		}
-		else if ( bridge instanceof StringEncodingDateBridge || bridge instanceof NumericEncodingDateBridge ) {
+
+		NumericEncodingType numericEncodingType = getNumericEncodingType( entityType, propertyPath );
+		if ( numericEncodingType != null ) {
+			return convertNumericType( value, numericEncodingType );
+		}
+
+		if ( bridge instanceof StringEncodingCalendarBridge || bridge instanceof NumericEncodingCalendarBridge ) {
+			return parseCalendar( value );
+		}
+
+		if ( bridge instanceof StringEncodingDateBridge || bridge instanceof NumericEncodingDateBridge ) {
 			return parseDate( value );
 		}
 
-		else {
-			return value;
+		return value;
+	}
+
+	private Calendar parseCalendar(String value) {
+		Date date = parseDate( value );
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime( date );
+		return calendar;
+	}
+
+	private Object convertNumericType(String value, NumericEncodingType numericEncodingType) {
+		switch ( numericEncodingType ) {
+			case INTEGER:
+				return Integer.valueOf( value );
+			case LONG:
+				return Long.valueOf( value );
+			case FLOAT:
+				return Float.valueOf( value );
+			case DOUBLE:
+				return Double.valueOf( value );
+			default:
+				return value;
 		}
 	}
 
@@ -115,5 +129,14 @@ public abstract class LucenePropertyHelper implements PropertyHelper {
 		}
 	}
 
+	protected String fieldName(List<String> propertyPath) {
+		return Strings.join( propertyPath, "." );
+	}
+
 	public abstract FieldBridge getFieldBridge(String entityType, List<String> propertyPath);
+
+	/**
+	 * Returns the {@link NumericEncodingType} or {@code null}.
+	 */
+	public abstract NumericEncodingType getNumericEncodingType(String entityType, List<String> propertyPath);
 }

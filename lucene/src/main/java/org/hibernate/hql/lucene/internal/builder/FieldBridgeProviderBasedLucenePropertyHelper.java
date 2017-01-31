@@ -22,9 +22,11 @@ package org.hibernate.hql.lucene.internal.builder;
 
 import java.util.List;
 
-import org.hibernate.hql.internal.util.Strings;
 import org.hibernate.hql.lucene.spi.FieldBridgeProvider;
 import org.hibernate.search.bridge.FieldBridge;
+import org.hibernate.search.bridge.builtin.NumericFieldBridge;
+import org.hibernate.search.bridge.util.impl.BridgeAdaptor;
+import org.hibernate.search.metadata.NumericFieldSettingsDescriptor.NumericEncodingType;
 
 /**
  * A {@link LucenePropertyHelper} which delegates retrieval of {@link FieldBridge}s to a {@link FieldBridgeProvider}.
@@ -43,7 +45,26 @@ public class FieldBridgeProviderBasedLucenePropertyHelper extends LuceneProperty
 	public FieldBridge getFieldBridge(String entityType, List<String> propertyPath) {
 		return fieldBridgeProvider.getFieldBridge(
 				entityType,
-				Strings.join( propertyPath.toArray( new String[propertyPath.size()] ), "." )
-		);
+				fieldName( propertyPath ) );
+	}
+
+	@Override
+	public NumericEncodingType getNumericEncodingType(String entityType, List<String> propertyPath) {
+		NumericFieldBridge numericFieldBridge = numericFieldBridge( entityType, propertyPath );
+		if ( numericFieldBridge != null ) {
+			return numericFieldBridge.getEncodingType();
+		}
+		return null;
+	}
+
+	private NumericFieldBridge numericFieldBridge(String entityType, List<String> propertyPath) {
+		FieldBridge fieldBridge = getFieldBridge( entityType, propertyPath );
+		if ( fieldBridge instanceof NumericFieldBridge ) {
+			return (NumericFieldBridge) fieldBridge;
+		}
+		if ( fieldBridge instanceof BridgeAdaptor ) {
+			return ( (BridgeAdaptor) fieldBridge ).unwrap( NumericFieldBridge.class );
+		}
+		return null;
 	}
 }

@@ -26,15 +26,16 @@ import java.util.List;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
 import org.hibernate.hql.ast.spi.EntityNamesResolver;
-import org.hibernate.hql.internal.util.Strings;
 import org.hibernate.hql.lucene.internal.logging.Log;
 import org.hibernate.hql.lucene.internal.logging.LoggerFactory;
 import org.hibernate.hql.lucene.spi.FieldBridgeProvider;
 import org.hibernate.search.bridge.FieldBridge;
+import org.hibernate.search.engine.metadata.impl.DocumentFieldMetadata;
 import org.hibernate.search.engine.metadata.impl.EmbeddedTypeMetadata;
 import org.hibernate.search.engine.metadata.impl.PropertyMetadata;
 import org.hibernate.search.engine.metadata.impl.TypeMetadata;
 import org.hibernate.search.engine.spi.EntityIndexBinding;
+import org.hibernate.search.metadata.NumericFieldSettingsDescriptor.NumericEncodingType;
 import org.hibernate.search.spi.SearchIntegrator;
 
 /**
@@ -63,7 +64,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 	@Override
 	public FieldBridge getFieldBridge(String entityType, List<String> propertyPath) {
 		if ( fieldBridgeProvider != null ) {
-			return fieldBridgeProvider.getFieldBridge( entityType, Strings.join( propertyPath, "." ) );
+			return fieldBridgeProvider.getFieldBridge( entityType, fieldName( propertyPath ) );
 		}
 
 		Class<?> type = getType( entityType );
@@ -84,6 +85,17 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 
 		// TODO Consider properties with several fields
 		return metadata.getFieldMetadataSet().iterator().next().getFieldBridge();
+	}
+
+	@Override
+	public NumericEncodingType getNumericEncodingType(String entityType, List<String> propertyPath) {
+		Class<?> type = getType( entityType );
+		TypeMetadata typeMetadata = getLeafTypeMetadata( type, propertyPath.toArray( new String[propertyPath.size()] ) );
+		DocumentFieldMetadata fieldMetadata = typeMetadata.getDocumentFieldMetadataFor( fieldName( propertyPath ) );
+		if ( fieldMetadata != null ) {
+			return fieldMetadata.getNumericEncodingType();
+		}
+		return null;
 	}
 
 	private Class<?> getType(String typeName) {
