@@ -111,24 +111,24 @@ public abstract class LuceneQueryParsingTestBase {
 	public void shouldCreateNegatedQuery() {
 		assertLuceneQuery(
 				"from IndexedEntity e where NOT e.name = 'same'",
-				"-name:same *:*" );
+				"-name:same #*:*" );
 
 		// JPQL syntax
 		assertLuceneQuery(
 				"from IndexedEntity e where e.name <> 'same'",
-				"-name:same *:*" );
+				"-name:same #*:*" );
 
 		// HQL syntax
 		assertLuceneQuery(
 				"from IndexedEntity e where e.name != 'same'",
-				"-name:same *:*" );
+				"-name:same #*:*" );
 	}
 
 	@Test
 	public void shouldCreateNegatedQueryOnNumericProperty() {
 		assertLuceneQuery(
 				"from IndexedEntity e where e.position <> 3",
-				"-position:[3 TO 3] *:*" );
+				"-position:[3 TO 3] #*:*" );
 	}
 
 	@Test
@@ -174,7 +174,7 @@ public abstract class LuceneQueryParsingTestBase {
 	public void shouldCreateNotBetweenQuery() {
 		assertLuceneQuery(
 				"select e from IndexedEntity e where e.name not between 'aaa' and 'zzz'",
-				"-name:[aaa TO zzz] *:*" );
+				"-name:[aaa TO zzz] #*:*" );
 	}
 
 	@Test
@@ -279,11 +279,11 @@ public abstract class LuceneQueryParsingTestBase {
 	public void shouldCreateNotInQuery() {
 		assertLuceneQuery(
 				"select e from IndexedEntity e where e.name not in ('Bob', 'Alice')",
-				"-(name:Bob name:Alice) *:*" );
+				"-(name:Bob name:Alice) #*:*" );
 
 		assertLuceneQuery(
 				"select e from IndexedEntity e where e.position not in (10, 20, 30, 40)",
-				"-(position:[10 TO 10] position:[20 TO 20] position:[30 TO 30] position:[40 TO 40]) *:*" );
+				"-(position:[10 TO 10] position:[20 TO 20] position:[30 TO 30] position:[40 TO 40]) #*:*" );
 	}
 
 	@Test
@@ -321,15 +321,15 @@ public abstract class LuceneQueryParsingTestBase {
 	public void shouldCreateNotLikeQuery() {
 		assertLuceneQuery(
 				"select e from IndexedEntity e where e.name NOT LIKE 'Al_ce'",
-				"-name:Al?ce *:*" );
+				"-name:Al?ce #*:*" );
 
 		assertLuceneQuery(
 				"select e from IndexedEntity e where e.name NOT LIKE 'Ali%'",
-				"-name:Ali* *:*" );
+				"-name:Ali* #*:*" );
 
 		assertLuceneQuery(
 				"select e from IndexedEntity e where e.name NOT LIKE '_l_ce' and not (e.title LIKE '%goo' and e.position = '5' )",
-				"-name:?l?ce -(+title:*goo +position:[5 TO 5])" );
+				"-name:?l?ce -(+title:*goo +position:[5 TO 5]) #*:*" );
 	}
 
 	@Test
@@ -350,7 +350,7 @@ public abstract class LuceneQueryParsingTestBase {
 	public void shouldCreateIsNotNullQuery() {
 		assertLuceneQuery(
 				"select e from IndexedEntity e where e.name IS NOT null",
-				"-name:_null_ *:*" );
+				"-name:_null_ #*:*" );
 	}
 
 	@Test

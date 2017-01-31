@@ -172,7 +172,7 @@ public class LuceneQueryBuilderTest {
 				.addComparisonPredicate( Arrays.asList( "name" ), Type.EQUALS, "foobar" )
 			.build();
 
-		assertThat( query.toString() ).isEqualTo( "-name:foobar *:*" );
+		assertThat( query.toString() ).isEqualTo( "-name:foobar #*:*" );
 	}
 
 	@Test

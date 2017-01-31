@@ -37,7 +37,7 @@ import org.hibernate.hql.lucene.internal.logging.Log;
 import org.hibernate.hql.lucene.internal.logging.LoggerFactory;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.builtin.NumericFieldBridge;
-import org.hibernate.search.bridge.builtin.impl.NullEncodingTwoWayFieldBridge;
+import org.hibernate.search.bridge.util.impl.BridgeAdaptor;
 import org.hibernate.search.engine.ProjectionConstants;
 
 /**
@@ -67,8 +67,8 @@ public class LuceneQueryRendererDelegate extends SingleEntityQueryRendererDelega
 
 		SortField.Type sortType = SortField.Type.STRING;
 		FieldBridge fieldBridge = propertyHelper.getFieldBridge( targetTypeName, propertyPath.getNodeNamesWithoutAlias() );
-		if ( fieldBridge instanceof NullEncodingTwoWayFieldBridge ) {
-			fieldBridge = ( (NullEncodingTwoWayFieldBridge) fieldBridge ).unwrap();
+		if ( fieldBridge instanceof BridgeAdaptor ) {
+			fieldBridge = ( (BridgeAdaptor) fieldBridge ).unwrap( NumericFieldBridge.class );
 		}
 		// Determine sort type based on FieldBridgeType. SortField.BYTE and SortField.SHORT are not covered!
 		if ( fieldBridge instanceof NumericFieldBridge ) {

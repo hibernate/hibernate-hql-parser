@@ -36,13 +36,18 @@ import org.hibernate.hql.lucene.spi.FieldBridgeProvider;
 import org.hibernate.hql.lucene.test.model.GenericValueHolder;
 import org.hibernate.hql.lucene.test.model.IndexedEntity;
 import org.hibernate.search.bridge.FieldBridge;
+import org.hibernate.search.bridge.TwoWayFieldBridge;
 import org.hibernate.search.bridge.builtin.DefaultStringBridge;
 import org.hibernate.search.bridge.builtin.NumericFieldBridge;
 import org.hibernate.search.bridge.builtin.StringBridge;
 import org.hibernate.search.bridge.builtin.impl.NullEncodingFieldBridge;
 import org.hibernate.search.bridge.builtin.impl.NullEncodingTwoWayFieldBridge;
-import org.hibernate.search.bridge.builtin.impl.String2FieldBridgeAdaptor;
-import org.hibernate.search.bridge.builtin.impl.TwoWayString2FieldBridgeAdaptor;
+import org.hibernate.search.bridge.util.impl.String2FieldBridgeAdaptor;
+import org.hibernate.search.bridge.util.impl.ToStringNullMarker;
+import org.hibernate.search.bridge.util.impl.TwoWayString2FieldBridgeAdaptor;
+import org.hibernate.search.engine.nulls.codec.impl.LuceneLongNullMarkerCodec;
+import org.hibernate.search.engine.nulls.codec.impl.LuceneStringNullMarkerCodec;
+import org.hibernate.search.engine.nulls.codec.impl.NullMarkerCodec;
 import org.hibernate.search.spi.SearchIntegrator;
 import org.hibernate.search.testsupport.junit.SearchFactoryHolder;
 import org.junit.Rule;
@@ -124,9 +129,14 @@ public class UntypedLuceneQueryParsingTest extends LuceneQueryParsingTestBase {
 			Map<String, FieldBridge> indexedEntityBridges = new HashMap<String, FieldBridge>();
 
 			indexedEntityBridges.put( "id", new TwoWayString2FieldBridgeAdaptor( new StringBridge() ) );
-			indexedEntityBridges.put( "name", new NullEncodingTwoWayFieldBridge( new TwoWayString2FieldBridgeAdaptor( new StringBridge() ), "_null_" ) );
+
+			TwoWayFieldBridge fieldBridge = new TwoWayString2FieldBridgeAdaptor( new StringBridge() );
+			NullMarkerCodec stringNullCodec = new LuceneStringNullMarkerCodec( new ToStringNullMarker( "_null_" ) );
+			indexedEntityBridges.put( "name", new NullEncodingTwoWayFieldBridge( fieldBridge, stringNullCodec ) );
 			indexedEntityBridges.put( "position", NumericFieldBridge.LONG_FIELD_BRIDGE );
-			indexedEntityBridges.put( "code", new NullEncodingTwoWayFieldBridge( NumericFieldBridge.LONG_FIELD_BRIDGE, "_null_" ) );
+
+			NullMarkerCodec longNullCodec = new LuceneLongNullMarkerCodec( NumericFieldBridge.LONG_FIELD_BRIDGE.createNullMarker( "-1" ) );
+			indexedEntityBridges.put( "code", new NullEncodingTwoWayFieldBridge( NumericFieldBridge.LONG_FIELD_BRIDGE, longNullCodec ) );
 			indexedEntityBridges.put( "title", new TwoWayString2FieldBridgeAdaptor( new StringBridge() ) );
 			indexedEntityBridges.put( "author", new NullEncodingFieldBridge( new String2FieldBridgeAdaptor( DefaultStringBridge.INSTANCE ), "_null_" ) );
 			indexedEntityBridges.put( "author.name", new TwoWayString2FieldBridgeAdaptor( new StringBridge() ) );

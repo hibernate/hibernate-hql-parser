@@ -36,7 +36,7 @@ import org.hibernate.search.bridge.builtin.NumericFieldBridge;
 import org.hibernate.search.bridge.builtin.StringEncodingCalendarBridge;
 import org.hibernate.search.bridge.builtin.StringEncodingDateBridge;
 import org.hibernate.search.bridge.builtin.impl.NullEncodingTwoWayFieldBridge;
-import org.hibernate.search.bridge.builtin.impl.TwoWayString2FieldBridgeAdaptor;
+import org.hibernate.search.bridge.util.impl.TwoWayString2FieldBridgeAdaptor;
 
 /**
  * Provides functionality for dealing with Lucene-mapped properties.
@@ -73,10 +73,10 @@ public abstract class LucenePropertyHelper implements PropertyHelper {
 		//Order matters! Some types are subclasses of others
 		//TODO expose something in Hibernate Search so that we can avoid this horrible code
 		if ( bridge instanceof NullEncodingTwoWayFieldBridge ) {
-			return convertToPropertyType( entityType, propertyPath, value, ( (NullEncodingTwoWayFieldBridge) bridge ).unwrap() );
+			return convertToPropertyType( entityType, propertyPath, value, ( (NullEncodingTwoWayFieldBridge) bridge ).unwrap( NullEncodingTwoWayFieldBridge.class ) );
 		}
 		else if ( bridge instanceof TwoWayString2FieldBridgeAdaptor ) {
-			return ( (TwoWayString2FieldBridgeAdaptor) bridge ).unwrap().stringToObject( value );
+			return ( (TwoWayString2FieldBridgeAdaptor) bridge ).unwrap( TwoWayStringBridge.class ).stringToObject( value );
 		}
 		else if ( bridge instanceof TwoWayStringBridge ) {
 			return ( (TwoWayStringBridge) bridge ).stringToObject( value );

@@ -39,6 +39,9 @@ import org.hibernate.search.annotations.IndexedEmbedded;
 @Indexed
 public class IndexedEntity {
 
+	// Should be Long.MIN_VALUE
+	private static final String NULL_TOKEN_FOR_LONG = "-9223372036854775808";
+
 	private String id;
 	private String name;
 	private long position;
@@ -72,7 +75,7 @@ public class IndexedEntity {
 		return position;
 	}
 
-	@Field(analyze = Analyze.NO, indexNullAs = Field.DEFAULT_NULL_TOKEN)
+	@Field(analyze = Analyze.NO, indexNullAs = NULL_TOKEN_FOR_LONG)
 	public long getCode() {
 		return code;
 	}

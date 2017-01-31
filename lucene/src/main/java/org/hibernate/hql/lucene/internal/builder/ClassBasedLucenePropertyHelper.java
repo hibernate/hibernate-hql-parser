@@ -138,7 +138,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 
 	private EmbeddedTypeMetadata getEmbeddedTypeMetadata(Iterable<EmbeddedTypeMetadata> embeddedTypeMetadata, String name) {
 		for ( EmbeddedTypeMetadata metadata : embeddedTypeMetadata ) {
-			if ( metadata.getEmbeddedFieldName().equals( name ) ) {
+			if ( metadata.getEmbeddedPropertyName().equals( name ) ) {
 				return metadata;
 			}
 		}
@@ -195,7 +195,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 	}
 
 	private boolean isIdentifierProperty(EntityIndexBinding entityIndexBinding, String... propertyPath) {
-		return propertyPath.length == 1 && propertyPath[0].equals( entityIndexBinding.getDocumentBuilder().getIdentifierName() );
+		return propertyPath.length == 1 && propertyPath[0].equals( entityIndexBinding.getDocumentBuilder().getIdPropertyName() );
 	}
 
 	private EntityIndexBinding getIndexBinding(Class<?> type) {
