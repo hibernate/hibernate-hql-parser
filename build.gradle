@@ -3,8 +3,8 @@ apply plugin: 'idea'
 apply from: "./libraries.gradle"
 
 ext {
-    projectVersion = '1.4.1-SNAPSHOT'
-    javaLanguageLevel = '1.6'
+    projectVersion = '1.5.0-SNAPSHOT'
+    javaLanguageLevel = '1.8'
 
     jbossPublicUrl = 'http://repository.jboss.org/nexus/content/groups/public/'
     jbossSnaphotsUrl = 'https://repository.jboss.org/nexus/content/repositories/snapshots/'
