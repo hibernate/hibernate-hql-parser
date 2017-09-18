@@ -101,7 +101,7 @@ subprojects { subProject ->
         jbossLoggingGenerator( libraries.jboss_logging_processor )
 
         animalSniffer ( libraries.animal_sniffer )
-        javaApiSignature ( libraries.java16_signature )
+        javaApiSignature ( libraries.java18_signature )
     }
 
     sourceSets.main {
