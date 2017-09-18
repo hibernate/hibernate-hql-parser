@@ -35,8 +35,8 @@ public class TestingParserContext extends DefaultParsingContext implements Parse
 	public TestingParserContext(String... validEntities) {
 		for (String entityName : validEntities) {
 			ArrayList<String> implementors = new ArrayList<String>();
-			implementors.add(entityName);
-			knownEntities.put(entityName, implementors);
+			implementors.add( entityName );
+			knownEntities.put( entityName, implementors );
 		}
 	}
 
