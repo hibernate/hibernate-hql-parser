@@ -37,6 +37,7 @@ import org.hibernate.search.engine.metadata.impl.TypeMetadata;
 import org.hibernate.search.engine.spi.EntityIndexBinding;
 import org.hibernate.search.metadata.NumericFieldSettingsDescriptor.NumericEncodingType;
 import org.hibernate.search.spi.SearchIntegrator;
+import org.hibernate.search.spi.impl.PojoIndexedTypeIdentifier;
 
 /**
  * Provides functionality for dealing with Lucene-mapped properties of indexed Java types.
@@ -118,7 +119,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 			return true;
 		}
 
-		TypeMetadata metadata = entityIndexBinding.getDocumentBuilder().getMetadata();
+		TypeMetadata metadata = entityIndexBinding.getDocumentBuilder().getTypeMetadata();
 
 		for ( int i = 0; i < propertyPath.length - 1; i++ ) {
 			Iterable<EmbeddedTypeMetadata> embeddedTypeMetadata = metadata.getEmbeddedTypeMetadata();
@@ -135,7 +136,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 
 	private TypeMetadata getLeafTypeMetadata(Class<?> type, String... propertyPath) {
 		EntityIndexBinding entityIndexBinding = getIndexBinding( searchFactory, type );
-		TypeMetadata leafTypeMetadata = entityIndexBinding.getDocumentBuilder().getMetadata();
+		TypeMetadata leafTypeMetadata = entityIndexBinding.getDocumentBuilder().getTypeMetadata();
 
 		for ( int i = 0; i < propertyPath.length; i++ ) {
 			Iterable<EmbeddedTypeMetadata> embeddedTypeMetadata = leafTypeMetadata.getEmbeddedTypeMetadata();
@@ -193,7 +194,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 		}
 
 		EntityIndexBinding entityIndexBinding = getIndexBinding( type );
-		TypeMetadata metadata = entityIndexBinding.getDocumentBuilder().getMetadata();
+		TypeMetadata metadata = entityIndexBinding.getDocumentBuilder().getTypeMetadata();
 
 		for ( int i = 0; i < propertyPath.length; i++ ) {
 			Iterable<EmbeddedTypeMetadata> embeddedTypeMetadata = metadata.getEmbeddedTypeMetadata();
@@ -215,7 +216,7 @@ public class ClassBasedLucenePropertyHelper extends LucenePropertyHelper {
 	}
 
 	private EntityIndexBinding getIndexBinding(SearchIntegrator searchFactory, Class<?> type) {
-		EntityIndexBinding entityIndexBinding = searchFactory.getIndexBinding( type );
+		EntityIndexBinding entityIndexBinding = searchFactory.getIndexBinding( new PojoIndexedTypeIdentifier( type ) );
 
 		if ( entityIndexBinding == null ) {
 			throw log.getNoIndexedEntityException( type.getCanonicalName() );
