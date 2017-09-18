@@ -41,7 +41,8 @@ import org.junit.Test;
 public class ClassBasedLucenePropertyHelperTest {
 
 	@Rule
-	public SearchFactoryHolder factoryHolder = new SearchFactoryHolder( IndexedEntity.class );
+	public SearchFactoryHolder factoryHolder = new SearchFactoryHolder( IndexedEntity.class )
+			.enableJPAAnnotationsProcessing( true );
 
 	private ClassBasedLucenePropertyHelper propertyHelper;
 

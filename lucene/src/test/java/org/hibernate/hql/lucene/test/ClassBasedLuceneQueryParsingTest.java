@@ -48,7 +48,8 @@ import org.junit.Test;
 public class ClassBasedLuceneQueryParsingTest extends LuceneQueryParsingTestBase {
 
 	@Rule
-	public SearchFactoryHolder factoryHolder = new SearchFactoryHolder( IndexedEntity.class );
+	public SearchFactoryHolder factoryHolder = new SearchFactoryHolder( IndexedEntity.class )
+			.enableJPAAnnotationsProcessing( true );
 
 	@Override
 	protected LuceneProcessingChain setUpLuceneProcessingChain(Map<String, Object> namedParameters) {

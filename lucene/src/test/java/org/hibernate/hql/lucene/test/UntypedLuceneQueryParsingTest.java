@@ -62,7 +62,8 @@ import org.junit.Test;
 public class UntypedLuceneQueryParsingTest extends LuceneQueryParsingTestBase {
 
 	@Rule
-	public SearchFactoryHolder factoryHolder = new SearchFactoryHolder( GenericValueHolder.class );
+	public SearchFactoryHolder factoryHolder = new SearchFactoryHolder( GenericValueHolder.class )
+			.enableJPAAnnotationsProcessing( true );
 
 	@Override
 	protected LuceneProcessingChain setUpLuceneProcessingChain(Map<String, Object> namedParameters) {

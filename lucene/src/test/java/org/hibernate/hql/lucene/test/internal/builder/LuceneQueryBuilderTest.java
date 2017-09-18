@@ -51,7 +51,8 @@ import org.junit.Test;
 public class LuceneQueryBuilderTest {
 
 	@Rule
-	public SearchFactoryHolder factoryHolder = new SearchFactoryHolder( IndexedEntity.class );
+	public SearchFactoryHolder factoryHolder = new SearchFactoryHolder( IndexedEntity.class )
+			.enableJPAAnnotationsProcessing( true );
 
 	private SingleEntityQueryBuilder<Query> queryBuilder;
 
