@@ -444,10 +444,24 @@ public abstract class SingleEntityQueryRendererDelegate<Q, R> implements QueryRe
 		throw new UnsupportedOperationException( "Grouping is not supported : " + propertyPath.asStringPathWithoutAlias() );
 	}
 
+	/**
+	 * By default object parameter is taken from namedParameters map.
+	 *
+	 * On the other hand, other strategies can be applied overriding this method.
+	 * Enabling the chance to replace a given placeholder with a derived placeholder.
+	 * This can be useful to keep parameter, for instance, with all Hibernate OGM datastores that support natively parametrized queries.
+	 *
+	 * @param comparativePredicate
+	 * @return parameter value for parsed query
+	 */
+	protected Object getObjectParameter(String comparativePredicate) {
+		return namedParameters.get( comparativePredicate.substring( 1 ) );
+	}
+
 	private Object parameterValue(String comparativePredicate) {
 		// It's a named parameter; Value given via setParameter(), taking that as is
 		if ( comparativePredicate.startsWith( ":" ) ) {
-			return namedParameters.get( comparativePredicate.substring( 1 ) );
+			return getObjectParameter( comparativePredicate );
 		}
 		// It's a value given in JP-QL; Convert the literal value
 		else {
